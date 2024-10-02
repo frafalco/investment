@@ -1,4 +1,46 @@
-<h1>add-bet works!</h1>
+<h3>Bet</h3>
+
+<form >
+
+  <div>
+    <label >
+      Boomaker
+    </label>
+    <input id="bookmaker" type="text" >
+  </div>
+
+  <div>
+    <label >
+      Event
+    </label>
+    <input id="event" type="text">
+  </div>
+
+  <div>
+    <label >
+      Odds
+    </label>
+    <input id="odds" type="text" >
+  </div>
+
+  <div>
+    <label >
+      Stake
+    </label>
+    <input id="stake" type="text" >
+  </div>
+
+  <div >
+  <select >
+    <option *ngFor="let option of bambobrutto">
+       {{option.value}}</option>
+  </select>
+</div>
+
+
+  <button class="button" type="submit">Add</button>
+
+</form>
 <nav>
   <ul>
     <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Dashboard</a></li>
