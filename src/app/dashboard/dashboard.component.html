@@ -1,1 +1,42 @@
-<p>dashboard works!</p>
+<h1>Your Dashboard</h1>
+
+<!-- Loader mentre i dati vengono caricati -->
+<div *ngIf="pageLoading">
+  <p>Caricamento in corso...</p>
+</div>
+
+<!-- Contenuto principale dopo il caricamento -->
+<div *ngIf="!pageLoading && isInitialized; else initializeBlock">
+  <h3>La tua tabella</h3>
+  <button (click)="printSetup()">Get Setup</button>
+</div>
+
+<!-- Se non ci sono dati, mostra il form di setup -->
+<ng-template #initializeBlock>
+  <form
+    [formGroup]="setupForm"
+    (ngSubmit)="onSubmitSetup()"
+    class="form-widget"
+  >
+    <div>
+      <label for="bankroll">Bankroll</label>
+      <input
+        id="bankroll"
+        formControlName="bankroll"
+        class="inputField"
+        type="number"
+        placeholder="Your bankroll"
+      />
+    </div>
+    <div>
+      <button type="submit" class="button block" [disabled]="loading">
+        {{ loading ? "Loading..." : "Add bankroll" }}
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<!-- Se c'è un errore o la richiesta va in timeout -->
+<div *ngIf="!pageLoading && !isInitialized && errorMessage">
+  <p>Errore: {{ errorMessage }}</p>
+</div>
