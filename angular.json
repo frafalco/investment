@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "app-investment": {
+    "app-investment-new": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/app-investment",
+            "outputPath": "dist/app-investment-new",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -31,12 +31,7 @@
               "node_modules/bootstrap/dist/css/bootstrap.min.css",
               "src/styles.css"
             ],
-            "scripts": [],
-            "server": "src/main.server.ts",
-            "prerender": true,
-            "ssr": {
-              "entry": "server.ts"
-            }
+            "scripts": []
           },
           "configurations": {
             "production": {
@@ -66,10 +61,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "app-investment:build:production"
+              "buildTarget": "app-investment-new:build:production"
             },
             "development": {
-              "buildTarget": "app-investment:build:development"
+              "buildTarget": "app-investment-new:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -100,8 +95,5 @@
         }
       }
     }
-  },
-  "cli": {
-    "analytics": false
   }
 }

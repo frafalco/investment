@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { FormBuilder } from '@angular/forms'
 import { HeaderComponent } from './header/header.component';
 
 @Component({
@@ -11,5 +10,5 @@ import { HeaderComponent } from './header/header.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'app-investment';
+  title = 'app-investment-new';
 }

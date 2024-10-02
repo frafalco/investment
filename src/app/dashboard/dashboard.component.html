@@ -1,12 +1,12 @@
 <h1>Your Dashboard</h1>
 
 <!-- Loader mentre i dati vengono caricati -->
-<div *ngIf="pageLoading">
+<div *ngIf="pageLoading; else notLoading">
   <p>Caricamento in corso...</p>
 </div>
-
+<ng-template #notLoading>
 <!-- Contenuto principale dopo il caricamento -->
-<div *ngIf="!pageLoading && isInitialized; else initializeBlock">
+<div *ngIf="isInitialized; else initializeBlock">
   <h3>La tua tabella</h3>
   <button (click)="printSetup()">Get Setup</button>
 </div>
@@ -37,6 +37,7 @@
 </ng-template>
 
 <!-- Se c'è un errore o la richiesta va in timeout -->
-<div *ngIf="!pageLoading && !isInitialized && errorMessage">
+<div *ngIf="!isInitialized && errorMessage">
   <p>Errore: {{ errorMessage }}</p>
 </div>
+</ng-template>

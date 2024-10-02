@@ -40,7 +40,6 @@ export class DashboardComponent {
   ngOnInit() {
     try {
       console.log('On init');
-      this.pageLoading = true;
       this.checkSetup().finally(() => {
         console.log('Finally');
         this.pageLoading = false; // Nascondi il loader al termine della chiamata
@@ -48,6 +47,11 @@ export class DashboardComponent {
     } catch (error) {
       console.error('Pippo:',error);
     }
+  }
+
+  async pippoPappo(): Promise<boolean> {
+    console.log('Ciao');
+    return Promise.resolve(false);
   }
 
   createSetupForm() {
@@ -71,7 +75,7 @@ export class DashboardComponent {
         return;
       }
 
-      if (data && data.length > 0) {
+      if (data) {
         console.log('Il setup è inizializzato');
         this.isInitialized = true;
         this.errorMessage = null; // Reset error message if data is valid
