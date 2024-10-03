@@ -37,4 +37,20 @@ export class SupabaseService {
   insertSetup(bankroll: String) {
     return this.supabase.from('Set up').insert({starting_bankroll: bankroll});
   }
+
+  async submitForm(submitForm: any) {
+    try {
+      const { data, error } = await this.supabase
+        .from('Results')
+        .insert([submitForm]);
+
+      if (error) {
+        throw error;
+      }
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

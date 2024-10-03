@@ -1,40 +1,33 @@
-<h3>Bet</h3>
+<h3>Add Bet</h3>
 
-<form >
+<form  [formGroup]="submitForm" (ngSubmit)="onSubmit()">
 
   <div>
-    <label >
-      Boomaker
+    <label for="bookmaker" >
+      Bookmaker
     </label>
-    <input id="bookmaker" type="text" >
+    <input id="bookmaker" type="text" formControlName="bookmaker" >
   </div>
 
   <div>
-    <label >
-      Event
-    </label>
-    <input id="event" type="text">
-  </div>
-
-  <div>
-    <label >
+    <label  >
       Odds
     </label>
-    <input id="odds" type="text" >
+    <input id="odds" type="text" formControlName="odds">
   </div>
 
   <div>
     <label >
       Stake
     </label>
-    <input id="stake" type="text" >
+    <input id="stake" type="text" formControlName="stake" >
   </div>
 
   <div >
-  <select >
-    <option *ngFor="let option of bambobrutto">
+  <select formControlName="result" >
+    <option *ngFor="let option of results"  [value]= 'option.value'>
        {{option.value}}</option>
-  </select>
+  </select >
 </div>
 
 
