@@ -60,6 +60,7 @@
         type="text"
         formControlName="stake"
         class="form-control"
+        (input)="stakeOnChange($event)"
       />
       <div
         *ngIf="

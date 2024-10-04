@@ -53,6 +53,17 @@ export class AddBetComponent {
 
   constructor(private supabaseService: SupabaseService) {}
 
+  stakeOnChange(event: Event) {
+    const target: HTMLInputElement = event.target as HTMLInputElement;
+    const valueString = target.value;
+    const floatValue = parseFloat(valueString);
+    if(isNaN(floatValue)) {
+      return;
+    }
+    const betValue = 10000 * 0.1 * floatValue;//TODO fix with real bankroll value
+    this.submitForm.patchValue({bet: ''+betValue});
+  }
+
   onSubmit() {
     this.console.log(this.submitForm.value);
 
