@@ -12,6 +12,10 @@ import {
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import { NgModule } from '@angular/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
+
 
 @Component({
   selector: 'app-add-bet',
@@ -23,6 +27,9 @@ import { NgModule } from '@angular/core';
     RouterLink,
     RouterLinkActive,
     ReactiveFormsModule,
+    MatDatepickerModule,
+    MatInputModule,
+    MatNativeDateModule
   ],
   templateUrl: './add-bet.component.html',
   styleUrl: './add-bet.component.css',
@@ -36,8 +43,9 @@ export class AddBetComponent {
   options = ['Won', 'Lost', 'Pending'];
   selectedOption: string | undefined;
   json = JSON;
-
-  submitForm = new FormGroup({
+  
+    submitForm = new FormGroup({
+    date: new FormControl(new Date(), Validators.required),  
     bookmaker: new FormControl('', Validators.required),
     odds: new FormControl('', [
       Validators.required,
@@ -49,7 +57,7 @@ export class AddBetComponent {
     ]),
     bet: new FormControl(''),
     result: new FormControl('', Validators.required),
-  });
+    });
 
   constructor(private supabaseService: SupabaseService) {}
 
@@ -59,7 +67,7 @@ export class AddBetComponent {
     const floatValue = parseFloat(valueString);
     let betValue = '';
     if(!isNaN(floatValue)) {
-      const betFloatValue = 10000 * 0.1 * floatValue;//TODO fix with real bankroll value
+      const betFloatValue = 10000 * floatValue *0.01; //TODO fix with real bankroll value
       betValue = '' + betFloatValue;
     }
     this.submitForm.patchValue({bet: betValue});
@@ -67,7 +75,7 @@ export class AddBetComponent {
 
   onSubmit() {
     this.console.log(this.submitForm.value);
-
+    
     this.supabaseService
       .submitForm(this.submitForm.value)
       .then((response) => {
@@ -76,7 +84,7 @@ export class AddBetComponent {
       .catch((error) => {
         this.console.log(error);
       });
-  }
+    }
 
   results: any[] = [
     { id: 1, value: 'Pending' },
