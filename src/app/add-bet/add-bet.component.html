@@ -1,40 +1,129 @@
-<h3>Add Bet</h3>
-
-<form  [formGroup]="submitForm" (ngSubmit)="onSubmit()">
-
-  <div class="mb-3">
-    <label for="bookmaker" class="form-label">
-      Bookmaker
-    </label>
-    <input id="bookmaker" type="text" formControlName="bookmaker" class="form-control">
-  </div>
-
-  <div class="mb-3">
-    <label  class="form-label">
-      Odds
-    </label>
-    <input id="odds" type="text" formControlName="odds" class="form-control">
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label" >
-      Stake
-    </label>
-    <input id="stake" type="text" formControlName="stake" class="form-control" >
-  </div>
-
-  <div class="mb-3">
-  <select formControlName="result" class="form-select">
-    <option value="">
-      --Select--
-    </option>
-    <option *ngFor="let option of results"  [value]= 'option.value'>
-       {{option.value}}</option>
-  </select >
+<div class="container">
+  <h3 class="text-center">Add Bet</h3>
+  <form class="row g-8" [formGroup]="submitForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3 col-md-6">
+      <label for="bookmaker" class="form-label"> Bookmaker </label>
+      <input
+        id="bookmaker"
+        type="text"
+        formControlName="bookmaker"
+        class="form-control"
+      />
+      <div
+        *ngIf="
+          submitForm.controls['bookmaker'].invalid &&
+          (submitForm.controls['bookmaker'].dirty ||
+            submitForm.controls['bookmaker'].touched)
+        "
+      >
+        <div
+          *ngIf="submitForm.controls['bookmaker'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+      </div>
+    </div>
+    <div class="mb-3 col-md-6">
+      <label class="form-label"> Odds </label>
+      <input
+        id="odds"
+        type="text"
+        formControlName="odds"
+        class="form-control"
+      />
+      <div
+        *ngIf="
+          submitForm.controls['odds'].invalid &&
+          (submitForm.controls['odds'].dirty ||
+            submitForm.controls['odds'].touched)
+        "
+      >
+        <div
+          *ngIf="submitForm.controls['odds'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+        <div
+          *ngIf="submitForm.controls['odds'].errors!['pattern']"
+          class="error-message"
+        >
+          Inserire un valore numerico
+        </div>
+      </div>
+    </div>
+    <div class="mb-3 col-md-6">
+      <label class="form-label"> Stake </label>
+      <input
+        id="stake"
+        type="text"
+        formControlName="stake"
+        class="form-control"
+      />
+      <div
+        *ngIf="
+          submitForm.controls['stake'].invalid &&
+          (submitForm.controls['stake'].dirty ||
+            submitForm.controls['stake'].touched)
+        "
+      >
+        <div
+          *ngIf="submitForm.controls['stake'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+        <div
+          *ngIf="submitForm.controls['stake'].errors!['pattern']"
+          class="error-message"
+        >
+          Inserire un valore numerico
+        </div>
+      </div>
+    </div>
+    <div class="mb-3 col-md-6">
+      <label class="form-label"> Bet </label>
+      <input
+        id="bet"
+        type="text"
+        readonly
+        formControlName="bet"
+        class="form-control"
+      />
+    </div>
+    <div class="mb-3 col-md-6">
+      <label for="result" class="form-label">Result</label>
+      <select formControlName="result" class="form-select" id="result">
+        <option value="">--Select--</option>
+        <option *ngFor="let option of results" [value]="option.value">
+          {{ option.value }}
+        </option>
+      </select>
+      <div
+        *ngIf="
+          submitForm.controls['result'].invalid &&
+          (submitForm.controls['result'].dirty ||
+            submitForm.controls['result'].touched)
+        "
+      >
+        <div
+          *ngIf="submitForm.controls['result'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+      </div>
+    </div>
+    <div class="w-100"></div>
+    <div class="d-grid gap-2 col-md-4 mx-auto">
+      <button
+        class="btn btn-primary btn-lg"
+        type="submit"
+        [disabled]="!submitForm.valid"
+      >
+        Add
+      </button>
+    </div>
+  </form>
 </div>
-
-
-  <button class="btn btn-primary" type="submit" [disabled]="!submitForm.valid">Add</button>
-
-</form>
-
