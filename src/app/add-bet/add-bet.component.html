@@ -2,40 +2,39 @@
 
 <form  [formGroup]="submitForm" (ngSubmit)="onSubmit()">
 
-  <div>
-    <label for="bookmaker" >
+  <div class="mb-3">
+    <label for="bookmaker" class="form-label">
       Bookmaker
     </label>
-    <input id="bookmaker" type="text" formControlName="bookmaker" >
+    <input id="bookmaker" type="text" formControlName="bookmaker" class="form-control">
   </div>
 
-  <div>
-    <label  >
+  <div class="mb-3">
+    <label  class="form-label">
       Odds
     </label>
-    <input id="odds" type="text" formControlName="odds">
+    <input id="odds" type="text" formControlName="odds" class="form-control">
   </div>
 
-  <div>
-    <label >
+  <div class="mb-3">
+    <label class="form-label" >
       Stake
     </label>
-    <input id="stake" type="text" formControlName="stake" >
+    <input id="stake" type="text" formControlName="stake" class="form-control" >
   </div>
 
-  <div >
-  <select formControlName="result" >
+  <div class="mb-3">
+  <select formControlName="result" class="form-select">
+    <option value="">
+      --Select--
+    </option>
     <option *ngFor="let option of results"  [value]= 'option.value'>
        {{option.value}}</option>
   </select >
 </div>
 
 
-  <button class="button" type="submit">Add</button>
+  <button class="btn btn-primary" type="submit" [disabled]="!submitForm.valid">Add</button>
 
 </form>
-<nav>
-  <ul>
-    <li><a routerLink="/" routerLinkActive="active" ariaCurrentWhenActive="page">Dashboard</a></li>
-  </ul>
-</nav>
+

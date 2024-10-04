@@ -15,7 +15,7 @@ import { NgModule } from '@angular/core';
 
 export class AddBetComponent {
 
-  public Bet = Bet;
+  
   console = console
   pageLoading = true;
   loading = false;
@@ -33,8 +33,6 @@ export class AddBetComponent {
     });
 
 
- 
-
 
   constructor(private supabaseService: SupabaseService) {
    
@@ -43,17 +41,7 @@ export class AddBetComponent {
   onSubmit() {
     this.console.log(this.submitForm.value);
     
-    const bookmaker: string = this.submitForm.value.bookmaker as string;
-    const odds: string = this.submitForm.value.odds as string;
-    const stake: string = this.submitForm.value.stake as string;
-    const result: string = this.submitForm.value.result as string;
-    this.submitForm = new FormGroup({
-      bookmaker: new FormControl(bookmaker,Validators.required),
-      odds:  new FormControl(odds, Validators.required),
-      stake:  new FormControl(stake,Validators.required),
-      result:  new FormControl(result, Validators.required)
-    });
-    
+
     this.supabaseService.submitForm(this.submitForm.value)
       .then((response) => {
         this.console.log(response);
@@ -75,10 +63,3 @@ export class AddBetComponent {
 
 }
 
-
-
-export enum Bet {
-  Pending = "Pending",
-  Won = "Won",
-  Lost = "Lost"
-}
