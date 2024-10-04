@@ -57,11 +57,12 @@ export class AddBetComponent {
     const target: HTMLInputElement = event.target as HTMLInputElement;
     const valueString = target.value;
     const floatValue = parseFloat(valueString);
-    if(isNaN(floatValue)) {
-      return;
+    let betValue = '';
+    if(!isNaN(floatValue)) {
+      const betFloatValue = 10000 * 0.1 * floatValue;//TODO fix with real bankroll value
+      betValue = '' + betFloatValue;
     }
-    const betValue = 10000 * 0.1 * floatValue;//TODO fix with real bankroll value
-    this.submitForm.patchValue({bet: ''+betValue});
+    this.submitForm.patchValue({bet: betValue});
   }
 
   onSubmit() {

@@ -28,7 +28,8 @@
       <label class="form-label"> Odds </label>
       <input
         id="odds"
-        type="text"
+        type="number"
+        step="0.01"
         formControlName="odds"
         class="form-control"
       />
@@ -57,7 +58,8 @@
       <label class="form-label"> Stake </label>
       <input
         id="stake"
-        type="text"
+        type="number"
+        step="0.1"
         formControlName="stake"
         class="form-control"
         (input)="stakeOnChange($event)"
