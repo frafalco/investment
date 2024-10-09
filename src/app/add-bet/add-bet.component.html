@@ -58,7 +58,7 @@
       <select formControlName="result" class="form-select" id="result">
         <option value="">--Select--</option>
         <option *ngFor="let option of results" [value]="option.value">
-          {{ option.value }}
+          {{ option.label }}
         </option>
       </select>
       <div *ngIf="

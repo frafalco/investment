@@ -8,16 +8,28 @@
 <!-- Contenuto principale dopo il caricamento -->
 <div *ngIf="isInitialized; else initializeBlock">
   <h3>La tua tabella</h3>
-  <button (click)="printSetup()">Get Setup</button>
+  <p>Ciao {{getUsername()}} il tuo bankroll iniziale è di ${{getBankroll()}}</p>
+  <button (click)="updateUser()">Get Setup</button>
+  <p>{{printUser()}}</p>
 </div>
 
 <!-- Se non ci sono dati, mostra il form di setup -->
 <ng-template #initializeBlock>
   <form
     [formGroup]="setupForm"
-    (ngSubmit)="onSubmitSetup()"
+    (ngSubmit)="onSubmitUpdateProfile()"
     class="form-widget"
   >
+    <div>
+      <label for="username">Username</label>
+      <input
+        id="username"
+        formControlName="username"
+        class="inputField"
+        type="text"
+        placeholder="Your username"
+      />
+    </div>
     <div>
       <label for="bankroll">Bankroll</label>
       <input
@@ -30,7 +42,7 @@
     </div>
     <div>
       <button type="submit" class="button block" [disabled]="loading">
-        {{ loading ? "Loading..." : "Add bankroll" }}
+        {{ loading ? "Loading..." : "Update profile" }}
       </button>
     </div>
   </form>

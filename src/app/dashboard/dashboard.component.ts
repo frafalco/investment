@@ -4,10 +4,12 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { User } from '@supabase/supabase-js';
 
 @Component({
   selector: 'app-dashboard',
@@ -27,37 +29,40 @@ export class DashboardComponent {
   pageLoading = true;
   loading = false;
   isInitialized = false;
-  setupForm!: FormGroup;
+  setupForm: FormGroup = new FormGroup({
+    username: new FormControl(),
+    bankroll: new FormControl(),
+  });
   errorMessage: string | null = null; // Variabile per gestire gli errori
+  user: User | null = null;
 
   constructor(
     private readonly supabase: SupabaseService,
     private readonly formBuilder: FormBuilder
   ) {
-    this.createSetupForm();
   }
 
   ngOnInit() {
     try {
       console.log('On init');
-      this.checkSetup().finally(() => {
-        console.log('Finally');
-        this.pageLoading = false; // Nascondi il loader al termine della chiamata
-      });
+      this.user = this.supabase.getUser();
+      if (this.user) {
+        const bankroll = this.user.user_metadata['starting_bankroll'];
+        if (bankroll) {
+          console.log(bankroll);
+          this.isInitialized = true;
+        }
+      }
     } catch (error) {
-      console.error('Pippo:',error);
+      console.error('Pippo:', error);
+    } finally {
+      this.pageLoading = false;
     }
   }
 
   async pippoPappo(): Promise<boolean> {
     console.log('Ciao');
     return Promise.resolve(false);
-  }
-
-  createSetupForm() {
-    this.setupForm = this.formBuilder.group({
-      bankroll: '',
-    });
   }
 
   async checkSetup(): Promise<void> {
@@ -89,12 +94,13 @@ export class DashboardComponent {
     }
   }
 
-  async onSubmitSetup(): Promise<void> {
+  async onSubmitUpdateProfile(): Promise<void> {
     this.loading = true;
-    const bankroll: string = this.setupForm.value.bankroll as string;
-    const { data, error } = await this.supabase.insertSetup(bankroll);
+    const bankroll: number = this.setupForm.value.bankroll as number;
+    const username: string = this.setupForm.value.username as string;
+    const { data, error } = await this.supabase.updateProfile(this.user!, username, bankroll);
     if (error) {
-      this.errorMessage = "Errore durante l'inserimento del bankroll";
+      this.errorMessage = "Errore durante l'update del profilo";
       console.error('Errore:', error);
     } else {
       this.errorMessage = null; // Reset error message after successful submission
@@ -102,8 +108,20 @@ export class DashboardComponent {
     this.loading = false;
   }
 
-  async printSetup() {
-    const { data, error } = await this.supabase.getSetup();
-    console.log('printSetup:', data);
+  async updateUser() {
+    this.supabase.updateProfile(this.supabase.getUser()!, 'kevin mask jr', 0);
   }
+
+  printUser() {
+    return JSON.stringify(this.supabase.getUser());
+  }
+
+  getUsername() {
+    return this.user?.user_metadata['username'];
+  }
+
+  getBankroll() {
+    return this.user?.user_metadata['starting_bankroll'];
+  }
+
 }

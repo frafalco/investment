@@ -9,12 +9,13 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import { NgModule } from '@angular/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatNativeDateModule } from '@angular/material/core';
+import { User } from '@supabase/supabase-js';
 
 
 @Component({
@@ -42,7 +43,8 @@ export class AddBetComponent {
   errorMessage: string | null = null;
   options = ['Won', 'Lost', 'Pending'];
   selectedOption: string | undefined;
-  json = JSON;
+  user: User | null = null;
+  bankroll: number = 0;
   
     submitForm = new FormGroup({
     date: new FormControl(new Date(), Validators.required),  
@@ -59,7 +61,15 @@ export class AddBetComponent {
     result: new FormControl('', Validators.required),
     });
 
-  constructor(private supabaseService: SupabaseService) {}
+  constructor(private supabaseService: SupabaseService, private router: Router) {}
+
+  ngOnInit() {
+    this.user = this.supabaseService.getUser();
+    if(!this.user) {
+      this.router.navigate(['/login']);
+    }
+    this.bankroll = this.user?.user_metadata['starting_bankroll'];
+  }
 
   stakeOnChange(event: Event) {
     const target: HTMLInputElement = event.target as HTMLInputElement;
@@ -67,7 +77,7 @@ export class AddBetComponent {
     const floatValue = parseFloat(valueString);
     let betValue = '';
     if(!isNaN(floatValue)) {
-      const betFloatValue = 10000 * floatValue *0.01; //TODO fix with real bankroll value
+      const betFloatValue = this.bankroll * floatValue *0.01; //TODO fix with real bankroll value
       betValue = '' + betFloatValue;
     }
     this.submitForm.patchValue({bet: betValue});
@@ -76,8 +86,15 @@ export class AddBetComponent {
   onSubmit() {
     this.console.log(this.submitForm.value);
     
+    const updateValue = {
+      ...this.submitForm.value,
+      user_id: this.user!.id
+    }
+
+    this.console.log(updateValue)
+
     this.supabaseService
-      .submitForm(this.submitForm.value)
+      .submitForm(updateValue)
       .then((response) => {
         this.console.log(response);
       })
@@ -87,8 +104,9 @@ export class AddBetComponent {
     }
 
   results: any[] = [
-    { id: 1, value: 'Pending' },
-    { id: 2, value: 'Lost' },
-    { id: 3, value: 'Won' },
+    { value: 'pending', label: 'Pending' },
+    { value: 'Lost', label: 'Lost' },
+    { value: 'won', label: 'Won' },
+    { value: 'void', label: 'Void' },
   ];
 }
