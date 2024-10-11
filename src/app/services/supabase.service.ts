@@ -11,6 +11,18 @@ import {
 import { environment } from '../../environments/environment'
 import { BehaviorSubject } from 'rxjs';
 
+export interface Result {
+  id?: number,
+  date: Date,
+  bookmaker: string,
+  odds: number,
+  stake: number,
+  bet: number,
+  result: string,
+  profit?: string,
+  user_id: string,
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -34,19 +46,11 @@ export class SupabaseService {
     }
   }
 
-  getSetup() {
-    return this.supabase.from('Set up').select().single();
-  }
-
-  insertSetup(bankroll: String) {
-    return this.supabase.from('Set up').insert({starting_bankroll: bankroll});
-  }
-
-  async submitForm(submitForm: any) {
+  async insertResult(result: Result) {
     try {
       const { data, error } = await this.supabase
         .from('Results')
-        .insert([submitForm]);
+        .insert(result);
 
       if (error) {
         throw error;
@@ -56,6 +60,14 @@ export class SupabaseService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async getResults(): Promise<Result[]> {
+    const {data, error} = await this.supabase.from('Results').select<'*',Result>().eq('user_id', this.getUser()!.id);
+    if (error) {
+      throw error;
+    }
+    return data;
   }
 
   async signIn(email: string, password: string) {
@@ -69,6 +81,12 @@ export class SupabaseService {
     this.session = data.session;  // Mantieni la sessione
     this.userSubject.next(data.user);  // Aggiorna lo stato dell'utente
     return data;
+  }
+
+  signOut() {
+    console.log('SignOut');
+    this.supabase.auth.signOut();
+    this.userSubject.next(null);
   }
 
   // Ottenere l'utente corrente

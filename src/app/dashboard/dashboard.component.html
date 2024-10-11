@@ -9,8 +9,52 @@
 <div *ngIf="isInitialized; else initializeBlock">
   <h3>La tua tabella</h3>
   <p>Ciao {{getUsername()}} il tuo bankroll iniziale è di ${{getBankroll()}}</p>
-  <button (click)="updateUser()">Get Setup</button>
-  <p>{{printUser()}}</p>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Date</th>
+        <th scope="col">Bookmaker</th>
+        <th scope="col">Odds</th>
+        <th scope="col">Stake</th>
+        <th scope="col">Bet</th>
+        <th scope="col">Result</th>
+        <th scope="col">Profit</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (r of results; track r.id) {
+        <tr>
+          <th scope="row">{{ r.id }}</th>
+          <td>
+            {{ r.date }}
+          </td>
+          <td>{{ r.bookmaker }}</td>
+          <td>{{ r.odds | number }}</td>
+          <td>{{ r.stake | number }}%</td>
+          <td>{{ r.bet | number }}</td>
+          <td>{{ r.result }}</td>
+          <td>{{ r.profit || '-'}}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+  
+  <!-- <div class="d-flex justify-content-between p-2">
+    <ngb-pagination
+      [collectionSize]="collectionSize"
+      [(page)]="page"
+      [pageSize]="pageSize"
+      (pageChange)="refreshCountries()"
+    >
+    </ngb-pagination>
+  
+    <select class="form-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshCountries()">
+      <option [ngValue]="2">2 items per page</option>
+      <option [ngValue]="4">4 items per page</option>
+      <option [ngValue]="6">6 items per page</option>
+    </select>
+  </div> -->
 </div>
 
 <!-- Se non ci sono dati, mostra il form di setup -->
