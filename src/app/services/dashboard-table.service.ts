@@ -82,6 +82,7 @@ export class DashboardTableService {
   private _results$ = new BehaviorSubject<Result[]>([]);
   private _total$ = new BehaviorSubject<number>(0);
 
+  private _cachedResults: Result[] | null = null;
   private _state: State = {
     page: 1,
     pageSize: 10,
@@ -162,27 +163,49 @@ export class DashboardTableService {
   }
 
   private _search(): Observable<SearchResult> {
-    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } =
-      this._state;
 
+    // Se i dati sono già in cache, non fare la chiamata a Supabase
+    if (this._cachedResults) {
+      return this._applyFiltersAndSorting(this._cachedResults);
+    }
+
+    // Se non ci sono dati in cache, fai la chiamata API a Supabase
     return from(this.supabase.getResults()).pipe(
       switchMap((response) => {
-        // 1. sort
-        let results = sort(response, sortColumn, sortDirection);
+        // Salva i dati in cache
+        this._cachedResults = response;
 
-        // 2. filter
-        const dateFormatted = this.ngbDateParserFormatter.format(date);
-        console.log(date, dateFormatted);
-        results = results.filter((r) => filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result));
-        const total = results.length;
-
-        // 3. paginate
-        results = results.slice(
-          (page - 1) * pageSize,
-          (page - 1) * pageSize + pageSize
-        );
-        return of({ results, total });
+        // Applica i filtri, l'ordinamento e la paginazione
+        return this._applyFiltersAndSorting(this._cachedResults);
       })
     );
+  }
+
+  private _applyFiltersAndSorting(results: Result[]): Observable<SearchResult> {
+    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;
+
+    // 1. sort
+    let filteredResults = sort(results, sortColumn, sortDirection);
+
+    // 2. filter
+    const dateFormatted = this.ngbDateParserFormatter.format(date);
+    filteredResults = filteredResults.filter(
+      (r) => filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result)
+    );
+
+    const total = filteredResults.length;
+
+    // 3. paginate
+    filteredResults = filteredResults.slice(
+      (page - 1) * pageSize,
+      (page - 1) * pageSize + pageSize
+    );
+
+    return of({ results: filteredResults, total });
+  }
+
+  refreshData() {
+    this._cachedResults = null;  // Invalida la cache
+    this._search$.next();        // Forza una nuova ricerca (e quindi una nuova chiamata a Supabase)
   }
 }

@@ -91,10 +91,6 @@ export class DashboardComponent {
     this.loading = false;
   }
 
-  async updateUser() {
-    this.supabase.updateProfile(this.supabase.getUser()!, 'kevin mask jr', 0);
-  }
-
   getUsername() {
     return this.user?.user_metadata['username'];
   }
@@ -103,19 +99,43 @@ export class DashboardComponent {
     return this.user?.user_metadata['starting_bankroll'];
   }
 
+  getCurrentBankroll() {
+    return this.user?.user_metadata['starting_bankroll'] + this.user?.user_metadata['profit'];
+  }
+
+  getROI() {
+    return this.user?.user_metadata['profit'] / this.user?.user_metadata['starting_bankroll'];
+  }
+
   resetFilters(): void {
     this.dashboardTableService.bookmaker = '';
     this.dashboardTableService.date = null;
     this.dashboardTableService.result = '';
   }
 
-  toogleEditRow(item: Result) {
+  async toogleEditRow(item: Result) {
     const id = item.id!;
     const currentState = this.editRow[id];
     this.editRow[id] = !currentState;
     if(currentState) {
       //TODO update table
-      console.log('//TODO update table', this.newResultValue, id);
+      let profit = 0;
+      switch(this.newResultValue) {
+        case 'won':
+          profit = (item.bet * item.odds) - item.bet;
+          break;
+        case 'lost':
+          profit = -item.bet;
+          break;
+        case 'void':
+          break;
+        default:
+          return;
+      }
+      item.result = this.newResultValue;
+      item.profit = profit;
+      await this.supabase.updateResultAndUser(this.user!, item);
+      this.dashboardTableService.refreshData();
     }
   }
 

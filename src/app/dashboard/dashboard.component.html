@@ -6,13 +6,19 @@
     <div class="col-sm-6">
       <div class="row text-end">
         <div class="col-sm-4">
-          <p>Bankroll iniziale <b>${{ getBankroll() }}</b></p>
+          <p>
+            Bankroll iniziale <b>${{ getBankroll() }}</b>
+          </p>
         </div>
         <div class="col-sm-4">
-          <p>ROI <b>...</b></p>
+          <p>
+            ROI <b>{{ getROI() | percent }}</b>
+          </p>
         </div>
         <div class="col-sm-4">
-          <p>Bankroll attuale <b>$...</b></p>
+          <p>
+            Bankroll attuale <b>${{ getCurrentBankroll() }}</b>
+          </p>
         </div>
       </div>
     </div>
@@ -25,13 +31,13 @@
       <h5>Filtra la tabella</h5>
     </div>
     <div class="col-sm-3">
-        <label for="bookmaker" class="form-label"> Bookmaker </label>
-        <input
-          id="bookmaker"
-          type="text"
-          [(ngModel)]="dashboardTableService.bookmaker"
-          class="form-control"
-        />
+      <label for="bookmaker" class="form-label"> Bookmaker </label>
+      <input
+        id="bookmaker"
+        type="text"
+        [(ngModel)]="dashboardTableService.bookmaker"
+        class="form-control"
+      />
     </div>
     <div class="col-sm-3">
       <label class="form-label"> Data </label>
@@ -44,20 +50,30 @@
           ngbDatepicker
           #d="ngbDatepicker"
         />
-        <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+        <button
+          class="btn btn-outline-secondary bi bi-calendar3"
+          (click)="d.toggle()"
+          type="button"
+        ></button>
       </div>
     </div>
     <div class="col-sm-3">
-        <label for="result" class="form-label">Result</label>
-        <select [(ngModel)]="dashboardTableService.result" class="form-select" id="result">
-          <option value="">--Select--</option>
-          <option *ngFor="let option of resultOptions" [value]="option.value">
-            {{ option.label }}
-          </option>
-        </select>
+      <label for="result" class="form-label">Result</label>
+      <select
+        [(ngModel)]="dashboardTableService.result"
+        class="form-select"
+        id="result"
+      >
+        <option value="">--Select--</option>
+        <option *ngFor="let option of resultOptions" [value]="option.value">
+          {{ option.label }}
+        </option>
+      </select>
     </div>
     <div class="col-sm-3 text-end">
-      <button class="btn btn-primary btn-lg" (click)="resetFilters()">Reset Filters</button>
+      <button class="btn btn-primary btn-lg" (click)="resetFilters()">
+        Reset Filters
+      </button>
     </div>
   </div>
   <table class="table table-striped">
@@ -97,18 +113,33 @@
         <td>{{ r.odds | number }}</td>
         <td>{{ r.stake | number }}%</td>
         <td>{{ r.bet | number }}</td>
-        <td>@if (!editRow[r.id!]) {
+        <td>
+          @if (!editRow[r.id!]) {
           {{ r.result }}
-        } @else{
-          <select class="form-select" id="new-result" [value]="r.result" [(ngModel)]="newResultValue">
+          } @else{
+          <select
+            class="form-select"
+            id="new-result"
+            [value]="r.result"
+            [(ngModel)]="newResultValue"
+          >
             <option *ngFor="let option of resultOptions" [value]="option.value">
               {{ option.label }}
             </option>
           </select>
-        }
+          }
         </td>
         <td>{{ r.profit || "-" }}</td>
-        <td><button class="btn btn-outline-secondary bi" [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'" type="button" (click)="toogleEditRow(r)"></button></td>
+        <td>
+          @if(r.result === 'pending') {
+            <button
+              class="btn btn-outline-secondary bi"
+              [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'"
+              type="button"
+              (click)="toogleEditRow(r)"
+            ></button>
+          }
+        </td>
       </tr>
       } }
     </tbody>
