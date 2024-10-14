@@ -98,14 +98,14 @@ export class AddBetComponent {
     this.console.log(this.submitForm.value);
 
     const result: Result = {
-      date: new Date(this.ngbDateParserFormatter.format(this.submitForm.value.date!)),
+      date: this.ngbDateParserFormatter.format(this.submitForm.value.date!),
       bet: parseFloat(this.submitForm.value.bet!),
       bookmaker: this.submitForm.value.bookmaker!,
       odds: parseFloat(this.submitForm.value.odds!),
       result: this.submitForm.value.result!,
       stake: parseFloat(this.submitForm.value.stake!),
       user_id: this.user!.id,
-    }
+    };
 
     this.console.log(result);
 
@@ -117,6 +117,8 @@ export class AddBetComponent {
       .catch((error) => {
         this.console.log(error);
       });
+
+    this.submitForm.reset();
   }
 
   results: any[] = [

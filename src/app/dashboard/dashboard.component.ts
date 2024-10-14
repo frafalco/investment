@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule, DecimalPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { Result, SupabaseService } from '../services/supabase.service';
@@ -10,6 +10,10 @@ import {
   ReactiveFormsModule,
 } from '@angular/forms';
 import { User } from '@supabase/supabase-js';
+import { NgbDatepickerModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { Observable } from 'rxjs';
+import { DashboardTableService } from '../services/dashboard-table.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,12 +25,16 @@ import { User } from '@supabase/supabase-js';
     RouterLinkActive,
     FormsModule,
     ReactiveFormsModule,
+    NgbPaginationModule,
+    AsyncPipe,
+    MatProgressSpinnerModule,
+    NgbDatepickerModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
+  providers: [DashboardTableService, DecimalPipe]
 })
 export class DashboardComponent {
-  pageLoading = true;
   loading = false;
   isInitialized = false;
   setupForm: FormGroup = new FormGroup({
@@ -35,11 +43,21 @@ export class DashboardComponent {
   });
   errorMessage: string | null = null; // Variabile per gestire gli errori
   user: User | null = null;
-  results: Result[] = [];
+	results$!: Observable<Result[]>;
+	total$!: Observable<number>;
+  resultOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'lost', label: 'Lost' },
+    { value: 'won', label: 'Won' },
+    { value: 'void', label: 'Void' },
+  ];
+  editRow: any = {};
+  newResultValue: string = '';
 
   constructor(
     private readonly supabase: SupabaseService,
-    private readonly formBuilder: FormBuilder
+    private readonly formBuilder: FormBuilder,
+    public dashboardTableService: DashboardTableService
   ) {
   }
 
@@ -50,13 +68,12 @@ export class DashboardComponent {
       if (this.user) {
         if (this.getBankroll()) {
           this.isInitialized = true;
-          this.loadResults();
+          this.results$ = this.dashboardTableService.results$;
+          this.total$ = this.dashboardTableService.total$;
         }
       }
     } catch (error) {
       console.error('Pippo:', error);
-    } finally {
-      this.pageLoading = false;
     }
   }
 
@@ -64,22 +81,18 @@ export class DashboardComponent {
     this.loading = true;
     const bankroll: number = this.setupForm.value.bankroll as number;
     const username: string = this.setupForm.value.username as string;
-    const { data, error } = await this.supabase.updateProfile(this.user!, username, bankroll);
+    const { error } = await this.supabase.updateProfile(this.user!, username, bankroll);
     if (error) {
       this.errorMessage = "Errore durante l'update del profilo";
       console.error('Errore:', error);
     } else {
-      this.errorMessage = null; // Reset error message after successful submission
+      this.errorMessage = null;
     }
     this.loading = false;
   }
 
   async updateUser() {
     this.supabase.updateProfile(this.supabase.getUser()!, 'kevin mask jr', 0);
-  }
-
-  printUser() {
-    return JSON.stringify(this.supabase.getUser());
   }
 
   getUsername() {
@@ -90,10 +103,20 @@ export class DashboardComponent {
     return this.user?.user_metadata['starting_bankroll'];
   }
 
-  async loadResults() {
-    const data = await this.supabase.getResults();
-    console.log(data);
-    this.results = data;
+  resetFilters(): void {
+    this.dashboardTableService.bookmaker = '';
+    this.dashboardTableService.date = null;
+    this.dashboardTableService.result = '';
+  }
+
+  toogleEditRow(item: Result) {
+    const id = item.id!;
+    const currentState = this.editRow[id];
+    this.editRow[id] = !currentState;
+    if(currentState) {
+      //TODO update table
+      console.log('//TODO update table', this.newResultValue, id);
+    }
   }
 
 }

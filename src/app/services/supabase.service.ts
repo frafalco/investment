@@ -1,10 +1,7 @@
 import { Injectable } from '@angular/core';
 import {
-  AuthChangeEvent,
-  AuthSession,
   createClient,
   Session,
-  SignInWithPasswordCredentials,
   SupabaseClient,
   User,
 } from '@supabase/supabase-js'
@@ -13,7 +10,7 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface Result {
   id?: number,
-  date: Date,
+  date: string,
   bookmaker: string,
   odds: number,
   stake: number,
