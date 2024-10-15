@@ -92,19 +92,19 @@ export class DashboardComponent {
   }
 
   getUsername() {
-    return this.user?.user_metadata['username'];
+    return this.supabase.getUser()?.user_metadata['username'];
   }
 
   getBankroll() {
-    return this.user?.user_metadata['starting_bankroll'];
+    return this.supabase.getUser()?.user_metadata['starting_bankroll'];
   }
 
   getCurrentBankroll() {
-    return this.user?.user_metadata['starting_bankroll'] + this.user?.user_metadata['profit'];
+    return this.supabase.getUser()?.user_metadata['starting_bankroll'] + this.supabase.getUser()?.user_metadata['profit'];
   }
 
   getROI() {
-    return this.user?.user_metadata['profit'] / this.user?.user_metadata['starting_bankroll'];
+    return this.supabase.getUser()?.user_metadata['profit'] / this.supabase.getUser()?.user_metadata['starting_bankroll'];
   }
 
   resetFilters(): void {

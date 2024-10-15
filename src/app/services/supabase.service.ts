@@ -146,6 +146,7 @@ export class SupabaseService {
           roi: updatedUser.profit / updatedUser.starting_bankroll,
         },
       });
+      console.log(data.user);
       this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
     }
     return;
