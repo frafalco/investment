@@ -103,9 +103,9 @@
         <td></td>
         <td></td>
       </tr>
-      } @else { @for (r of results$ | async; track r.id) {
+      } @else { @for (r of bets$ | async; track r.id) {
       <tr>
-        <th scope="row">{{ r.id }}</th>
+        <th scope="row" class="col-sm-1">{{ r.id }}</th>
         <td>
           {{ r.date | date : "dd/MM/yyyy" }}
         </td>
@@ -130,15 +130,20 @@
           }
         </td>
         <td>{{ r.profit || "-" }}</td>
-        <td>
+        <td  class="col-sm-1 text-center">
           @if(r.result === 'pending') {
           <button
-            class="btn btn-outline-secondary bi"
+            class="btn btn-outline-secondary mx-1 bi"
             [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'"
             type="button"
             (click)="toogleEditRow(r)"
           ></button>
           }
+          <button
+            class="btn btn-outline-danger bi bi-trash"
+            type="button"
+            (click)="deleteItem(r)"
+          ></button>
         </td>
       </tr>
       } }

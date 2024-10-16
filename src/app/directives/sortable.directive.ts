@@ -1,7 +1,7 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
-import { Result } from '../services/supabase.service';
+import { Bet } from '../services/supabase.service';
 
-export type SortColumn = keyof Result | '';
+export type SortColumn = keyof Bet | '';
 export type SortDirection = 'asc' | 'desc' | '';
 const rotate: { [key: string]: SortDirection } = { asc: 'desc', desc: '', '': 'asc' };
 

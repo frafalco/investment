@@ -10,13 +10,13 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { Result, SupabaseService } from './supabase.service';
+import { Bet, SupabaseService } from './supabase.service';
 import { SortColumn, SortDirection } from '../directives/sortable.directive';
 import { DecimalPipe } from '@angular/common';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 
 interface SearchResult {
-  results: Result[];
+  bets: Bet[];
   total: number;
 }
 
@@ -47,29 +47,29 @@ const compare = (
 };
 
 function sort(
-  countries: Result[],
+  bets: Bet[],
   column: SortColumn,
   direction: string
-): Result[] {
+): Bet[] {
   if (direction === '' || column === '') {
-    return countries;
+    return bets;
   } else {
-    return [...countries].sort((a, b) => {
+    return [...bets].sort((a, b) => {
       const res = compare(a[column], b[column]);
       return direction === 'asc' ? res : -res;
     });
   }
 }
 
-function filterBookmaker(result: Result, term: string) {
+function filterBookmaker(result: Bet, term: string) {
 	return result.bookmaker.toLowerCase().includes(term.toLowerCase());
 }
 
-function filterDate(result: Result, term: string) {
+function filterDate(result: Bet, term: string) {
   return result.date.toLowerCase().includes(term.toLowerCase());
 }
 
-function filteResult(result: Result, term: string) {
+function filteResult(result: Bet, term: string) {
   return result.result.toLowerCase().includes(term.toLowerCase());
 }
 
@@ -79,10 +79,10 @@ function filteResult(result: Result, term: string) {
 export class DashboardTableService {
   private _loading$ = new BehaviorSubject<boolean>(true);
   private _search$ = new Subject<void>();
-  private _results$ = new BehaviorSubject<Result[]>([]);
+  private _bets$ = new BehaviorSubject<Bet[]>([]);
   private _total$ = new BehaviorSubject<number>(0);
 
-  private _cachedResults: Result[] | null = null;
+  private _cachedBets: Bet[] | null = null;
   private _state: State = {
     page: 1,
     pageSize: 10,
@@ -103,15 +103,15 @@ export class DashboardTableService {
         tap(() => this._loading$.next(false))
       )
       .subscribe((result: SearchResult) => {
-        this._results$.next(result.results);
+        this._bets$.next(result.bets);
         this._total$.next(result.total);
       });
 
     this._search$.next();
   }
 
-  get results$() {
-    return this._results$.asObservable();
+  get bets$() {
+    return this._bets$.asObservable();
   }
   get total$() {
     return this._total$.asObservable();
@@ -165,47 +165,47 @@ export class DashboardTableService {
   private _search(): Observable<SearchResult> {
 
     // Se i dati sono già in cache, non fare la chiamata a Supabase
-    if (this._cachedResults) {
-      return this._applyFiltersAndSorting(this._cachedResults);
+    if (this._cachedBets) {
+      return this._applyFiltersAndSorting(this._cachedBets);
     }
 
     // Se non ci sono dati in cache, fai la chiamata API a Supabase
-    return from(this.supabase.getResults()).pipe(
+    return from(this.supabase.getBets()).pipe(
       switchMap((response) => {
         // Salva i dati in cache
-        this._cachedResults = response;
+        this._cachedBets = response;
 
         // Applica i filtri, l'ordinamento e la paginazione
-        return this._applyFiltersAndSorting(this._cachedResults);
+        return this._applyFiltersAndSorting(this._cachedBets);
       })
     );
   }
 
-  private _applyFiltersAndSorting(results: Result[]): Observable<SearchResult> {
+  private _applyFiltersAndSorting(bets: Bet[]): Observable<SearchResult> {
     const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;
 
     // 1. sort
-    let filteredResults = sort(results, sortColumn, sortDirection);
+    let filteredBets = sort(bets, sortColumn, sortDirection);
 
     // 2. filter
     const dateFormatted = this.ngbDateParserFormatter.format(date);
-    filteredResults = filteredResults.filter(
+    filteredBets = filteredBets.filter(
       (r) => filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result)
     );
 
-    const total = filteredResults.length;
+    const total = filteredBets.length;
 
     // 3. paginate
-    filteredResults = filteredResults.slice(
+    filteredBets = filteredBets.slice(
       (page - 1) * pageSize,
       (page - 1) * pageSize + pageSize
     );
 
-    return of({ results: filteredResults, total });
+    return of({ bets: filteredBets, total });
   }
 
   refreshData() {
-    this._cachedResults = null;  // Invalida la cache
+    this._cachedBets = null;  // Invalida la cache
     this._search$.next();        // Forza una nuova ricerca (e quindi una nuova chiamata a Supabase)
   }
 }

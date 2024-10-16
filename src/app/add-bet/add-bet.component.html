@@ -98,8 +98,7 @@
     <div class="mb-3 col-md-6">
       <label for="result" class="form-label">Result</label>
       <select formControlName="result" class="form-select" id="result">
-        <option value="">--Select--</option>
-        <option *ngFor="let option of results" [value]="option.value">
+        <option *ngFor="let option of results" [value]="option.value" [disabled]="option.disabled">
           {{ option.label }}
         </option>
       </select>

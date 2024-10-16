@@ -15,7 +15,7 @@ import {
   RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
-import { Result, SupabaseService } from '../services/supabase.service';
+import { Bet, SupabaseService } from '../services/supabase.service';
 import { NgModule } from '@angular/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -53,6 +53,13 @@ export class AddBetComponent {
   user: User | null = null;
   bankroll: number = 0;
 
+  results: any[] = [
+    { value: 'pending', label: 'Pending', disabled: false },
+    { value: 'lost', label: 'Lost', disabled: true },
+    { value: 'won', label: 'Won', disabled: true },
+    { value: 'void', label: 'Void', disabled: true },
+  ];
+
   submitForm = new FormGroup({
     date: new FormControl<NgbDateStruct | null>(null, Validators.required),
     bookmaker: new FormControl('', Validators.required),
@@ -65,7 +72,7 @@ export class AddBetComponent {
       Validators.pattern(/^\d+(\.\d{1,2})?$/),
     ]),
     bet: new FormControl(''),
-    result: new FormControl('', Validators.required),
+    result: new FormControl('pending', Validators.required),
   });
 
   constructor(
@@ -97,7 +104,7 @@ export class AddBetComponent {
   onSubmit() {
     this.console.log(this.submitForm.value);
 
-    const result: Result = {
+    const result: Bet = {
       date: this.ngbDateParserFormatter.format(this.submitForm.value.date!),
       bet: parseFloat(this.submitForm.value.bet!),
       bookmaker: this.submitForm.value.bookmaker!,
@@ -110,7 +117,7 @@ export class AddBetComponent {
     this.console.log(result);
 
     this.supabaseService
-      .insertResult(result)
+      .insertBet(result)
       .then((response) => {
         this.console.log(response);
       })
@@ -120,11 +127,4 @@ export class AddBetComponent {
 
     this.submitForm.reset();
   }
-
-  results: any[] = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'lost', label: 'Lost' },
-    { value: 'won', label: 'Won' },
-    { value: 'void', label: 'Void' },
-  ];
 }

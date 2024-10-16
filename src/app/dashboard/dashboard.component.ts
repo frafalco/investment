@@ -1,7 +1,7 @@
 import { AsyncPipe, CommonModule, DecimalPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Result, SupabaseService } from '../services/supabase.service';
+import { Bet, SupabaseService } from '../services/supabase.service';
 import {
   FormBuilder,
   FormControl,
@@ -43,7 +43,7 @@ export class DashboardComponent {
   });
   errorMessage: string | null = null; // Variabile per gestire gli errori
   user: User | null = null;
-	results$!: Observable<Result[]>;
+	bets$!: Observable<Bet[]>;
 	total$!: Observable<number>;
   resultOptions = [
     { value: 'pending', label: 'Pending' },
@@ -56,26 +56,35 @@ export class DashboardComponent {
 
   constructor(
     private readonly supabase: SupabaseService,
-    private readonly formBuilder: FormBuilder,
     public dashboardTableService: DashboardTableService
   ) {
-  }
-
-  ngOnInit() {
-    try {
-      console.log('On init');
-      this.user = this.supabase.getUser();
+    supabase.userSubject.pipe().subscribe((user: User | null) => {
+      this.user = user;
       if (this.user) {
         if (this.getBankroll()) {
           this.isInitialized = true;
-          this.results$ = this.dashboardTableService.results$;
+          this.bets$ = this.dashboardTableService.bets$;
           this.total$ = this.dashboardTableService.total$;
         }
       }
-    } catch (error) {
-      console.error('Pippo:', error);
-    }
+    });
   }
+
+  // ngOnInit() {
+  //   try {
+  //     console.log('On init');
+  //     this.user = this.supabase.getUser();
+  //     if (this.user) {
+  //       if (this.getBankroll()) {
+  //         this.isInitialized = true;
+  //         this.results$ = this.dashboardTableService.results$;
+  //         this.total$ = this.dashboardTableService.total$;
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.error('Pippo:', error);
+  //   }
+  // }
 
   async onSubmitUpdateProfile(): Promise<void> {
     this.loading = true;
@@ -92,19 +101,19 @@ export class DashboardComponent {
   }
 
   getUsername() {
-    return this.supabase.getUser()?.user_metadata['username'];
+    return this.user?.user_metadata['username'];
   }
 
   getBankroll() {
-    return this.supabase.getUser()?.user_metadata['starting_bankroll'];
+    return this.user?.user_metadata['starting_bankroll'];
   }
 
   getCurrentBankroll() {
-    return this.supabase.getUser()?.user_metadata['starting_bankroll'] + this.supabase.getUser()?.user_metadata['profit'];
+    return parseFloat(this.user?.user_metadata['starting_bankroll']) + parseFloat(this.supabase.getUser()?.user_metadata['profit']);
   }
 
   getROI() {
-    return this.supabase.getUser()?.user_metadata['profit'] / this.supabase.getUser()?.user_metadata['starting_bankroll'];
+    return this.user?.user_metadata['roi'];
   }
 
   resetFilters(): void {
@@ -113,7 +122,7 @@ export class DashboardComponent {
     this.dashboardTableService.result = '';
   }
 
-  async toogleEditRow(item: Result) {
+  async toogleEditRow(item: Bet) {
     const id = item.id!;
     const currentState = this.editRow[id];
     this.editRow[id] = !currentState;
@@ -134,9 +143,14 @@ export class DashboardComponent {
       }
       item.result = this.newResultValue;
       item.profit = profit;
-      await this.supabase.updateResultAndUser(this.user!, item);
+      await this.supabase.updateBetAndUser(this.user!, item);
       this.dashboardTableService.refreshData();
     }
+  }
+
+  async deleteItem(item: Bet) {
+    await this.supabase.deleteBet(item);
+    this.dashboardTableService.refreshData();
   }
 
 }
