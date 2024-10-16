@@ -113,7 +113,7 @@ export class SupabaseService {
 
     await this.supabase.from('profiles').upsert(update);
     const { data, error } = await this.supabase.auth.updateUser({
-      data: { ...user.user_metadata, username, starting_bankroll, actual_bankroll: 0, roi: 0 },
+      data: { ...user.user_metadata, username, starting_bankroll, profit: 0, roi: 0 },
     });
     this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
     return { data, error };
@@ -128,7 +128,7 @@ export class SupabaseService {
     }
     const update = {
       id: user.id,
-      actual_bankroll: currentProfit + item.profit!,
+      profit: currentProfit + item.profit!,
       updated_at: new Date(),
     };
     const { data: updatedUser, error: updateError } = await this.supabase
@@ -142,7 +142,7 @@ export class SupabaseService {
       const { data, error } = await this.supabase.auth.updateUser({
         data: {
           ...user.user_metadata,
-          actual_bankroll: updatedUser.profit,
+          profit: updatedUser.profit,
           roi: updatedUser.profit / updatedUser.starting_bankroll,
         },
       });

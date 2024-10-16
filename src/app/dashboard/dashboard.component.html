@@ -132,12 +132,12 @@
         <td>{{ r.profit || "-" }}</td>
         <td>
           @if(r.result === 'pending') {
-            <button
-              class="btn btn-outline-secondary bi"
-              [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'"
-              type="button"
-              (click)="toogleEditRow(r)"
-            ></button>
+          <button
+            class="btn btn-outline-secondary bi"
+            [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'"
+            type="button"
+            (click)="toogleEditRow(r)"
+          ></button>
           }
         </td>
       </tr>
@@ -169,31 +169,63 @@
   <form
     [formGroup]="setupForm"
     (ngSubmit)="onSubmitUpdateProfile()"
-    class="form-widget"
+    class="row g-8"
   >
-    <div>
-      <label for="username">Username</label>
+    <div class="mb-3 col-md-6 offset-md-3">
+      <label for="username" class="form-label"> Username </label>
       <input
         id="username"
-        formControlName="username"
-        class="inputField"
         type="text"
+        formControlName="username"
+        class="form-control"
         placeholder="Your username"
       />
+      <div
+        *ngIf="
+          setupForm.controls['username'].invalid &&
+          (setupForm.controls['username'].dirty ||
+            setupForm.controls['username'].touched)
+        "
+      >
+        <div
+          *ngIf="setupForm.controls['username'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+      </div>
     </div>
-    <div>
-      <label for="bankroll">Bankroll</label>
+    <div class="mb-3 col-md-6 offset-md-3">
+      <label for="bankroll" class="form-label"> Starting Bankroll </label>
       <input
         id="bankroll"
+        type="text"
         formControlName="bankroll"
-        class="inputField"
-        type="number"
+        class="form-control"
         placeholder="Your bankroll"
       />
+      <div
+        *ngIf="
+          setupForm.controls['bankroll'].invalid &&
+          (setupForm.controls['bankroll'].dirty ||
+            setupForm.controls['bankroll'].touched)
+        "
+      >
+        <div
+          *ngIf="setupForm.controls['bankroll'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+      </div>
     </div>
-    <div>
-      <button type="submit" class="button block" [disabled]="loading">
-        {{ loading ? "Loading..." : "Update profile" }}
+    <div class="d-grid gap-2 col-md-4 mx-auto">
+      <button
+        class="btn btn-primary btn-lg"
+        type="submit"
+        [disabled]="!setupForm.valid && loading"
+      >
+      {{ loading ? "Loading..." : "Update profile" }}
       </button>
     </div>
   </form>
