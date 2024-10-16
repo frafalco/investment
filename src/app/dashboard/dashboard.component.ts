@@ -143,12 +143,14 @@ export class DashboardComponent {
       }
       item.result = this.newResultValue;
       item.profit = profit;
+      this.dashboardTableService.addLoader();
       await this.supabase.updateBetAndUser(this.user!, item);
       this.dashboardTableService.refreshData();
     }
   }
 
   async deleteItem(item: Bet) {
+    this.dashboardTableService.addLoader();
     await this.supabase.deleteBet(item);
     this.dashboardTableService.refreshData();
   }

@@ -125,6 +125,6 @@ export class AddBetComponent {
         this.console.log(error);
       });
 
-    this.submitForm.reset();
+    this.router.navigate(['/dashboard']);
   }
 }

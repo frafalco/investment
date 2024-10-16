@@ -1,4 +1,9 @@
 <div *ngIf="isInitialized; else initializeBlock">
+  @if (dashboardTableService.loading$ | async) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+    </div>
+  }
   <div class="row">
     <div class="col-sm-6">
       <p>Ciao {{ getUsername() }}</p>
@@ -12,7 +17,7 @@
         </div>
         <div class="col-sm-4">
           <p>
-            ROI <b>{{ getROI() | percent }}</b>
+            ROI <b>{{ getROI() | percent: '1.0-4' }}</b>
           </p>
         </div>
         <div class="col-sm-4">
@@ -91,19 +96,7 @@
       </tr>
     </thead>
     <tbody>
-      @if (dashboardTableService.loading$ | async) {
-      <tr>
-        <th scope="row"></th>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td><mat-spinner></mat-spinner></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-      </tr>
-      } @else { @for (r of bets$ | async; track r.id) {
+      @for (r of bets$ | async; track r.id) {
       <tr>
         <th scope="row" class="col-sm-1">{{ r.id }}</th>
         <td>
@@ -146,7 +139,7 @@
           ></button>
         </td>
       </tr>
-      } }
+      }
     </tbody>
   </table>
 

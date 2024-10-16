@@ -96,11 +96,11 @@ export class DashboardTableService {
   constructor(private pipe: DecimalPipe, private supabase: SupabaseService, private ngbDateParserFormatter: NgbDateParserFormatter) {
     this._search$
       .pipe(
-        tap(() => this._loading$.next(true)),
+        tap(() => this.addLoader()),
         debounceTime(200),
         switchMap(() => this._search()),
         delay(200),
-        tap(() => this._loading$.next(false))
+        tap(() => this.removeLoader())
       )
       .subscribe((result: SearchResult) => {
         this._bets$.next(result.bets);
@@ -202,6 +202,14 @@ export class DashboardTableService {
     );
 
     return of({ bets: filteredBets, total });
+  }
+
+  addLoader() {
+    this._loading$.next(true);
+  }
+
+  removeLoader() {
+    this._loading$.next(false);
   }
 
   refreshData() {
