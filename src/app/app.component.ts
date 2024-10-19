@@ -5,11 +5,12 @@ import { FormsModule } from '@angular/forms';
 import { SupabaseService } from './services/supabase.service';
 import { Session, User } from '@supabase/supabase-js';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, SidebarComponent, FormsModule, NgbDropdownModule],
+  imports: [RouterOutlet, SidebarComponent, FormsModule, NgbDropdownModule, MatProgressSpinnerModule,],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -17,9 +18,9 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 
 export class AppComponent {
   title = 'app-investment-new';
-  username: string = '';
+  loading: boolean = true;
 
   constructor(private supabse: SupabaseService) {
-    supabse.user$.subscribe((user) => this.username = user?.user_metadata['username']);
+    supabse.userInfo$.subscribe((userInfo) => this.loading = userInfo.loading);
   }
 }

@@ -3,7 +3,7 @@ import { NgbCollapseModule, NgbDropdownModule, NgbNavModule } from '@ng-bootstra
 import { Router, RouterLink } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import { CommonModule } from '@angular/common';
-import { UserInfo } from '../bean/beans';
+import { Profile, UserInfo } from '../bean/beans';
 
 @Component({
   selector: 'app-sidebar',
@@ -14,12 +14,17 @@ import { UserInfo } from '../bean/beans';
 })
 export class SidebarComponent {
   username: string = '';
+  profile: Profile | null = null;
 
   constructor(private supabase: SupabaseService, private router: Router) {
-    supabase.userInfo$.subscribe((userInfo: UserInfo) => this.username = userInfo.profile?.username ?? 'Anonymus')
+    supabase.userInfo$.subscribe((userInfo: UserInfo) => {
+      this.profile = userInfo.profile;
+      this.username = userInfo.profile ? userInfo.profile.username ?? userInfo.profile.email : 'Anonymus'
+    })
   }
 
-  signOut() {
-    this.supabase.signOut();
+  async signOut() {
+    await this.supabase.signOut();
+    this.router.navigate(['/']);
   }
 }

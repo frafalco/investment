@@ -1,6 +1,7 @@
 export interface Profile {
     id: string;
     username?: string;
+    email: string;
 }
 
 export interface Strategy {
@@ -28,11 +29,13 @@ export class UserInfo {
     private _profile: Profile | null;
     private _strategies: Strategy[];
     private _bets: Bet[];
+    private _loading: boolean;
 
-    constructor() {
+    constructor(loading: boolean) {
         this._profile = null;
         this._strategies = [];
         this._bets = [];
+        this._loading = loading;
     }
 
     public get profile(): Profile | null {
@@ -45,6 +48,10 @@ export class UserInfo {
 
     public get strategies() {
         return this._strategies;
+    }
+
+    public set strategies(strategies: Strategy[]) {
+        this._strategies = strategies;
     }
 
     public updateStrategy(strategy: Strategy) {
@@ -60,6 +67,10 @@ export class UserInfo {
         return this._bets;
     }
 
+    public set bets(bets: Bet[]) {
+        this._bets = bets;
+    }
+
     public updateBets(bet: Bet) {
         const index = this._bets.findIndex(elem => elem.id === bet.id);
         if(index > -1) {
@@ -67,5 +78,13 @@ export class UserInfo {
         } else {
             this._bets.push(bet);
         }
+    }
+
+    public get loading() {
+        return this._loading;
+    }
+
+    public set loading(loading: boolean) {
+        this._loading = loading;
     }
 }

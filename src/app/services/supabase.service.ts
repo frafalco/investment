@@ -18,9 +18,8 @@ export class SupabaseService {
   private supabase: SupabaseClient;
   userSubject = new BehaviorSubject<User | null>(null);
   user$ = this.userSubject.asObservable();
-  private session: Session | null = null;
 
-  private userInfoSubject = new BehaviorSubject<UserInfo>(new UserInfo());
+  private userInfoSubject = new BehaviorSubject<UserInfo>(new UserInfo(true));
   userInfo$ = this.userInfoSubject.asObservable();
 
   constructor() {
@@ -35,16 +34,37 @@ export class SupabaseService {
   // Funzione per ripristinare la sessione all'avvio dell'app
   async restoreSession() {
     const { data } = await this.supabase.auth.getSession();
-    if (data.session) {
-      this.session = data.session; // Mantieni la sessione
-      this.userSubject.next(data.session.user);
+    const userInfo = this.userInfoSubject.getValue();
+    try {
+      if (data.session) {
+        this.userSubject.next(data.session.user);
+        const {data: profile, error: errorProfile} = await this.supabase.from('profiles').select<'*', Profile>().eq('id', data.session.user.id).single();
+        if(errorProfile) {
+          throw errorProfile;
+        }
+        userInfo.profile = profile;
+        const {data: strategies, error: errorStrategies} = await this.supabase.from('strategies').select<'*',Strategy>().eq('user_id', data.session.user.id);
+        if(errorStrategies) {
+          throw errorStrategies;
+        }
+        userInfo.strategies = strategies;
+        const {data: bets, error: errorBets} = await this.supabase.from('bets').select<'*',Bet>();
+        if(errorBets) {
+          throw errorBets;
+        }
+        userInfo.bets = bets;
+      }
+    } catch (exception) {
+      console.log(exception);
     }
+    userInfo.loading = false;
+    console.log(userInfo);
+    this.userInfoSubject.next(userInfo);
     //listen profiles table
     this.supabase
     .channel('profiles')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${this.getUser()?.id}` }, payload => {
       const profile = payload.new as Profile;
-      const userInfo = this.userInfoSubject.getValue();
       userInfo.profile = profile;
       this.userInfoSubject.next(userInfo);
     })
@@ -154,15 +174,16 @@ export class SupabaseService {
     if (error) {
       throw error;
     }
-    this.session = data.session; // Mantieni la sessione
     this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
     return data;
   }
 
-  signOut() {
+  async signOut() {
+    this.userInfoSubject.next(new UserInfo(true));
     console.log('SignOut');
-    this.supabase.auth.signOut();
+    await this.supabase.auth.signOut();
     this.userSubject.next(null);
+    this.userInfoSubject.next(new UserInfo(false));
   }
 
   // Ottenere l'utente corrente

@@ -31,7 +31,7 @@ export class LoginComponent {
       const email = this.signInForm.value.email as string
       const password = this.signInForm.value.password as string
       await this.supabase.signIn(email, password);
-      this.router.navigate(['dashboard']);
+      this.router.navigate(['/']);
     } catch (error) {
       if (error instanceof Error) {
         alert(error.message)
