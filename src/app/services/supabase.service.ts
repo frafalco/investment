@@ -7,19 +7,9 @@ import {
 } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
+import { Bet, Profile, Strategy, UserInfo } from '../bean/beans';
 
-export interface Bet {
-  id?: number;
-  date: string;
-  bookmaker: string;
-  odds: number;
-  stake: number;
-  bet: number;
-  result: string;
-  profit?: number;
-  cumulated_profit?: number;
-  user_id: string;
-}
+
 
 @Injectable({
   providedIn: 'root',
@@ -30,12 +20,16 @@ export class SupabaseService {
   user$ = this.userSubject.asObservable();
   private session: Session | null = null;
 
+  private userInfoSubject = new BehaviorSubject<UserInfo>(new UserInfo());
+  userInfo$ = this.userInfoSubject.asObservable();
+
   constructor() {
     this.supabase = createClient(
       environment.supabaseUrl,
       environment.supabaseKey
     );
     this.restoreSession();
+
   }
 
   // Funzione per ripristinare la sessione all'avvio dell'app
@@ -45,7 +39,41 @@ export class SupabaseService {
       this.session = data.session; // Mantieni la sessione
       this.userSubject.next(data.session.user);
     }
+    //listen profiles table
+    this.supabase
+    .channel('profiles')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${this.getUser()?.id}` }, payload => {
+      const profile = payload.new as Profile;
+      const userInfo = this.userInfoSubject.getValue();
+      userInfo.profile = profile;
+      this.userInfoSubject.next(userInfo);
+    })
+    .subscribe()
+    //listen strategies table
+    this.supabase
+    .channel('strategies')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'strategies', filter: `user_id=eq.${this.getUser()?.id}` }, payload => {
+      const strategy = payload.new as Strategy;
+      const userInfo = this.userInfoSubject.getValue();
+      userInfo.updateStrategy(strategy);
+      console.log('Strategies', userInfo.strategies)
+      this.userInfoSubject.next(userInfo);
+    })
+    .subscribe()
+    //listen bets table
+    this.supabase
+    .channel('bets')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'bets', filter: `user_id=eq.${this.getUser()?.id}` }, payload => {
+      const bet = payload.new as Bet;
+      const userInfo = this.userInfoSubject.getValue();
+      userInfo.updateBets(bet);
+      console.log('Bets', userInfo.bets)
+      this.userInfoSubject.next(userInfo);
+    })
+    .subscribe()
   }
+
+
 
   async insertBet(bet: Bet) {
     try {
@@ -147,22 +175,17 @@ export class SupabaseService {
     return !!this.userSubject.getValue();
   }
 
-  async updateProfile(user: User, username: string, starting_bankroll: number) {
+  async updateProfile(user: User, username: string) {
     const update = {
       id: user.id,
       username,
-      starting_bankroll,
       updated_at: new Date(),
     };
 
     await this.supabase.from('profiles').upsert(update);
     const { data, error } = await this.supabase.auth.updateUser({
       data: {
-        ...user.user_metadata,
         username,
-        starting_bankroll,
-        profit: 0,
-        roi: 0,
       },
     });
     this.userSubject.next(data.user); // Aggiorna lo stato dell'utente

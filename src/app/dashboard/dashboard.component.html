@@ -193,30 +193,6 @@
         </div>
       </div>
     </div>
-    <div class="mb-3 col-md-6 offset-md-3">
-      <label for="bankroll" class="form-label"> Starting Bankroll </label>
-      <input
-        id="bankroll"
-        type="text"
-        formControlName="bankroll"
-        class="form-control"
-        placeholder="Your bankroll"
-      />
-      <div
-        *ngIf="
-          setupForm.controls['bankroll'].invalid &&
-          (setupForm.controls['bankroll'].dirty ||
-            setupForm.controls['bankroll'].touched)
-        "
-      >
-        <div
-          *ngIf="setupForm.controls['bankroll'].errors!['required']"
-          class="error-message"
-        >
-          Il campo è obbligatorio
-        </div>
-      </div>
-    </div>
     <div class="d-grid gap-2 col-md-4 mx-auto">
       <button
         class="btn btn-primary btn-lg"

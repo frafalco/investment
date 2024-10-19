@@ -1,5 +1,5 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
-import { Bet } from '../services/supabase.service';
+import { Bet } from '../bean/beans';
 
 export type SortColumn = keyof Bet | '';
 export type SortDirection = 'asc' | 'desc' | '';

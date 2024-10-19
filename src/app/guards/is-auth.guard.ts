@@ -9,23 +9,11 @@ export const isAuthGuard: CanActivateFn = async (route, state) => {
   const supabase: SupabaseService = inject(SupabaseService);
   await supabase.restoreSession();  // Assicura che la sessione sia caricata
   const user = supabase.getUser();
+  console.log(user)
   if (user) {
     return true;
   } else {
     router.navigate(['/login']);
     return false;
   }
-  // const session: AuthSession | null = inject(SupabaseService).session;
-  // const isAuth: boolean = session != null;
-  // return isAuth || router.navigate(['login']);
-  // return inject(SupabaseService).user$.pipe(
-  //   map(user => {
-  //     if (user) {
-  //       return true;
-  //     } else {
-  //       router.navigate(['/login']);
-  //       return false;
-  //     }
-  //   })
-  // );
 };

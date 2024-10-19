@@ -1,0 +1,43 @@
+<div
+    class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100"
+    style="width: 280px"
+  >
+    <a
+	  [routerLink]="'/'"
+      class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+    >
+      <span class="fs-4">Investments App</span>
+    </a>
+    <hr />
+	<div ngbNav #nav="ngbNav" class="nav-pills flex-column" orientation="vertical">
+		<ng-container ngbNavItem="home">
+			<button ngbNavLink [routerLink]="'/'">Home</button>
+		</ng-container>
+		<ng-container ngbNavItem="dashboard">
+			<button ngbNavLink [routerLink]="'/dashboard'">Dashboard</button>
+		</ng-container>
+		<ng-container ngbNavItem="addbet">
+			<button ngbNavLink [routerLink]="'/add-bet'">Add Bet</button>
+		</ng-container>
+	</div>
+	<div [ngbNavOutlet]="nav" class="mb-auto"></div>
+    <hr />
+    <div ngbDropdown class="d-inline-block">
+      <button
+        class="btn btn-link text-decoration-none text-white"
+        id="dropdownUser1"
+        ngbDropdownToggle
+      >
+        <i class="bi bi-person-circle me-2"></i>
+        <strong>{{username}}</strong>
+      </button>
+      <div
+        ngbDropdownMenu 
+        aria-labelledby="dropdownUser1"
+      >
+      <button ngbDropdownItem>New project...</button>
+      <button ngbDropdownItem>Profile</button>
+      <button ngbDropdownItem>Sign out</button>
+    </div>
+    </div>
+  </div>

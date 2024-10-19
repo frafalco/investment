@@ -10,10 +10,11 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { Bet, SupabaseService } from './supabase.service';
+import { SupabaseService } from './supabase.service';
 import { SortColumn, SortDirection } from '../directives/sortable.directive';
 import { DecimalPipe } from '@angular/common';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { Bet } from '../bean/beans';
 
 interface SearchResult {
   bets: Bet[];

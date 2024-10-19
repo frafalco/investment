@@ -1,7 +1,7 @@
 import { AsyncPipe, CommonModule, DecimalPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { Bet, SupabaseService } from '../services/supabase.service';
+import { SupabaseService } from '../services/supabase.service';
 import {
   FormBuilder,
   FormControl,
@@ -14,6 +14,7 @@ import { NgbDatepickerModule, NgbPaginationModule } from '@ng-bootstrap/ng-boots
 import { Observable } from 'rxjs';
 import { DashboardTableService } from '../services/dashboard-table.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { Bet } from '../bean/beans';
 
 @Component({
   selector: 'app-dashboard',
@@ -61,7 +62,7 @@ export class DashboardComponent {
     supabase.userSubject.pipe().subscribe((user: User | null) => {
       this.user = user;
       if (this.user) {
-        if (this.getBankroll()) {
+        if (this.getUsername()) {
           this.isInitialized = true;
           this.bets$ = this.dashboardTableService.bets$;
           this.total$ = this.dashboardTableService.total$;
@@ -70,27 +71,10 @@ export class DashboardComponent {
     });
   }
 
-  // ngOnInit() {
-  //   try {
-  //     console.log('On init');
-  //     this.user = this.supabase.getUser();
-  //     if (this.user) {
-  //       if (this.getBankroll()) {
-  //         this.isInitialized = true;
-  //         this.results$ = this.dashboardTableService.results$;
-  //         this.total$ = this.dashboardTableService.total$;
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Pippo:', error);
-  //   }
-  // }
-
   async onSubmitUpdateProfile(): Promise<void> {
     this.loading = true;
-    const bankroll: number = this.setupForm.value.bankroll as number;
     const username: string = this.setupForm.value.username as string;
-    const { error } = await this.supabase.updateProfile(this.user!, username, bankroll);
+    const { error } = await this.supabase.updateProfile(this.user!, username);
     if (error) {
       this.errorMessage = "Errore durante l'update del profilo";
       console.error('Errore:', error);

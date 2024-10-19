@@ -15,7 +15,7 @@ import {
   RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
-import { Bet, SupabaseService } from '../services/supabase.service';
+import { SupabaseService } from '../services/supabase.service';
 import { NgModule } from '@angular/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -26,6 +26,7 @@ import {
   NgbDatepickerModule,
   NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap';
+import { Bet } from '../bean/beans';
 
 @Component({
   selector: 'app-add-bet',
@@ -111,7 +112,7 @@ export class AddBetComponent {
       odds: parseFloat(this.submitForm.value.odds!),
       result: this.submitForm.value.result!,
       stake: parseFloat(this.submitForm.value.stake!),
-      user_id: this.user!.id,
+      strategy_id: 0,
     };
 
     this.console.log(result);
