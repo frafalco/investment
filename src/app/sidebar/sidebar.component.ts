@@ -13,6 +13,7 @@ import { Profile, UserInfo } from '../bean/beans';
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
+  activeItem: string;
   username: string = '';
   profile: Profile | null = null;
 
@@ -21,6 +22,7 @@ export class SidebarComponent {
       this.profile = userInfo.profile;
       this.username = userInfo.profile ? userInfo.profile.username ?? userInfo.profile.email : 'Anonymus'
     })
+    this.activeItem = window.location.pathname;
   }
 
   async signOut() {

@@ -9,8 +9,6 @@ import { environment } from '../../environments/environment';
 import { BehaviorSubject } from 'rxjs';
 import { Bet, Profile, Strategy, UserInfo } from '../bean/beans';
 
-
-
 @Injectable({
   providedIn: 'root',
 })
@@ -28,7 +26,6 @@ export class SupabaseService {
       environment.supabaseKey
     );
     this.restoreSession();
-
   }
 
   // Funzione per ripristinare la sessione all'avvio dell'app
@@ -38,18 +35,27 @@ export class SupabaseService {
     try {
       if (data.session) {
         this.userSubject.next(data.session.user);
-        const {data: profile, error: errorProfile} = await this.supabase.from('profiles').select<'*', Profile>().eq('id', data.session.user.id).single();
-        if(errorProfile) {
+        const { data: profile, error: errorProfile } = await this.supabase
+          .from('profiles')
+          .select<'*', Profile>()
+          .eq('id', data.session.user.id)
+          .single();
+        if (errorProfile) {
           throw errorProfile;
         }
         userInfo.profile = profile;
-        const {data: strategies, error: errorStrategies} = await this.supabase.from('strategies').select<'*',Strategy>().eq('user_id', data.session.user.id);
-        if(errorStrategies) {
+        const { data: strategies, error: errorStrategies } = await this.supabase
+          .from('strategies')
+          .select<'*', Strategy>()
+          .eq('user_id', data.session.user.id);
+        if (errorStrategies) {
           throw errorStrategies;
         }
         userInfo.strategies = strategies;
-        const {data: bets, error: errorBets} = await this.supabase.from('bets').select<'*',Bet>();
-        if(errorBets) {
+        const { data: bets, error: errorBets } = await this.supabase
+          .from('bets')
+          .select<'*', Bet>();
+        if (errorBets) {
           throw errorBets;
         }
         userInfo.bets = bets;
@@ -62,38 +68,63 @@ export class SupabaseService {
     this.userInfoSubject.next(userInfo);
     //listen profiles table
     this.supabase
-    .channel('profiles')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `id=eq.${this.getUser()?.id}` }, payload => {
-      const profile = payload.new as Profile;
-      userInfo.profile = profile;
-      this.userInfoSubject.next(userInfo);
-    })
-    .subscribe()
+      .channel('profiles')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: `id=eq.${this.getUser()?.id}`,
+        },
+        (payload) => {
+          const profile = payload.new as Profile;
+          userInfo.profile = profile;
+          this.userInfoSubject.next(userInfo);
+        }
+      )
+      .subscribe();
     //listen strategies table
     this.supabase
-    .channel('strategies')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'strategies', filter: `user_id=eq.${this.getUser()?.id}` }, payload => {
-      const strategy = payload.new as Strategy;
-      const userInfo = this.userInfoSubject.getValue();
-      userInfo.updateStrategy(strategy);
-      console.log('Strategies', userInfo.strategies)
-      this.userInfoSubject.next(userInfo);
-    })
-    .subscribe()
+      .channel('strategies')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'strategies',
+          filter: `user_id=eq.${this.getUser()?.id}`,
+        },
+        (payload) => {
+          const strategy = payload.new as Strategy;
+          const userInfo = this.userInfoSubject.getValue();
+          userInfo.updateStrategy(strategy);
+          console.log('Strategies', userInfo.strategies);
+          this.userInfoSubject.next(userInfo);
+        }
+      )
+      .subscribe();
     //listen bets table
     this.supabase
-    .channel('bets')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'bets', filter: `user_id=eq.${this.getUser()?.id}` }, payload => {
-      const bet = payload.new as Bet;
-      const userInfo = this.userInfoSubject.getValue();
-      userInfo.updateBets(bet);
-      console.log('Bets', userInfo.bets)
-      this.userInfoSubject.next(userInfo);
-    })
-    .subscribe()
+      .channel('bets')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bets',
+          filter: `user_id=eq.${this.getUser()?.id}`,
+        },
+        (payload) => {
+          const bet = payload.new as Bet;
+          const userInfo = this.userInfoSubject.getValue();
+          userInfo.updateBets(bet);
+          console.log('Bets', userInfo.bets);
+          this.userInfoSubject.next(userInfo);
+        }
+      )
+      .subscribe();
   }
-
-
 
   async insertBet(bet: Bet) {
     try {
@@ -109,45 +140,61 @@ export class SupabaseService {
     }
   }
 
+  async updateBetAndStrategy(item: Bet) {
+    const currentUserInfo = this.userInfoSubject.getValue();
+    if (currentUserInfo.profile) {
+      const currentStrategy = currentUserInfo.strategies.find(
+        (elem) => elem.id === item.strategy_id
+      );
+      if (currentStrategy) {
+        let currentProfit = 0;
+        currentProfit = currentStrategy.profit ?? 0;
+        currentProfit = currentProfit + item.profit!;
+        item.cumulated_profit = currentProfit;
+        //update bet
+        await this.supabase.from('bets').upsert(item);
+        const update = {
+          id: currentStrategy.id,
+          profit: currentProfit,
+          updated_at: new Date(),
+        };
+        //update strategy
+        await this.supabase.from('strategies').upsert(update);
+      }
+    }
+    return;
+  }
+
   async deleteBet(bet: Bet) {
     try {
-      const { error: deleteError } = await this.supabase
-        .from('bets')
-        .delete()
-        .eq('id', bet.id);
+      const currentUserInfo = this.userInfoSubject.getValue();
+      if (currentUserInfo.profile) {
+        const currentStrategy = currentUserInfo.strategies.find(
+          (elem) => elem.id === bet.strategy_id
+        );
+        if (currentStrategy) {
+          let currentProfit = 0;
+          currentProfit = currentStrategy.profit ?? 0;
+          currentProfit = currentProfit - bet.profit!;
+          //update bet
+          const { error: deleteError } = await this.supabase
+            .from('bets')
+            .delete()
+            .eq('id', bet.id);
 
-      if (deleteError) {
-        throw deleteError;
+          if (deleteError) {
+            throw deleteError;
+          }
+
+          const update = {
+            id: currentStrategy.id,
+            profit: currentProfit,
+            updated_at: new Date(),
+          };
+          //update strategy
+          await this.supabase.from('strategies').upsert(update);
+        }
       }
-
-      const currentUser = this.getUser();
-      let currentProfit = 0;
-      if (currentUser) {
-        currentProfit = currentUser.user_metadata['profit'] ?? 0;
-      }
-      const update = {
-        id: currentUser!.id,
-        profit: currentProfit - bet.profit!,
-        updated_at: new Date(),
-      };
-      const { data: updatedUser, error: updateError } = await this.supabase
-        .from('profiles')
-        .upsert(update)
-        .select()
-        .single();
-
-      // TODO capire se aggiornare la ROI
-      if (updatedUser) {
-        const { data, error } = await this.supabase.auth.updateUser({
-          data: {
-            profit: updatedUser.profit,
-            roi: updatedUser.profit / updatedUser.starting_bankroll,
-          },
-        });
-
-        this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
-      }
-
       return;
     } catch (error) {
       throw error;
@@ -175,6 +222,7 @@ export class SupabaseService {
       throw error;
     }
     this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
+    await this.restoreSession();
     return data;
   }
 
@@ -196,53 +244,15 @@ export class SupabaseService {
     return !!this.userSubject.getValue();
   }
 
-  async updateProfile(user: User, username: string) {
+  async updateProfile(id: string, usernameFromTable: string) {
+    const username = usernameFromTable !== '' ? usernameFromTable : null;
     const update = {
-      id: user.id,
+      id,
       username,
       updated_at: new Date(),
     };
 
-    await this.supabase.from('profiles').upsert(update);
-    const { data, error } = await this.supabase.auth.updateUser({
-      data: {
-        username,
-      },
-    });
-    this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
+    const { data, error } = await this.supabase.from('profiles').upsert(update);
     return { data, error };
-  }
-
-  async updateBetAndUser(user: User, item: Bet) {
-    await this.supabase.from('bets').upsert(item);
-    const currentUser = this.getUser();
-    let currentProfit = 0;
-    if (currentUser) {
-      currentProfit = currentUser.user_metadata['profit'] ?? 0;
-    }
-    const update = {
-      id: user.id,
-      profit: currentProfit + item.profit!,
-      updated_at: new Date(),
-    };
-    const { data: updatedUser, error: updateError } = await this.supabase
-      .from('profiles')
-      .upsert(update)
-      .select()
-      .single();
-
-    // TODO capire se aggiornare la ROI
-    if (updatedUser) {
-      const { data, error } = await this.supabase.auth.updateUser({
-        data: {
-          ...user.user_metadata,
-          profit: updatedUser.profit,
-          roi: updatedUser.profit / updatedUser.starting_bankroll,
-        },
-      });
-
-      this.userSubject.next(data.user); // Aggiorna lo stato dell'utente
-    }
-    return;
   }
 }

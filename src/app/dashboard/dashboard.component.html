@@ -1,207 +1,30 @@
-<div *ngIf="isInitialized; else initializeBlock">
-  @if (dashboardTableService.loading$ | async) {
-    <div class="loading">
-      <mat-spinner></mat-spinner>
-    </div>
-  }
+@if(profile) {
   <div class="row">
     <div class="col-sm-6">
-      <p>Ciao {{ getUsername() }}</p>
+      <p>Ciao Pippo</p>
     </div>
     <div class="col-sm-6">
       <div class="row text-end">
         <div class="col-sm-4">
           <p>
-            Bankroll iniziale <b>${{ getBankroll() }}</b>
+            Bankroll iniziale <b>$10000</b>
           </p>
         </div>
         <div class="col-sm-4">
           <p>
-            ROI <b>{{ getROI() | percent: '1.0-4' }}</b>
+            ROI <b>{{ 0.0012 | percent: '1.0-4' }}</b>
           </p>
         </div>
         <div class="col-sm-4">
           <p>
-            Bankroll attuale <b>${{ getCurrentBankroll() }}</b>
+            Bankroll attuale <b>${{ 10012 }}</b>
           </p>
         </div>
       </div>
     </div>
   </div>
-  <div class="row align-items-end">
-    <div class="col-sm-12">
-      <h4>Le tue scommesse</h4>
-    </div>
-    <div class="col-sm-12">
-      <h5>Filtra la tabella</h5>
-    </div>
-    <div class="col-sm-3">
-      <label for="bookmaker" class="form-label"> Bookmaker </label>
-      <input
-        id="bookmaker"
-        type="text"
-        [(ngModel)]="dashboardTableService.bookmaker"
-        class="form-control"
-      />
-    </div>
-    <div class="col-sm-3">
-      <label class="form-label"> Data </label>
-      <div class="input-group">
-        <input
-          class="form-control"
-          placeholder="yyyy-mm-dd"
-          name="dp"
-          [(ngModel)]="dashboardTableService.date"
-          ngbDatepicker
-          #d="ngbDatepicker"
-        />
-        <button
-          class="btn btn-outline-secondary bi bi-calendar3"
-          (click)="d.toggle()"
-          type="button"
-        ></button>
-      </div>
-    </div>
-    <div class="col-sm-3">
-      <label for="result" class="form-label">Result</label>
-      <select
-        [(ngModel)]="dashboardTableService.result"
-        class="form-select"
-        id="result"
-      >
-        <option value="">--Select--</option>
-        <option *ngFor="let option of resultOptions" [value]="option.value">
-          {{ option.label }}
-        </option>
-      </select>
-    </div>
-    <div class="col-sm-3 text-end">
-      <button class="btn btn-primary btn-lg" (click)="resetFilters()">
-        Reset Filters
-      </button>
-    </div>
-  </div>
-  <table class="table table-striped">
-    <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Date</th>
-        <th scope="col">Bookmaker</th>
-        <th scope="col">Odds</th>
-        <th scope="col">Stake</th>
-        <th scope="col">Bet</th>
-        <th scope="col">Result</th>
-        <th scope="col">Profit</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      @for (r of bets$ | async; track r.id) {
-      <tr>
-        <th scope="row" class="col-sm-1">{{ r.id }}</th>
-        <td>
-          {{ r.date | date : "dd/MM/yyyy" }}
-        </td>
-        <td>{{ r.bookmaker }}</td>
-        <td>{{ r.odds | number }}</td>
-        <td>{{ r.stake | number }}%</td>
-        <td>{{ r.bet | number }}</td>
-        <td>
-          @if (!editRow[r.id!]) {
-          {{ r.result }}
-          } @else{
-          <select
-            class="form-select"
-            id="new-result"
-            [value]="r.result"
-            [(ngModel)]="newResultValue"
-          >
-            <option *ngFor="let option of resultOptions" [value]="option.value">
-              {{ option.label }}
-            </option>
-          </select>
-          }
-        </td>
-        <td>{{ r.profit || "-" }}</td>
-        <td  class="col-sm-1 text-center">
-          @if(r.result === 'pending') {
-          <button
-            class="btn btn-outline-secondary mx-1 bi"
-            [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'"
-            type="button"
-            (click)="toogleEditRow(r)"
-          ></button>
-          }
-          <button
-            class="btn btn-outline-danger bi bi-trash"
-            type="button"
-            (click)="deleteItem(r)"
-          ></button>
-        </td>
-      </tr>
-      }
-    </tbody>
-  </table>
+  <app-dashboard-table></app-dashboard-table>
+} @else {
+  <h3>Anonymus content</h3>
+}
 
-  <div class="d-flex justify-content-between p-2">
-    <ngb-pagination
-      [collectionSize]="(total$ | async)!"
-      [(page)]="dashboardTableService.page"
-      [pageSize]="dashboardTableService.pageSize"
-    >
-    </ngb-pagination>
-
-    <select
-      class="form-select"
-      style="width: auto"
-      [(ngModel)]="dashboardTableService.pageSize"
-    >
-      <option [ngValue]="10">10 items per page</option>
-      <option [ngValue]="20">20 items per page</option>
-      <option [ngValue]="30">30 items per page</option>
-    </select>
-  </div>
-</div>
-
-<ng-template #initializeBlock>
-  <form
-    [formGroup]="setupForm"
-    (ngSubmit)="onSubmitUpdateProfile()"
-    class="row g-8"
-  >
-    <div class="mb-3 col-md-6 offset-md-3">
-      <label for="username" class="form-label"> Username </label>
-      <input
-        id="username"
-        type="text"
-        formControlName="username"
-        class="form-control"
-        placeholder="Your username"
-      />
-      <div
-        *ngIf="
-          setupForm.controls['username'].invalid &&
-          (setupForm.controls['username'].dirty ||
-            setupForm.controls['username'].touched)
-        "
-      >
-        <div
-          *ngIf="setupForm.controls['username'].errors!['required']"
-          class="error-message"
-        >
-          Il campo è obbligatorio
-        </div>
-      </div>
-    </div>
-    <div class="d-grid gap-2 col-md-4 mx-auto">
-      <button
-        class="btn btn-primary btn-lg"
-        type="submit"
-        [disabled]="!setupForm.valid && loading"
-      >
-      {{ loading ? "Loading..." : "Update profile" }}
-      </button>
-    </div>
-  </form>
-  <div *ngIf="errorMessage">{{ errorMessage }}</div>
-</ng-template>

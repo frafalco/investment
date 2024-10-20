@@ -1,0 +1,42 @@
+<h1>Ciao {{username}}</h1>
+<p>Here you can update your username</p>
+<form
+    [formGroup]="profileForm"
+    (ngSubmit)="onSubmitUpdateProfile()"
+    class="row g-8 align-items-end"
+  >
+    <div class="mb-3 col-md-6">
+      <label for="username" class="form-label"> Username </label>
+      <input
+        id="username"
+        type="text"
+        formControlName="username"
+        class="form-control"
+        placeholder="Your username"
+      />
+      <div
+        *ngIf="
+          profileForm.controls['username'].invalid &&
+          (profileForm.controls['username'].dirty ||
+          profileForm.controls['username'].touched)
+        "
+      >
+        <div
+          *ngIf="profileForm.controls['username'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+      </div>
+    </div>
+    <div class="mb-3 col-md-4">
+      <button
+        class="btn btn-primary btn-lg"
+        type="submit"
+        [disabled]="!profileForm.valid && updatingProfile"
+      >
+      {{ updatingProfile ? "Loading..." : "Update profile" }}
+      </button>
+    </div>
+  </form>
+  <div *ngIf="errorMessage">{{ errorMessage }}</div>

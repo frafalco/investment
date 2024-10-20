@@ -14,14 +14,18 @@
     #nav="ngbNav"
     class="nav-pills flex-column"
     orientation="vertical"
+    [activeId]="activeItem"
   >
-    <ng-container ngbNavItem="home">
+    <ng-container ngbNavItem="/">
       <button ngbNavLink [routerLink]="'/'">Home</button>
     </ng-container>
-    <ng-container ngbNavItem="dashboard">
+    <ng-container ngbNavItem="/profile">
+      <button ngbNavLink [routerLink]="'/profile'">Profile</button>
+    </ng-container>
+    <ng-container ngbNavItem="/dashboard">
       <button ngbNavLink [routerLink]="'/dashboard'">Dashboard</button>
     </ng-container>
-    <ng-container ngbNavItem="addbet">
+    <ng-container ngbNavItem="/addbet">
       <button ngbNavLink [routerLink]="'/add-bet'">Add Bet</button>
     </ng-container>
   </div>
@@ -38,8 +42,6 @@
     </button>
     <div ngbDropdownMenu aria-labelledby="dropdownUser1">
       @if (profile) {
-      <button ngbDropdownItem>New strategy</button>
-      <button ngbDropdownItem>Profile</button>
       <button ngbDropdownItem (click)="signOut()">Sign out</button>
       } @else {
         <button ngbDropdownItem [routerLink]="'/login'">Sign In</button>

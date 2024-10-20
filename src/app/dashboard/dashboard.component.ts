@@ -14,129 +14,28 @@ import { NgbDatepickerModule, NgbPaginationModule } from '@ng-bootstrap/ng-boots
 import { Observable } from 'rxjs';
 import { DashboardTableService } from '../services/dashboard-table.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Bet } from '../bean/beans';
+import { Bet, Profile, UserInfo } from '../bean/beans';
+import { DashboardTableComponent } from "../dashboard-table/dashboard-table.component";
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
-    RouterLink,
-    RouterLinkActive,
-    FormsModule,
-    ReactiveFormsModule,
-    NgbPaginationModule,
-    AsyncPipe,
-    MatProgressSpinnerModule,
-    NgbDatepickerModule
-  ],
+    DashboardTableComponent
+],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   providers: [DashboardTableService, DecimalPipe]
 })
 export class DashboardComponent {
-  loading = false;
-  isInitialized = false;
-  setupForm: FormGroup = new FormGroup({
-    username: new FormControl(),
-    bankroll: new FormControl(),
-  });
-  errorMessage: string | null = null; // Variabile per gestire gli errori
-  user: User | null = null;
-	bets$!: Observable<Bet[]>;
-	total$!: Observable<number>;
-  resultOptions = [
-    { value: 'pending', label: 'Pending' },
-    { value: 'lost', label: 'Lost' },
-    { value: 'won', label: 'Won' },
-    { value: 'void', label: 'Void' },
-  ];
-  editRow: any = {};
-  newResultValue: string = '';
+  profile: Profile | null = null;
+  username: string = '';
 
-  constructor(
-    private readonly supabase: SupabaseService,
-    public dashboardTableService: DashboardTableService
-  ) {
-    supabase.userSubject.pipe().subscribe((user: User | null) => {
-      this.user = user;
-      if (this.user) {
-        if (this.getUsername()) {
-          this.isInitialized = true;
-          this.bets$ = this.dashboardTableService.bets$;
-          this.total$ = this.dashboardTableService.total$;
-        }
-      }
-    });
+  constructor(private supabase: SupabaseService) {
+    supabase.userInfo$.subscribe((userInfo: UserInfo) => {
+      this.profile = userInfo.profile;
+      this.username = userInfo.profile ? userInfo.profile.username ?? userInfo.profile.email : 'Anonymus';
+    })
   }
-
-  async onSubmitUpdateProfile(): Promise<void> {
-    this.loading = true;
-    const username: string = this.setupForm.value.username as string;
-    const { error } = await this.supabase.updateProfile(this.user!, username);
-    if (error) {
-      this.errorMessage = "Errore durante l'update del profilo";
-      console.error('Errore:', error);
-    } else {
-      this.errorMessage = null;
-    }
-    this.loading = false;
-  }
-
-  getUsername() {
-    return this.user?.user_metadata['username'];
-  }
-
-  getBankroll() {
-    return this.user?.user_metadata['starting_bankroll'];
-  }
-
-  getCurrentBankroll() {
-    return parseFloat(this.user?.user_metadata['starting_bankroll']) + parseFloat(this.supabase.getUser()?.user_metadata['profit']);
-  }
-
-  getROI() {
-    return this.user?.user_metadata['roi'];
-  }
-
-  resetFilters(): void {
-    this.dashboardTableService.bookmaker = '';
-    this.dashboardTableService.date = null;
-    this.dashboardTableService.result = '';
-  }
-
-  async toogleEditRow(item: Bet) {
-    const id = item.id!;
-    const currentState = this.editRow[id];
-    this.editRow[id] = !currentState;
-    if(currentState) {
-      //TODO update table
-      let profit = 0;
-      switch(this.newResultValue) {
-        case 'won':
-          profit = (item.bet * item.odds) - item.bet;
-          break;
-        case 'lost':
-          profit = -item.bet;
-          break;
-        case 'void':
-          break;
-        default:
-          return;
-      }
-      item.result = this.newResultValue;
-      item.profit = profit;
-      this.dashboardTableService.addLoader();
-      await this.supabase.updateBetAndUser(this.user!, item);
-      this.dashboardTableService.refreshData();
-    }
-  }
-
-  async deleteItem(item: Bet) {
-    this.dashboardTableService.addLoader();
-    await this.supabase.deleteBet(item);
-    this.dashboardTableService.refreshData();
-  }
-
 }
