@@ -1,8 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
-  Form,
-  FormBuilder,
   FormControl,
   FormGroup,
   FormsModule,
@@ -16,17 +14,13 @@ import {
   RouterOutlet,
 } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
-import { NgModule } from '@angular/core';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatInputModule } from '@angular/material/input';
-import { MatNativeDateModule } from '@angular/material/core';
 import { User } from '@supabase/supabase-js';
 import {
   NgbDateParserFormatter,
   NgbDatepickerModule,
   NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap';
-import { Bet } from '../bean/beans';
+import { Bet, Strategy, UserInfo } from '../bean/beans';
 
 @Component({
   selector: 'app-add-bet',
@@ -44,15 +38,12 @@ import { Bet } from '../bean/beans';
   styleUrl: './add-bet.component.css',
 })
 export class AddBetComponent {
-  console = console;
-  pageLoading = true;
-  loading = false;
-  isInitialized = false;
   errorMessage: string | null = null;
   options = ['Won', 'Lost', 'Pending'];
   selectedOption: string | undefined;
   user: User | null = null;
   bankroll: number = 0;
+  strategies: Strategy[] = [];
 
   results: any[] = [
     { value: 'pending', label: 'Pending', disabled: false },
@@ -62,6 +53,7 @@ export class AddBetComponent {
   ];
 
   submitForm = new FormGroup({
+    strategy_id: new FormControl('', Validators.required),
     date: new FormControl<NgbDateStruct | null>(null, Validators.required),
     bookmaker: new FormControl('', Validators.required),
     odds: new FormControl('', [
@@ -80,14 +72,40 @@ export class AddBetComponent {
     private supabaseService: SupabaseService,
     private router: Router,
     private ngbDateParserFormatter: NgbDateParserFormatter
-  ) {}
+  ) {
+    supabaseService.userInfo$.subscribe((userInfo: UserInfo) => {
+      this.strategies = userInfo.strategies;
+    });
+  }
 
   ngOnInit() {
-    this.user = this.supabaseService.getUser();
-    if (!this.user) {
-      this.router.navigate(['/login']);
-    }
-    this.bankroll = this.user?.user_metadata['starting_bankroll'];
+    this.submitForm
+      .get('strategy_id')
+      ?.valueChanges.subscribe((strategy_id) => {
+        if (strategy_id) {
+          const selectedStrategy = this.strategies.find(
+            (s) => s.id === +strategy_id
+          );
+          if (selectedStrategy) {
+            this.bankroll = selectedStrategy.starting_bankroll;
+          }
+        } else {
+          this.bankroll = 0;
+        }
+        this.submitForm.patchValue({ stake: '' });
+      });
+
+    this.submitForm.get('stake')?.valueChanges.subscribe((value) => {
+      let betValue = '';
+      if (value) {
+        const floatValue = parseFloat(value);
+        if (!isNaN(floatValue)) {
+          const betFloatValue = this.bankroll * floatValue * 0.01;
+          betValue = '' + betFloatValue;
+        }
+      }
+      this.submitForm.patchValue({ bet: betValue });
+    });
   }
 
   stakeOnChange(event: Event) {
@@ -103,8 +121,6 @@ export class AddBetComponent {
   }
 
   onSubmit() {
-    this.console.log(this.submitForm.value);
-
     const result: Bet = {
       date: this.ngbDateParserFormatter.format(this.submitForm.value.date!),
       bet: parseFloat(this.submitForm.value.bet!),
@@ -112,19 +128,13 @@ export class AddBetComponent {
       odds: parseFloat(this.submitForm.value.odds!),
       result: this.submitForm.value.result!,
       stake: parseFloat(this.submitForm.value.stake!),
-      strategy_id: 0,
+      strategy_id: parseInt(this.submitForm.value.strategy_id!),
     };
-
-    this.console.log(result);
 
     this.supabaseService
       .insertBet(result)
-      .then((response) => {
-        this.console.log(response);
-      })
-      .catch((error) => {
-        this.console.log(error);
-      });
+      .then((response) => {})
+      .catch((error) => {});
 
     this.router.navigate(['/dashboard']);
   }

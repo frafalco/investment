@@ -1,12 +1,15 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input, numberAttribute } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { NgbPaginationModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbPaginationModule,
+  NgbDatepickerModule,
+} from '@ng-bootstrap/ng-bootstrap';
 import { DashboardTableService } from '../services/dashboard-table.service';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../services/supabase.service';
-import { Bet, Profile, UserInfo } from '../bean/beans';
-import { Observable } from 'rxjs';
+import { Bet, Profile, Strategy, UserInfo } from '../bean/beans';
+import { Observable, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard-table',
@@ -17,13 +20,18 @@ import { Observable } from 'rxjs';
     NgbPaginationModule,
     AsyncPipe,
     MatProgressSpinnerModule,
-    NgbDatepickerModule
+    NgbDatepickerModule,
   ],
   templateUrl: './dashboard-table.component.html',
-  styleUrl: './dashboard-table.component.css'
+  styleUrl: './dashboard-table.component.css',
 })
 export class DashboardTableComponent {
+  @Input({ required: true }) strategy_id!: number;
+
   profile!: Profile | null;
+  strategy!: Strategy;
+  mediaQuota: number = 0;
+  winRate: number = 0;
   username!: string;
   resultOptions = [
     { value: 'pending', label: 'Pending' },
@@ -33,19 +41,47 @@ export class DashboardTableComponent {
   ];
   editRow: any = {};
   newResultValue: string = '';
-	bets$!: Observable<Bet[]>;
-	total$!: Observable<number>;
+  bets$!: Observable<Bet[]>;
+  total$!: Observable<number>;
 
   constructor(
     private supabase: SupabaseService,
     public dashboardTableService: DashboardTableService
-  ) {
-    supabase.userInfo$.subscribe((userInfo: UserInfo) => {
+  ) {}
+
+  ngOnInit() {
+    this.supabase.userInfo$.subscribe((userInfo: UserInfo) => {
       this.profile = userInfo.profile;
-      this.username = userInfo.profile ? userInfo.profile.username ?? userInfo.profile.email : 'Anonymus';
+      this.strategy = userInfo.strategies.find(
+        (s) => s.id === this.strategy_id
+      )!;
+      this.username = userInfo.profile
+        ? userInfo.profile.username ?? userInfo.profile.email
+        : 'Anonymus';
       this.bets$ = this.dashboardTableService.bets$;
       this.total$ = this.dashboardTableService.total$;
-    })
+      this.retrieveBetInfo(userInfo.bets);
+    });
+    this.dashboardTableService.strategyID = this.strategy_id;
+  }
+
+  retrieveBetInfo(bets: Bet[]) {
+    let totalOdds = 0;
+    let wonNumber = 0;
+    let totalBets = 0;
+    bets
+      .filter((b) => b.strategy_id === this.strategy_id)
+      .forEach((b) => {
+        totalOdds += b.odds;
+        if (b.result === 'won') {
+          wonNumber++;
+        }
+        totalBets++;
+      });
+    if (totalBets > 0) {
+      this.mediaQuota = totalOdds / totalBets;
+      this.winRate = wonNumber / totalBets;
+    }
   }
 
   resetFilters(): void {
@@ -58,12 +94,12 @@ export class DashboardTableComponent {
     const id = item.id!;
     const currentState = this.editRow[id];
     this.editRow[id] = !currentState;
-    if(currentState) {
+    if (currentState) {
       //TODO update table
       let profit = 0;
-      switch(this.newResultValue) {
+      switch (this.newResultValue) {
         case 'won':
-          profit = (item.bet * item.odds) - item.bet;
+          profit = item.bet * item.odds - item.bet;
           break;
         case 'lost':
           profit = -item.bet;

@@ -95,11 +95,20 @@ export class SupabaseService {
           table: 'strategies',
           filter: `user_id=eq.${this.getUser()?.id}`,
         },
-        (payload) => {
+        async (payload) => {
           const strategy = payload.new as Strategy;
           const userInfo = this.userInfoSubject.getValue();
           userInfo.updateStrategy(strategy);
-          console.log('Strategies', userInfo.strategies);
+
+          
+          const { data: bets, error: errorBets } = await this.supabase
+            .from('bets')
+            .select<'*', Bet>();
+          if (errorBets) {
+            throw errorBets;
+          }
+          userInfo.bets = bets;
+
           this.userInfoSubject.next(userInfo);
         }
       )
@@ -110,7 +119,7 @@ export class SupabaseService {
       .on(
         'postgres_changes',
         {
-          event: '*',
+          event: 'INSERT',
           schema: 'public',
           table: 'bets',
           filter: `user_id=eq.${this.getUser()?.id}`,
@@ -118,8 +127,7 @@ export class SupabaseService {
         (payload) => {
           const bet = payload.new as Bet;
           const userInfo = this.userInfoSubject.getValue();
-          userInfo.updateBets(bet);
-          console.log('Bets', userInfo.bets);
+          userInfo.addBet(bet);
           this.userInfoSubject.next(userInfo);
         }
       )
@@ -153,13 +161,9 @@ export class SupabaseService {
         item.cumulated_profit = currentProfit;
         //update bet
         await this.supabase.from('bets').upsert(item);
-        const update = {
-          id: currentStrategy.id,
-          profit: currentProfit,
-          updated_at: new Date(),
-        };
+        currentStrategy.profit = currentProfit;
         //update strategy
-        await this.supabase.from('strategies').upsert(update);
+        await this.supabase.from('strategies').upsert(currentStrategy);
       }
     }
     return;
@@ -186,13 +190,9 @@ export class SupabaseService {
             throw deleteError;
           }
 
-          const update = {
-            id: currentStrategy.id,
-            profit: currentProfit,
-            updated_at: new Date(),
-          };
+          currentStrategy.profit = currentProfit;
           //update strategy
-          await this.supabase.from('strategies').upsert(update);
+          await this.supabase.from('strategies').upsert(currentStrategy);
         }
       }
       return;
@@ -254,5 +254,9 @@ export class SupabaseService {
 
     const { data, error } = await this.supabase.from('profiles').upsert(update);
     return { data, error };
+  }
+
+  async addStrategy(newStrategy: {name: string | null, starting_bankroll: number | null}) {
+    await this.supabase.from('strategies').insert(newStrategy);
   }
 }

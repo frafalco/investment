@@ -47,7 +47,7 @@ export class UserInfo {
     }
 
     public get strategies() {
-        return this._strategies;
+        return this._strategies.sort((a, b) => a.name.toUpperCase() > b.name.toUpperCase() ? 1 : -1);
     }
 
     public set strategies(strategies: Strategy[]) {
@@ -71,13 +71,8 @@ export class UserInfo {
         this._bets = bets;
     }
 
-    public updateBets(bet: Bet) {
-        const index = this._bets.findIndex(elem => elem.id === bet.id);
-        if(index > -1) {
-            this._bets[index] = bet;
-        } else {
-            this._bets.push(bet);
-        }
+    public addBet(bet: Bet) {
+        this._bets.push(bet);
     }
 
     public get loading() {

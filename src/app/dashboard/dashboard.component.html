@@ -1,29 +1,60 @@
 @if(profile) {
-  <div class="row">
-    <div class="col-sm-6">
-      <p>Ciao Pippo</p>
-    </div>
-    <div class="col-sm-6">
-      <div class="row text-end">
-        <div class="col-sm-4">
-          <p>
-            Bankroll iniziale <b>$10000</b>
-          </p>
-        </div>
-        <div class="col-sm-4">
-          <p>
-            ROI <b>{{ 0.0012 | percent: '1.0-4' }}</b>
-          </p>
-        </div>
-        <div class="col-sm-4">
-          <p>
-            Bankroll attuale <b>${{ 10012 }}</b>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <app-dashboard-table></app-dashboard-table>
+  <ul ngbNav #nav="ngbNav" [(activeId)]="activeStrategy" class="nav-tabs">
+    @for (s of strategies; track s.id) {
+      <ng-container [ngbNavItem]="s.id.toString()">
+        <button ngbNavLink>{{s.name}}</button>
+        <ng-template ngbNavContent>
+          <app-dashboard-table [strategy_id]="s.id"></app-dashboard-table>
+        </ng-template>
+      </ng-container>
+    }
+    <ng-container ngbNavItem="'new'">
+      <button ngbNavLink>New strategy</button>
+      <ng-template ngbNavContent>
+        <p>
+          Click the button below to add a new strategy.
+        </p>
+        <button class="btn btn-lg btn-outline-primary" (click)="open(content)">Add Strategy</button>
+        <ng-template #content let-modal>
+          <div class="modal-header">
+            <h4 class="modal-title" id="modal-basic-title">Profile update</h4>
+            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+          </div>
+          <div class="modal-body">
+            <form [formGroup]="addStrategyForm">
+              <div class="mb-3">
+                <label for="name">Startegy Name</label>
+                <div class="input-group">
+                  <input
+                    id="name"
+                    class="form-control"
+                    name="name"
+                    formControlName="name"
+                  />
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="starting_bankroll">Sarting Bankroll</label>
+                <div class="input-group">
+                  <input
+                    id="starting_bankroll"
+                    class="form-control"
+                    name="starting_bankroll"
+                    formControlName="starting_bankroll"
+                  />
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" (click)="addStrategy(modal)">Save</button>
+          </div>
+        </ng-template>
+      </ng-template>
+    </ng-container>
+  </ul>
+  
+  <div [ngbNavOutlet]="nav" class="mt-2"></div>
 } @else {
   <h3>Anonymus content</h3>
 }

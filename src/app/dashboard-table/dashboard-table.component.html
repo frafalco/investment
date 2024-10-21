@@ -3,10 +3,36 @@
   <mat-spinner></mat-spinner>
 </div>
 }
-
+<div class="row">
+  <div class="col-sm-3">
+    <p>
+      Bankroll iniziale <b>${{strategy.starting_bankroll}}</b>
+    </p>
+  </div>
+  <div class="col-sm-3">
+    <p>
+      Bankroll attuale <b>${{ strategy.starting_bankroll + strategy.profit }}</b>
+    </p>
+  </div>
+  <div class="col-sm-2">
+    <p>
+      ROI <b>{{ strategy.profit / strategy.starting_bankroll | percent: '1.0-4' }}</b>
+    </p>
+  </div>
+  <div class="col-sm-2">
+    <p>
+      Media quota <b>{{ mediaQuota }}</b>
+    </p>
+  </div>
+  <div class="col-sm-2">
+    <p>
+      Winrate <b>{{ winRate | percent: '1.0-4' }}</b>
+    </p>
+  </div>
+</div>
 <div class="row align-items-end">
   <div class="col-sm-12">
-    <h4>Le tue scommesse</h4>
+    <h4>Le tue scommesse per la strategy con id: {{strategy_id}}</h4>
   </div>
   <div class="col-sm-12">
     <h5>Filtra la tabella</h5>
@@ -68,6 +94,7 @@
       <th scope="col">Bet</th>
       <th scope="col">Result</th>
       <th scope="col">Profit</th>
+      <th scope="col">Cumulated Profit</th>
       <th></th>
     </tr>
   </thead>
@@ -99,6 +126,7 @@
         }
       </td>
       <td>{{ r.profit || "-" }}</td>
+      <td>{{ r.cumulated_profit || "-" }}</td>
       <td class="col-sm-1 text-center">
         @if(r.result === 'pending') {
         <button

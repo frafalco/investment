@@ -29,6 +29,7 @@ interface State {
   result: string;
   sortColumn: SortColumn;
   sortDirection: SortDirection;
+  strategyID: number;
 }
 
 const compare = (
@@ -92,6 +93,7 @@ export class DashboardTableService {
     result: '',
     sortColumn: '',
     sortDirection: '',
+    strategyID: 0,
   };
 
   constructor(private pipe: DecimalPipe, private supabase: SupabaseService, private ngbDateParserFormatter: NgbDateParserFormatter) {
@@ -107,8 +109,6 @@ export class DashboardTableService {
         this._bets$.next(result.bets);
         this._total$.next(result.total);
       });
-
-    this._search$.next();
   }
 
   get bets$() {
@@ -157,6 +157,9 @@ export class DashboardTableService {
   set sortDirection(sortDirection: SortDirection) {
     this._set({ sortDirection });
   }
+  set strategyID(strategyID: number) {
+    this._set({ strategyID });
+  }
 
   private _set(patch: Partial<State>) {
     Object.assign(this._state, patch);
@@ -166,29 +169,37 @@ export class DashboardTableService {
   private _search(): Observable<SearchResult> {
 
     // Se i dati sono già in cache, non fare la chiamata a Supabase
-    if (this._cachedBets) {
-      return this._applyFiltersAndSorting(this._cachedBets);
-    }
+    // if (this._cachedBets) {
+    //   return this._applyFiltersAndSorting(this._cachedBets);
+    // }
 
-    // Se non ci sono dati in cache, fai la chiamata API a Supabase
-    return from(this.supabase.getBets()).pipe(
+    return this.supabase.userInfo$.pipe(
       switchMap((response) => {
-        // Salva i dati in cache
-        this._cachedBets = response;
-
-        // Applica i filtri, l'ordinamento e la paginazione
-        return this._applyFiltersAndSorting(this._cachedBets);
+        return this._applyFiltersAndSorting(response.bets);
       })
     );
+    // Se non ci sono dati in cache, fai la chiamata API a Supabase
+    // return from(this.supabase.getBets()).pipe(
+    //   switchMap((response) => {
+    //     // Salva i dati in cache
+    //     this._cachedBets = response;
+
+    //     // Applica i filtri, l'ordinamento e la paginazione
+    //     return this._applyFiltersAndSorting(this._cachedBets);
+    //   })
+    // );
   }
 
   private _applyFiltersAndSorting(bets: Bet[]): Observable<SearchResult> {
-    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;
+    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result, strategyID } = this._state;
 
-    // 1. sort
-    let filteredBets = sort(bets, sortColumn, sortDirection);
+    // 1. filter for strategy
+    let filteredBets = bets.filter(b => b.strategy_id === strategyID);
 
-    // 2. filter
+    // 2. sort
+    filteredBets = sort(filteredBets, sortColumn, sortDirection);
+
+    // 3. filter
     const dateFormatted = this.ngbDateParserFormatter.format(date);
     filteredBets = filteredBets.filter(
       (r) => filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result)
