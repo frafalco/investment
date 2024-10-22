@@ -48,6 +48,29 @@
       </div>
     </div>
     <div class="mb-3 col-md-6">
+      <label for="event" class="form-label"> Evento </label>
+      <input
+        id="event"
+        type="text"
+        formControlName="event"
+        class="form-control"
+      />
+      <div
+        *ngIf="
+          submitForm.controls['event'].invalid &&
+          (submitForm.controls['event'].dirty ||
+            submitForm.controls['event'].touched)
+        "
+      >
+        <div
+          *ngIf="submitForm.controls['event'].errors!['required']"
+          class="error-message"
+        >
+          Il campo è obbligatorio
+        </div>
+      </div>
+    </div>
+    <div class="mb-3 col-md-6">
       <label class="form-label"> Odds </label>
       <input
         id="odds"
@@ -77,7 +100,7 @@
         </div>
       </div>
     </div>
-    <div class="mb-3 col-md-6">
+    <!-- <div class="mb-3 col-md-6">
       <label class="form-label"> Choose a date </label>
       <div class="input-group">
         <input
@@ -90,7 +113,7 @@
         />
         <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
       </div>
-    </div>
+    </div> -->
     <div class="mb-3 col-md-6">
       <label class="form-label"> Stake </label>
       <input

@@ -101,7 +101,7 @@
   <tbody>
     @for (r of bets$ | async; track r.id) {
     <tr>
-      <th scope="row" class="col-sm-1">{{ r.id }}</th>
+      <th scope="row" class="col-sm-1">{{ $index + 1 }}</th>
       <td>
         {{ r.date | date : "dd/MM/yyyy" }}
       </td>
@@ -143,6 +143,8 @@
         ></button>
       </td>
     </tr>
+    } @empty {
+      <p>Non hai ancora piazzato delle scommesse, vai alla pagina Add Bet per aggiungerne</p>
     }
   </tbody>
 </table>

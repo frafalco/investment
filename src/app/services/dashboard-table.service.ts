@@ -68,7 +68,7 @@ function filterBookmaker(result: Bet, term: string) {
 }
 
 function filterDate(result: Bet, term: string) {
-  return result.date.toLowerCase().includes(term.toLowerCase());
+  return result.date!.toLowerCase().includes(term.toLowerCase());
 }
 
 function filteResult(result: Bet, term: string) {

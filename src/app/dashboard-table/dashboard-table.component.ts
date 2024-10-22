@@ -111,6 +111,7 @@ export class DashboardTableComponent {
       }
       item.result = this.newResultValue;
       item.profit = profit;
+      item.updated_at = new Date().toISOString();
       this.dashboardTableService.addLoader();
       await this.supabase.updateBetAndStrategy(item);
       this.dashboardTableService.refreshData();

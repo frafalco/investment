@@ -14,7 +14,7 @@ export interface Strategy {
 
 export interface Bet {
     id?: number;
-    date: string;
+    date?: string;
     bookmaker: string;
     odds: number;
     stake: number;
@@ -23,6 +23,8 @@ export interface Bet {
     profit?: number;
     cumulated_profit?: number;
     strategy_id: number;
+    event: string;
+    updated_at?: string;
 }
 
 export class UserInfo {

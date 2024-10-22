@@ -54,7 +54,8 @@ export class AddBetComponent {
 
   submitForm = new FormGroup({
     strategy_id: new FormControl('', Validators.required),
-    date: new FormControl<NgbDateStruct | null>(null, Validators.required),
+    // date: new FormControl<NgbDateStruct | null>(null, Validators.required),
+    event: new FormControl('', Validators.required),
     bookmaker: new FormControl('', Validators.required),
     odds: new FormControl('', [
       Validators.required,
@@ -122,13 +123,15 @@ export class AddBetComponent {
 
   onSubmit() {
     const result: Bet = {
-      date: this.ngbDateParserFormatter.format(this.submitForm.value.date!),
+      // date: this.ngbDateParserFormatter.format(this.submitForm.value.date!),
+      // date: new Date().toISOString(),
       bet: parseFloat(this.submitForm.value.bet!),
       bookmaker: this.submitForm.value.bookmaker!,
       odds: parseFloat(this.submitForm.value.odds!),
       result: this.submitForm.value.result!,
       stake: parseFloat(this.submitForm.value.stake!),
       strategy_id: parseInt(this.submitForm.value.strategy_id!),
+      event: this.submitForm.value.event!,
     };
 
     this.supabaseService

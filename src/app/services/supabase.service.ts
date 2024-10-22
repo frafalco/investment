@@ -54,7 +54,9 @@ export class SupabaseService {
         userInfo.strategies = strategies;
         const { data: bets, error: errorBets } = await this.supabase
           .from('bets')
-          .select<'*', Bet>();
+          .select<'*', Bet>()
+          .order('updated_at', { ascending: true})
+          .order('date', { ascending: true});
         if (errorBets) {
           throw errorBets;
         }
@@ -103,7 +105,9 @@ export class SupabaseService {
           
           const { data: bets, error: errorBets } = await this.supabase
             .from('bets')
-            .select<'*', Bet>();
+            .select<'*', Bet>()
+            .order('updated_at', { ascending: true})
+            .order('date', { ascending: true});;
           if (errorBets) {
             throw errorBets;
           }
