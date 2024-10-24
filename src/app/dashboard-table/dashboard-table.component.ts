@@ -1,5 +1,5 @@
 import { AsyncPipe, CommonModule } from '@angular/common';
-import { Component, Input, numberAttribute } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
   NgbPaginationModule,
@@ -8,8 +8,13 @@ import {
 import { DashboardTableService } from '../services/dashboard-table.service';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../services/supabase.service';
-import { Bet, Profile, Strategy, UserInfo } from '../bean/beans';
-import { Observable, switchMap } from 'rxjs';
+import { Observable } from 'rxjs';
+import { Strategy } from '../models/strategy.model';
+import { Bet } from '../models/bet.model';
+import { AppState } from '../store/app.state';
+import { Store } from '@ngrx/store';
+import { updateBet } from '../store/profile.actions';
+import { Profile } from '../models/profile.model';
 
 @Component({
   selector: 'app-dashboard-table',
@@ -26,10 +31,9 @@ import { Observable, switchMap } from 'rxjs';
   styleUrl: './dashboard-table.component.css',
 })
 export class DashboardTableComponent {
+  @Input({ required: true }) profile$!: Observable<Profile | undefined>;
   @Input({ required: true }) strategy_id!: number;
 
-  profile!: Profile | null;
-  strategy!: Strategy;
   mediaQuota: number = 0;
   winRate: number = 0;
   username!: string;
@@ -43,45 +47,24 @@ export class DashboardTableComponent {
   newResultValue: string = '';
   bets$!: Observable<Bet[]>;
   total$!: Observable<number>;
+  strategy?: Strategy;
 
   constructor(
-    private supabase: SupabaseService,
+    private store: Store<AppState>,
     public dashboardTableService: DashboardTableService
   ) {}
 
   ngOnInit() {
-    this.supabase.userInfo$.subscribe((userInfo: UserInfo) => {
-      this.profile = userInfo.profile;
-      this.strategy = userInfo.strategies.find(
-        (s) => s.id === this.strategy_id
-      )!;
-      this.username = userInfo.profile
-        ? userInfo.profile.username ?? userInfo.profile.email
-        : 'Anonymus';
-      this.bets$ = this.dashboardTableService.bets$;
-      this.total$ = this.dashboardTableService.total$;
-      this.retrieveBetInfo(userInfo.bets);
-    });
-    this.dashboardTableService.strategyID = this.strategy_id;
-  }
-
-  retrieveBetInfo(bets: Bet[]) {
-    let totalOdds = 0;
-    let wonNumber = 0;
-    let totalBets = 0;
-    bets
-      .filter((b) => b.strategy_id === this.strategy_id)
-      .forEach((b) => {
-        totalOdds += b.odds;
-        if (b.result === 'won') {
-          wonNumber++;
+    this.bets$ = this.dashboardTableService.bets$;
+    this.total$ = this.dashboardTableService.total$;
+    this.profile$.subscribe(p => {
+      if(p) {
+        this.strategy = p.strategies.find(s => s.id === this.strategy_id);
+        if(this.strategy) {
+          this.dashboardTableService.initializeBets(this.strategy.bets);
         }
-        totalBets++;
-      });
-    if (totalBets > 0) {
-      this.mediaQuota = totalOdds / totalBets;
-      this.winRate = wonNumber / totalBets;
-    }
+      }
+    })
   }
 
   resetFilters(): void {
@@ -90,7 +73,7 @@ export class DashboardTableComponent {
     this.dashboardTableService.result = '';
   }
 
-  async toogleEditRow(item: Bet) {
+  toogleEditRow(item: Bet) {
     const id = item.id!;
     const currentState = this.editRow[id];
     this.editRow[id] = !currentState;
@@ -109,18 +92,21 @@ export class DashboardTableComponent {
         default:
           return;
       }
-      item.result = this.newResultValue;
-      item.profit = profit;
-      item.updated_at = new Date().toISOString();
-      this.dashboardTableService.addLoader();
-      await this.supabase.updateBetAndStrategy(item);
-      this.dashboardTableService.refreshData();
+      const bet: Bet = {
+        ...item,
+        result: this.newResultValue,
+        profit,
+        updated_at: new Date().toISOString()
+      };
+      // this.dashboardTableService.addLoader();
+      this.store.dispatch(updateBet({bet, strategy: this.strategy!}))
+      // this.dashboardTableService.refreshData();
     }
   }
 
   async deleteItem(item: Bet) {
-    this.dashboardTableService.addLoader();
-    await this.supabase.deleteBet(item);
-    this.dashboardTableService.refreshData();
+    // this.dashboardTableService.addLoader();
+    // await this.supabase.deleteBet(item);
+    // this.dashboardTableService.refreshData();
   }
 }

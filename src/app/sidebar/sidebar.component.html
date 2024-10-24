@@ -25,7 +25,7 @@
     <ng-container ngbNavItem="/dashboard">
       <button ngbNavLink [routerLink]="'/dashboard'">Dashboard</button>
     </ng-container>
-    <ng-container ngbNavItem="/addbet">
+    <ng-container ngbNavItem="/add-bet">
       <button ngbNavLink [routerLink]="'/add-bet'">Add Bet</button>
     </ng-container>
   </div>
@@ -38,10 +38,10 @@
       ngbDropdownToggle
     >
       <i class="bi bi-person-circle me-2"></i>
-      <strong>{{ username }}</strong>
+      <strong>{{ (username$ | async) || 'Anonymus'}}</strong>
     </button>
     <div ngbDropdownMenu aria-labelledby="dropdownUser1">
-      @if (profile) {
+      @if (username$ | async) {
       <button ngbDropdownItem (click)="signOut()">Sign out</button>
       } @else {
         <button ngbDropdownItem [routerLink]="'/login'">Sign In</button>

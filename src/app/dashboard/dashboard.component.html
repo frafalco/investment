@@ -1,10 +1,10 @@
-@if(profile) {
-  <ul ngbNav #nav="ngbNav" [(activeId)]="activeStrategy" class="nav-tabs">
-    @for (s of strategies; track s.id) {
+<div *ngIf="profile$ | async as profile; else anon">
+  <ul ngbNav #nav="ngbNav" class="nav-tabs">
+    @for (s of profile.strategies; track s.id) {
       <ng-container [ngbNavItem]="s.id.toString()">
         <button ngbNavLink>{{s.name}}</button>
         <ng-template ngbNavContent>
-          <app-dashboard-table [strategy_id]="s.id"></app-dashboard-table>
+          <app-dashboard-info [profile$]="profile$" [strategy_id]="s.id"></app-dashboard-info>
         </ng-template>
       </ng-container>
     }
@@ -55,7 +55,8 @@
   </ul>
   
   <div [ngbNavOutlet]="nav" class="mt-2"></div>
-} @else {
+</div>
+<ng-template #anon>
   <h3>Anonymus content</h3>
-}
+</ng-template>
 

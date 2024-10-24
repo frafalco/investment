@@ -1,5 +1,5 @@
 import { Directive, EventEmitter, Input, Output } from '@angular/core';
-import { Bet } from '../bean/beans';
+import { Bet } from '../models/bet.model';
 
 export type SortColumn = keyof Bet | '';
 export type SortDirection = 'asc' | 'desc' | '';

@@ -11,6 +11,6 @@ export const routes: Routes = [
     {path: 'dashboard', component: DashboardComponent},
     {path: 'add-bet', component: AddBetComponent},
     {path: 'login', component: LoginComponent},
-    {path: 'profile', component: ProfileComponent, canActivate: [isAuthGuard]},
+    {path: 'profile', component: ProfileComponent},
     {path: '**', redirectTo: '/'}
 ];

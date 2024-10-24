@@ -1,5 +1,6 @@
-@if(profile) {
-    <h3>Authenticated content</h3>
-} @else {
+<div *ngIf="profile$ | async as p; else anon">
+    <h3>Authenticated content for the user {{p.username || p.email}}</h3>
+</div>
+<ng-template #anon>
     <h3>Anonymus content</h3>
-}
+</ng-template>

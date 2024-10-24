@@ -1,0 +1,47 @@
+@if(strategy) {
+  <div class="row">
+    <div class="col-sm-3">
+      <p>
+        Bankroll iniziale <b>${{ strategy.starting_bankroll }}</b>
+      </p>
+    </div>
+    <div class="col-sm-3">
+      <p>
+        Bankroll attuale
+        <b>${{ strategy.starting_bankroll + strategy.profit }}</b>
+      </p>
+    </div>
+    <div class="col-sm-2">
+      <p>
+        ROI
+        <b>{{
+          strategy.profit / strategy.starting_bankroll | percent : "1.0-4"
+        }}</b>
+      </p>
+    </div>
+    <div class="col-sm-2">
+      <p>
+        Media quota <b>{{ mediaQuota | number : "1.0-2" }}</b>
+      </p>
+    </div>
+    <div class="col-sm-2">
+      <p>
+        Winrate <b>{{ winRate | percent : "1.0-4" }}</b>
+      </p>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button type="button" class="btn bi bi-table" [ngClass]="tableSelected ? 'btn-primary' : 'btn-outline-primary'" (click)="toogleButtonGroup('table')">
+      <span class="visually-hidden">Table</span>
+    </button>
+    <button type="button" class="btn bi bi-graph-up" [ngClass]="graphSelected ? 'btn-primary' : 'btn-outline-primary'" (click)="toogleButtonGroup('graph')">
+      <span class="visually-hidden">Graph</span>
+    </button>
+  </div>
+  @if(tableSelected) {
+      <app-dashboard-table [profile$]="profile$" [strategy_id]="strategy.id"></app-dashboard-table>
+  }
+  @if(graphSelected) {
+      <app-dashboard-graph [bets]="filteredBets"></app-dashboard-graph>
+  }
+}

@@ -14,7 +14,9 @@ import { SupabaseService } from './supabase.service';
 import { SortColumn, SortDirection } from '../directives/sortable.directive';
 import { DecimalPipe } from '@angular/common';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Bet } from '../bean/beans';
+import { Bet } from '../models/bet.model';
+import { AppState } from '../store/app.state';
+import { Store } from '@ngrx/store';
 
 interface SearchResult {
   bets: Bet[];
@@ -29,7 +31,6 @@ interface State {
   result: string;
   sortColumn: SortColumn;
   sortDirection: SortDirection;
-  strategyID: number;
 }
 
 const compare = (
@@ -84,7 +85,7 @@ export class DashboardTableService {
   private _bets$ = new BehaviorSubject<Bet[]>([]);
   private _total$ = new BehaviorSubject<number>(0);
 
-  private _cachedBets: Bet[] | null = null;
+  private _cachedBets: Bet[] = [];
   private _state: State = {
     page: 1,
     pageSize: 10,
@@ -93,10 +94,9 @@ export class DashboardTableService {
     result: '',
     sortColumn: '',
     sortDirection: '',
-    strategyID: 0,
   };
 
-  constructor(private pipe: DecimalPipe, private supabase: SupabaseService, private ngbDateParserFormatter: NgbDateParserFormatter) {
+  constructor(private pipe: DecimalPipe, private store: Store<AppState>, private ngbDateParserFormatter: NgbDateParserFormatter) {
     this._search$
       .pipe(
         tap(() => this.addLoader()),
@@ -157,9 +157,6 @@ export class DashboardTableService {
   set sortDirection(sortDirection: SortDirection) {
     this._set({ sortDirection });
   }
-  set strategyID(strategyID: number) {
-    this._set({ strategyID });
-  }
 
   private _set(patch: Partial<State>) {
     Object.assign(this._state, patch);
@@ -173,11 +170,13 @@ export class DashboardTableService {
     //   return this._applyFiltersAndSorting(this._cachedBets);
     // }
 
-    return this.supabase.userInfo$.pipe(
-      switchMap((response) => {
-        return this._applyFiltersAndSorting(response.bets);
-      })
-    );
+    // return this.supabase.userInfo$.pipe(
+    //   switchMap((response) => {
+    //     return this._applyFiltersAndSorting(response.bets);
+    //   })
+    // );
+
+    return this._applyFiltersAndSorting(this._cachedBets);
     // Se non ci sono dati in cache, fai la chiamata API a Supabase
     // return from(this.supabase.getBets()).pipe(
     //   switchMap((response) => {
@@ -191,13 +190,10 @@ export class DashboardTableService {
   }
 
   private _applyFiltersAndSorting(bets: Bet[]): Observable<SearchResult> {
-    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result, strategyID } = this._state;
-
-    // 1. filter for strategy
-    let filteredBets = bets.filter(b => b.strategy_id === strategyID);
+    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;;
 
     // 2. sort
-    filteredBets = sort(filteredBets, sortColumn, sortDirection);
+    let filteredBets = sort(bets, sortColumn, sortDirection);
 
     // 3. filter
     const dateFormatted = this.ngbDateParserFormatter.format(date);
@@ -224,8 +220,13 @@ export class DashboardTableService {
     this._loading$.next(false);
   }
 
+  initializeBets(bets: Bet[]) {
+    this._cachedBets = bets;
+    this._search$.next(); 
+  }
+
   refreshData() {
-    this._cachedBets = null;  // Invalida la cache
+    this._cachedBets = [];  // Invalida la cache
     this._search$.next();        // Forza una nuova ricerca (e quindi una nuova chiamata a Supabase)
   }
 }

@@ -1,9 +1,13 @@
-import { Component, Input } from '@angular/core';
-import { NgbCollapseModule, NgbDropdownModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
-import { Router, RouterLink } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
+import { Component } from '@angular/core';
+import { NgbDropdownModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Profile, UserInfo } from '../bean/beans';
+import { Profile } from '../models/profile.model';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/app.state';
+import { filter, Observable } from 'rxjs';
+import { selectUsername } from '../store/profile.selector';
+import * as ProfileActions from '../store/profile.actions';
 
 @Component({
   selector: 'app-sidebar',
@@ -13,20 +17,25 @@ import { Profile, UserInfo } from '../bean/beans';
   styleUrl: './sidebar.component.css'
 })
 export class SidebarComponent {
-  activeItem: string;
-  username: string = '';
-  profile: Profile | null = null;
+  activeItem: string = '';
+  username$: Observable<string | undefined>;
 
-  constructor(private supabase: SupabaseService, private router: Router) {
-    supabase.userInfo$.subscribe((userInfo: UserInfo) => {
-      this.profile = userInfo.profile;
-      this.username = userInfo.profile ? userInfo.profile.username ?? userInfo.profile.email : 'Anonymus'
-    })
-    this.activeItem = window.location.pathname;
+  constructor(private store: Store<AppState>, private router: Router) {
+    this.username$ = store.select(selectUsername);
+  }
+
+  ngOnInit() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    )
+    .subscribe((event: NavigationEnd) => {
+      this.activeItem = event.url;
+    });
   }
 
   async signOut() {
-    await this.supabase.signOut();
+    // await this.supabase.signOut();
+    this.store.dispatch(ProfileActions.logout());
     this.router.navigate(['/']);
   }
 }

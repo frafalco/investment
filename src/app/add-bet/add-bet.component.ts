@@ -20,7 +20,8 @@ import {
   NgbDatepickerModule,
   NgbDateStruct,
 } from '@ng-bootstrap/ng-bootstrap';
-import { Bet, Strategy, UserInfo } from '../bean/beans';
+import { Strategy } from '../models/strategy.model';
+import { Bet } from '../models/bet.model';
 
 @Component({
   selector: 'app-add-bet',
@@ -74,9 +75,9 @@ export class AddBetComponent {
     private router: Router,
     private ngbDateParserFormatter: NgbDateParserFormatter
   ) {
-    supabaseService.userInfo$.subscribe((userInfo: UserInfo) => {
-      this.strategies = userInfo.strategies;
-    });
+    // supabaseService.userInfo$.subscribe((userInfo: UserInfo) => {
+    //   this.strategies = userInfo.strategies;
+    // });
   }
 
   ngOnInit() {

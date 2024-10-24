@@ -1,6 +1,7 @@
-<h1>Ciao {{username}}</h1>
-<p>Here you can update your username</p>
-<form
+<div *ngIf="profile$ | async as profile; else anon">
+  <h1>Ciao {{ profile.username || profile.email }}</h1>
+  <p>Here you can update your username</p>
+  <form
     [formGroup]="profileForm"
     (ngSubmit)="onSubmitUpdateProfile()"
     class="row g-8 align-items-end"
@@ -18,7 +19,7 @@
         *ngIf="
           profileForm.controls['username'].invalid &&
           (profileForm.controls['username'].dirty ||
-          profileForm.controls['username'].touched)
+            profileForm.controls['username'].touched)
         "
       >
         <div
@@ -35,8 +36,12 @@
         type="submit"
         [disabled]="!profileForm.valid && updatingProfile"
       >
-      {{ updatingProfile ? "Loading..." : "Update profile" }}
+        {{ updatingProfile ? "Loading..." : "Update profile" }}
       </button>
     </div>
   </form>
   <div *ngIf="errorMessage">{{ errorMessage }}</div>
+</div>
+<ng-template #anon>
+  <h3>Anonymus content</h3>
+</ng-template>

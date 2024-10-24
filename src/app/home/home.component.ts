@@ -1,20 +1,22 @@
 import { Component } from '@angular/core';
-import { SupabaseService } from '../services/supabase.service';
-import { Profile, UserInfo } from '../bean/beans';
+import { Profile } from '../models/profile.model';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/app.state';
+import { selectProfile } from '../store/profile.selector';
+import { Observable } from 'rxjs';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
 export class HomeComponent {
-  profile: Profile | null = null;
+  profile$: Observable<Profile | undefined>;
   
-  constructor(private supabase: SupabaseService) {
-    supabase.userInfo$.subscribe((userInfo: UserInfo) => {
-      this.profile = userInfo.profile;
-    })
+  constructor(private store: Store<AppState>) {
+    this.profile$ = store.select(selectProfile);
   }
 }

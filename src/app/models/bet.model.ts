@@ -1,0 +1,14 @@
+export interface Bet {
+    id?: number;
+    date?: string;
+    bookmaker: string;
+    odds: number;
+    stake: number;
+    bet: number;
+    result: string;
+    profit?: number;
+    cumulated_profit?: number;
+    strategy_id: number;
+    event: string;
+    updated_at?: string;
+}
