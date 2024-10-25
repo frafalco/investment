@@ -17,7 +17,7 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
     right: 0;
   }
   
-  /* Transparent Overlay */
+  /* Transparent Overlay*/
   .loading:before {
     content: "";
     display: block;
