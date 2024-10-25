@@ -44,6 +44,48 @@ export const profileReducer = createReducer(
     };
     return ({ loading: false, error: undefined, profile })
   }),
+  on(ProfileActions.addStrategy, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.addStrategySuccess, (state: ProfileState, { strategy }) => {
+    const profile = {
+      ...state.profile!,
+      strategies: [...state.profile?.strategies ?? [], {...strategy, bets: []}],
+    };
+    return ({ loading: false, error: undefined, profile })
+  }),
+  on(ProfileActions.addBet, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.addBetSuccess, (state: ProfileState, { bet }) => {
+    const profile = {
+      ...state.profile!,
+      strategies: state.profile!.strategies.map(strategy => {
+        if(strategy.id === bet.strategy_id) {
+          return {
+            ...strategy,
+            profit: bet.cumulated_profit!,
+            bets: [...strategy.bets, bet]
+          }
+        }
+        return strategy;
+      })
+    };
+    return ({ loading: false, error: undefined, profile })
+  }),
+  on(ProfileActions.deleteBet, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.deleteBetSuccess, (state: ProfileState, { bet }) => {
+    const profile = {
+      ...state.profile!,
+      strategies: state.profile!.strategies.map(strategy => {
+        if(strategy.id === bet.strategy_id) {
+          return {
+            ...strategy,
+            profit: bet.cumulated_profit!,
+            bets: strategy.bets.filter(b => b.id !== bet.id)
+          }
+        }
+        return strategy;
+      })
+    };
+    return ({ loading: false, error: undefined, profile })
+  }),
   on(ProfileActions.actionFailure, (state: ProfileState, { error }) => ({
     ...state,
     error,

@@ -22,6 +22,7 @@ import { Strategy } from '../models/strategy.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
 import { selectProfile } from '../store/profile.selector';
+import * as ProfileActions from '../store/profile.actions';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,9 +46,10 @@ export class DashboardComponent {
   addStrategyForm = new FormGroup({
     name: new FormControl<string>('', Validators.required),
     starting_bankroll: new FormControl<number>(0, Validators.required),
+    str_type: new FormControl<string>('', Validators.required),
   });
 
-  constructor(store: Store<AppState>, private modalService: NgbModal) {
+  constructor(private store: Store<AppState>, private modalService: NgbModal) {
     this.profile$ = store.select(selectProfile);
   }
 
@@ -57,10 +59,11 @@ export class DashboardComponent {
 
   addStrategy(modal: any) {
     if(this.addStrategyForm.valid) {
-      const name = this.addStrategyForm.value.name!;
-      const starting_bankroll = this.addStrategyForm.value.starting_bankroll!;
-      // this.supabase.addStrategy({name, starting_bankroll})
+      const value = this.addStrategyForm.getRawValue()
+      this.store.dispatch(ProfileActions.addStrategy(value));
       modal.close();
+    } else {
+      console.log('Not valid')
     }
   }
 }

@@ -134,18 +134,38 @@ export class SupabaseService {
     );
   }
 
-  async insertBet(bet: Bet) {
-    try {
-      const { data, error } = await this.supabase.from('bets').insert(bet);
+  addStrategy(name: string | null, starting_bankroll: number | null, str_type: string | null): Observable<Strategy> {
+    const query = this.supabase
+      .from('strategies')
+      .insert({name, starting_bankroll, type: str_type})
+      .select<'*', Strategy>()
+      .single();
 
-      if (error) {
-        throw error;
-      }
+    return from(
+      query.then(({ data, error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        return data;
+      })
+    );
+  }
 
-      return data;
-    } catch (error) {
-      throw error;
-    }
+  insertBet(bet: Bet): Observable<Bet> {
+    const query = this.supabase
+      .from('bets')
+      .insert(bet)
+      .select<'*', Bet>()
+      .single();
+
+    return from(
+      query.then(({ data, error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        return data;
+      })
+    );
   }
 
   updateBetAndStrategy(item: Bet, strategy: Strategy): Observable<Bet> {
@@ -154,15 +174,22 @@ export class SupabaseService {
     currentProfit = currentProfit + item.profit!;
     const bet: Bet = {
       ...item,
-      cumulated_profit: currentProfit
-    }
+      cumulated_profit: currentProfit,
+    };
     //update bet
-    const updateBetQuery = this.supabase.from('bets').upsert(bet).select<'*', Bet>().single();
+    const updateBetQuery = this.supabase
+      .from('bets')
+      .upsert(bet)
+      .select<'*', Bet>()
+      .single();
     //update strategy
-    const updateStrategyQuery = this.supabase.from('strategies').update({profit: currentProfit}).eq('id', strategy.id);
+    const updateStrategyQuery = this.supabase
+      .from('strategies')
+      .update({ profit: currentProfit })
+      .eq('id', strategy.id);
     return from(
-      updateStrategyQuery.then(async ({error}) => {
-        if(error) {
+      updateStrategyQuery.then(async ({ error }) => {
+        if (error) {
           throw new Error(error.message);
         }
         const { data, error: error_1 } = await updateBetQuery;
@@ -174,58 +201,31 @@ export class SupabaseService {
     );
   }
 
-  async deleteBet(bet: Bet) {
-    try {
-      // const currentUserInfo = this.userInfoSubject.getValue();
-      // if (currentUserInfo.profile) {
-      //   const currentStrategy = currentUserInfo.strategies.find(
-      //     (elem) => elem.id === bet.strategy_id
-      //   );
-      //   if (currentStrategy) {
-      //     let currentProfit = 0;
-      //     currentProfit = currentStrategy.profit ?? 0;
-      //     currentProfit = currentProfit - bet.profit!;
-      //     //update bet
-      //     const { error: deleteError } = await this.supabase
-      //       .from('bets')
-      //       .delete()
-      //       .eq('id', bet.id);
+  deleteBet(bet: Bet, strategy: Strategy): Observable<Bet> {
+    let currentProfit = 0;
+    currentProfit = strategy.profit ?? 0;
+    currentProfit = currentProfit - bet.profit!;
+    //update bet
+    const deleteBetQuery = this.supabase.from('bets').delete().eq('id', bet.id).select<'*', Bet>().single();
+    //update strategy
+    const updateStrategyQuery = this.supabase
+      .from('strategies')
+      .update({ profit: currentProfit })
+      .eq('id', strategy.id);
 
-      //     if (deleteError) {
-      //       throw deleteError;
-      //     }
-
-      //     currentStrategy.profit = currentProfit;
-      //     //update strategy
-      //     await this.supabase.from('strategies').upsert(currentStrategy);
-      //   }
-      // }
-      return;
-    } catch (error) {
-      throw error;
-    }
+    return from(
+      updateStrategyQuery.then( async ({ error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        const { data, error: error_1 } = await deleteBetQuery;
+        if (error_1) {
+          throw new Error(error_1.message);
+        }
+        return data;
+      })
+    );
   }
-
-  async getBets(): Promise<Bet[]> {
-    const { data, error } = await this.supabase
-      .from('bets')
-      .select<'*', Bet>()
-      .order('date');
-    if (error) {
-      throw error;
-    }
-    return data;
-  }
-
-  // Ottenere l'utente corrente
-  // getUser() {
-  //   return this.userSubject.getValue();
-  // }
-
-  // Verificare se l'utente è autenticato
-  // isAuthenticated(): boolean {
-  //   return !!this.userSubject.getValue();
-  // }
 
   async updateProfile(id: string, usernameFromTable: string) {
     const username = usernameFromTable !== '' ? usernameFromTable : null;
@@ -237,12 +237,5 @@ export class SupabaseService {
 
     const { data, error } = await this.supabase.from('profiles').upsert(update);
     return { data, error };
-  }
-
-  async addStrategy(newStrategy: {
-    name: string | null;
-    starting_bankroll: number | null;
-  }) {
-    await this.supabase.from('strategies').insert(newStrategy);
   }
 }

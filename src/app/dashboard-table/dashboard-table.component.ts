@@ -15,6 +15,7 @@ import { AppState } from '../store/app.state';
 import { Store } from '@ngrx/store';
 import { updateBet } from '../store/profile.actions';
 import { Profile } from '../models/profile.model';
+import * as ProfileActions from '../store/profile.actions';
 
 @Component({
   selector: 'app-dashboard-table',
@@ -104,9 +105,7 @@ export class DashboardTableComponent {
     }
   }
 
-  async deleteItem(item: Bet) {
-    // this.dashboardTableService.addLoader();
-    // await this.supabase.deleteBet(item);
-    // this.dashboardTableService.refreshData();
+  deleteItem(item: Bet) {
+    this.store.dispatch(ProfileActions.deleteBet({bet: item, strategy: this.strategy!}));
   }
 }

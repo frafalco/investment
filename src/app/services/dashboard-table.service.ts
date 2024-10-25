@@ -17,6 +17,7 @@ import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstra
 import { Bet } from '../models/bet.model';
 import { AppState } from '../store/app.state';
 import { Store } from '@ngrx/store';
+import { ContentObserver } from '@angular/cdk/observers';
 
 interface SearchResult {
   bets: Bet[];
@@ -190,10 +191,24 @@ export class DashboardTableService {
   }
 
   private _applyFiltersAndSorting(bets: Bet[]): Observable<SearchResult> {
-    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;;
+    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;
+
+    // 1. sort updated_at
+    let filteredBets = [...bets].sort((a, b) => {
+      if ((a.updated_at === null || a.updated_at === undefined) && (b.updated_at === null || b.updated_at === undefined)) {
+        return 0;
+      }
+      if (b.updated_at === null || b.updated_at === undefined) {
+        return 1;
+      }
+      if (a.updated_at === null || a.updated_at === undefined) {
+        return -1;
+      }
+      return b.updated_at < a.updated_at ? -1 : b.updated_at > a.updated_at ? 1 : 0;
+    });
 
     // 2. sort
-    let filteredBets = sort(bets, sortColumn, sortDirection);
+    filteredBets = sort(filteredBets, sortColumn, sortDirection);
 
     // 3. filter
     const dateFormatted = this.ngbDateParserFormatter.format(date);

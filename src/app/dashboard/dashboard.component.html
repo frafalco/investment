@@ -44,10 +44,20 @@
                   />
                 </div>
               </div>
+              <div class="mb-3">
+                <label for="str_type">Strategy Type</label>
+                <div class="input-group">
+                  <select formControlName="str_type" class="form-select" id="str_type">
+                    <option value="">Select type</option>
+                    <option value="default">Default</option>
+                    <option value="live">Live</option>
+                  </select>
+                </div>
+              </div>
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" (click)="addStrategy(modal)">Save</button>
+            <button type="button" class="btn btn-outline-primary" (click)="addStrategy(modal)">Save</button>
           </div>
         </ng-template>
       </ng-template>

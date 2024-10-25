@@ -59,8 +59,7 @@
 <table class="table table-striped">
   <thead>
     <tr>
-      <th scope="col">#</th>
-      <th scope="col">Date</th>
+      <th scope="col">Event</th>
       <th scope="col">Bookmaker</th>
       <th scope="col">Odds</th>
       <th scope="col">Stake</th>
@@ -74,9 +73,8 @@
   <tbody>
     @for (r of bets$ | async; track r.id) {
     <tr>
-      <th scope="row" class="col-sm-1">{{ $index + 1 }}</th>
-      <td>
-        {{ r.date | date : "dd/MM/yyyy" }}
+      <td scope="row">
+        {{ r.event }}
       </td>
       <td>{{ r.bookmaker }}</td>
       <td>{{ r.odds | number }}</td>
@@ -108,12 +106,12 @@
           type="button"
           (click)="toogleEditRow(r)"
         ></button>
-        }
         <button
           class="btn btn-outline-danger bi bi-trash"
           type="button"
           (click)="deleteItem(r)"
         ></button>
+        }
       </td>
     </tr>
     } @empty {

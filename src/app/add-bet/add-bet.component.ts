@@ -15,13 +15,16 @@ import {
 } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import { User } from '@supabase/supabase-js';
-import {
-  NgbDateParserFormatter,
-  NgbDatepickerModule,
-  NgbDateStruct,
-} from '@ng-bootstrap/ng-bootstrap';
 import { Strategy } from '../models/strategy.model';
 import { Bet } from '../models/bet.model';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/app.state';
+import { map, Observable } from 'rxjs';
+import { Profile } from '../models/profile.model';
+import { selectStrategies } from '../store/profile.selector';
+import { DatetimepickerComponent } from '../datetimepicker/datetimepicker.component';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import * as ProfileActions from '../store/profile.actions';
 
 @Component({
   selector: 'app-add-bet',
@@ -33,18 +36,18 @@ import { Bet } from '../models/bet.model';
     RouterLink,
     RouterLinkActive,
     ReactiveFormsModule,
-    NgbDatepickerModule,
+    DatetimepickerComponent,
   ],
   templateUrl: './add-bet.component.html',
   styleUrl: './add-bet.component.css',
 })
 export class AddBetComponent {
+  strategies$: Observable<Strategy[] | undefined>;
   errorMessage: string | null = null;
   options = ['Won', 'Lost', 'Pending'];
   selectedOption: string | undefined;
   user: User | null = null;
   bankroll: number = 0;
-  strategies: Strategy[] = [];
 
   results: any[] = [
     { value: 'pending', label: 'Pending', disabled: false },
@@ -53,44 +56,46 @@ export class AddBetComponent {
     { value: 'void', label: 'Void', disabled: true },
   ];
 
-  submitForm = new FormGroup({
-    strategy_id: new FormControl('', Validators.required),
-    // date: new FormControl<NgbDateStruct | null>(null, Validators.required),
-    event: new FormControl('', Validators.required),
-    bookmaker: new FormControl('', Validators.required),
-    odds: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^\d+(\.\d{1,2})?$/),
-    ]),
-    stake: new FormControl('', [
-      Validators.required,
-      Validators.pattern(/^\d+(\.\d{1,2})?$/),
-    ]),
-    bet: new FormControl(''),
-    result: new FormControl('pending', Validators.required),
-  });
+  submitForm!: FormGroup;
 
-  constructor(
-    private supabaseService: SupabaseService,
-    private router: Router,
-    private ngbDateParserFormatter: NgbDateParserFormatter
-  ) {
-    // supabaseService.userInfo$.subscribe((userInfo: UserInfo) => {
-    //   this.strategies = userInfo.strategies;
-    // });
+  constructor(private store: Store<AppState>, private router: Router) {
+    this.strategies$ = store.select(selectStrategies);
   }
 
   ngOnInit() {
+    this.submitForm = new FormGroup(
+      {
+        strategy_id: new FormControl('', Validators.required),
+        date: new FormControl('', Validators.required),
+        event: new FormControl('', Validators.required),
+        bookmaker: new FormControl('', Validators.required),
+        odds: new FormControl('', [
+          Validators.required,
+          Validators.pattern(/^\d+(\.\d{1,2})?$/),
+        ]),
+        stake: new FormControl('', [
+          Validators.required,
+          Validators.pattern(/^\d+(\.\d{1,2})?$/),
+        ]),
+        bet: new FormControl(''),
+        result: new FormControl('pending', Validators.required),
+      },
+      { updateOn: 'change' }
+    );
     this.submitForm
       .get('strategy_id')
       ?.valueChanges.subscribe((strategy_id) => {
         if (strategy_id) {
-          const selectedStrategy = this.strategies.find(
-            (s) => s.id === +strategy_id
-          );
-          if (selectedStrategy) {
-            this.bankroll = selectedStrategy.starting_bankroll;
-          }
+          this.strategies$.forEach((strategies) => {
+            if (strategies) {
+              const selectedStrategy = strategies.find(
+                (s) => s.id === +strategy_id
+              );
+              if (selectedStrategy) {
+                this.bankroll = selectedStrategy.starting_bankroll;
+              }
+            }
+          });
         } else {
           this.bankroll = 0;
         }
@@ -110,22 +115,9 @@ export class AddBetComponent {
     });
   }
 
-  stakeOnChange(event: Event) {
-    const target: HTMLInputElement = event.target as HTMLInputElement;
-    const valueString = target.value;
-    const floatValue = parseFloat(valueString);
-    let betValue = '';
-    if (!isNaN(floatValue)) {
-      const betFloatValue = this.bankroll * floatValue * 0.01; //TODO fix with real bankroll value
-      betValue = '' + betFloatValue;
-    }
-    this.submitForm.patchValue({ bet: betValue });
-  }
-
   onSubmit() {
     const result: Bet = {
-      // date: this.ngbDateParserFormatter.format(this.submitForm.value.date!),
-      // date: new Date().toISOString(),
+      date: this.submitForm.value.date!,
       bet: parseFloat(this.submitForm.value.bet!),
       bookmaker: this.submitForm.value.bookmaker!,
       odds: parseFloat(this.submitForm.value.odds!),
@@ -135,10 +127,7 @@ export class AddBetComponent {
       event: this.submitForm.value.event!,
     };
 
-    this.supabaseService
-      .insertBet(result)
-      .then((response) => {})
-      .catch((error) => {});
+    this.store.dispatch(ProfileActions.addBet({bet: result}));
 
     this.router.navigate(['/dashboard']);
   }

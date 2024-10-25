@@ -41,17 +41,21 @@ export class DashboardInfoComponent {
       let totalOdds = 0;
       let wonNumber = 0;
       let totalBets = 0;
+      let totalBetsWL = 0;
       this.filteredBets = this.strategy.bets;
       this.filteredBets.forEach((b) => {
         totalOdds += b.odds;
         if (b.result === 'won') {
           wonNumber++;
+          totalBetsWL++;
+        } else if(b.result === 'lost'){
+          totalBetsWL++;
         }
         totalBets++;
       });
       if (totalBets > 0) {
         this.mediaQuota = totalOdds / totalBets;
-        this.winRate = wonNumber / totalBets;
+        this.winRate = wonNumber / totalBetsWL;
       }
     }
   }

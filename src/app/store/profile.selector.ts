@@ -22,3 +22,8 @@ export const selectLogin = createSelector(
     selectProfileState,
     (state) => state
 );
+
+export const selectStrategies = createSelector(
+    selectProfileState,
+    (state) => state.profile?.strategies
+);

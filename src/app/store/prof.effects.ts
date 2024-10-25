@@ -71,3 +71,54 @@ export const updateBet = createEffect(
   },
   { functional: true }
 );
+
+export const addStrategy = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.addStrategy),
+      switchMap(({name, starting_bankroll, str_type}) =>
+        supabase.addStrategy(name, starting_bankroll, str_type).pipe(
+          map((strategy) => ProfileActions.addStrategySuccess({strategy})),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
+export const addBet = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.addBet),
+      switchMap(({ bet }) =>
+        supabase.insertBet(bet).pipe(
+          map((newBet) => ProfileActions.addBetSuccess({bet: newBet})),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
+export const deleteBet = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.deleteBet),
+      switchMap(({ bet, strategy }) =>
+        supabase.deleteBet(bet, strategy).pipe(
+          map((oldBet) => ProfileActions.deleteBetSuccess({bet: oldBet})),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
