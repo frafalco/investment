@@ -1,5 +1,5 @@
 <div *ngIf="profile$ | async as profile; else anon">
-  <ul ngbNav #nav="ngbNav" class="nav-tabs">
+  <ul ngbNav #nav="ngbNav" class="nav-tabs" [activeId]="active_id">
     @for (s of profile.strategies; track s.id) {
       <ng-container [ngbNavItem]="s.id.toString()">
         <button ngbNavLink>{{s.name}}</button>

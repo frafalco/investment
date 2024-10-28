@@ -1,6 +1,6 @@
 import { AsyncPipe, CommonModule, DecimalPipe } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
-import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { SupabaseService } from '../services/supabase.service';
 import {
   FormBuilder,
@@ -48,9 +48,11 @@ export class DashboardComponent {
     starting_bankroll: new FormControl<number>(0, Validators.required),
     str_type: new FormControl<string>('', Validators.required),
   });
+  active_id: string | null;
 
-  constructor(private store: Store<AppState>, private modalService: NgbModal) {
+  constructor(private store: Store<AppState>, private modalService: NgbModal, route: ActivatedRoute) {
     this.profile$ = store.select(selectProfile);
+    this.active_id = route.snapshot.queryParamMap.get('strategy');
   }
 
   open(content: TemplateRef<any>) {

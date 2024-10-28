@@ -16,6 +16,7 @@ import { Store } from '@ngrx/store';
 import { updateBet } from '../store/profile.actions';
 import { Profile } from '../models/profile.model';
 import * as ProfileActions from '../store/profile.actions';
+import { TableBet } from '../models/table-bet.model';
 
 @Component({
   selector: 'app-dashboard-table',
@@ -49,6 +50,7 @@ export class DashboardTableComponent {
   bets$!: Observable<Bet[]>;
   total$!: Observable<number>;
   strategy?: Strategy;
+  isLive: boolean = false;
 
   constructor(
     private store: Store<AppState>,
@@ -62,7 +64,43 @@ export class DashboardTableComponent {
       if(p) {
         this.strategy = p.strategies.find(s => s.id === this.strategy_id);
         if(this.strategy) {
-          this.dashboardTableService.initializeBets(this.strategy.bets);
+          this.isLive = this.strategy.type === 'live';
+          if(this.isLive) {
+            const betRecord = this.strategy.bets.reduce((groups, bet) => {
+              const key = `${bet.event}-${bet.date}`;
+              if (!groups[key]) {
+                groups[key] = [];
+              }
+              groups[key].push(bet);
+              return groups;
+            }, {} as Record<string, Bet[]>);
+            const betsTable: TableBet[] = [];
+            Object.keys(betRecord).forEach((key) => {
+              const keySplitted = key.split('-');
+              betsTable.push({
+                date: keySplitted[1],
+                bookmaker: betRecord[key][0].bookmaker,
+                stake: 0,
+                bet: 0,
+                result: '',
+                strategy_id: this.strategy_id,
+                event: keySplitted[0],
+                sub_bets: betRecord[key].map(bet => {
+                  return {
+                    stake: bet.stake,
+                    bet: bet.bet,
+                    result: bet.result,
+                    profit: bet.profit,
+                    cumulated_profit: bet.cumulated_profit
+                  }
+                })
+              })
+            });
+            console.log(betsTable);
+            this.dashboardTableService.initializeBets(this.strategy.bets);
+          } else {
+            this.dashboardTableService.initializeBets(this.strategy.bets);
+          }
         }
       }
     })
@@ -83,7 +121,7 @@ export class DashboardTableComponent {
       let profit = 0;
       switch (this.newResultValue) {
         case 'won':
-          profit = item.bet * item.odds - item.bet;
+          profit = item.bet * item.odds! - item.bet;
           break;
         case 'lost':
           profit = -item.bet;

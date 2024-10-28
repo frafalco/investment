@@ -88,12 +88,13 @@
         <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
       </div>
     </div> -->
+    <ng-container *ngIf="!isLive; else liveContainer">
     <div class="mb-3 col-md-6">
       <label class="form-label"> Stake </label>
       <input
         id="stake"
         type="number"
-        step="0.1"
+        step="1"
         formControlName="stake"
         class="form-control"
       />
@@ -158,6 +159,35 @@
         </div>
       </div>
     </div>
+  </ng-container>
+  <ng-template #liveContainer>
+    <div formArrayName="bets">
+      <div *ngFor="let betGroup of bets.controls; let i = index" [formGroupName]="i" class="row align-items-end">
+        <div class="mb-3 col-md-5">
+          <label for="stake-{{ i }}">Stake:</label>
+          <input [id]="'stake-' + i" type="number" step="1" formControlName="stake" class="form-control"/>
+          <div *ngIf="betGroup.get('stake')?.invalid && betGroup.get('stake')?.touched">
+            <p *ngIf="betGroup.get('stake')?.errors?.['required']">Stake is required.</p>
+            <p *ngIf="betGroup.get('stake')?.errors?.['pattern']">Stake must be a number with up to two decimal places.</p>
+          </div>
+        </div>
+        <div class="mb-3 col-md-5">
+          <label for="bet-{{ i }}">Bet:</label>
+          <input [id]="'bet-' + i" type="text" readonly formControlName="bet" class="form-control"/>
+        </div>
+        <div class="mb-3 col-md-2">
+          <button class="btn btn-primary btn-md" type="button" (click)="removeBet(i)">Remove</button>
+        </div>
+      </div>
+    </div>
+    <div class="w-100"></div>
+    <div class="mb-3 col-md-6">
+      <button
+        class="btn btn-primary btn-md" type="button" (click)="insertNewBet()">
+        Insert new bet
+      </button>
+    </div>
+  </ng-template>
     <div class="mb-3 col-md-12">
       <input type="hidden" id="result" formControlName="result"/>
     </div>
@@ -166,7 +196,7 @@
       <button
         class="btn btn-primary btn-lg"
         type="submit"
-        
+        [disabled]="!submitForm.valid"
       >
         Add
       </button>

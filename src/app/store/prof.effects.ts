@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import * as ProfileActions from './profile.actions';
-import { catchError, map, of, switchMap } from 'rxjs';
+import { catchError, map, mergeMap, of, switchMap } from 'rxjs';
 import { SupabaseService } from '../services/supabase.service';
 
 export const loadProfile = createEffect(
@@ -93,7 +93,7 @@ export const addBet = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(
       ofType(ProfileActions.addBet),
-      switchMap(({ bet }) =>
+      mergeMap(({ bet }) =>
         supabase.insertBet(bet).pipe(
           map((newBet) => ProfileActions.addBetSuccess({bet: newBet})),
           catchError((error) =>

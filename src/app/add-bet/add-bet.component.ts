@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import {
+  FormArray,
   FormControl,
   FormGroup,
   FormsModule,
@@ -48,6 +49,7 @@ export class AddBetComponent {
   selectedOption: string | undefined;
   user: User | null = null;
   bankroll: number = 0;
+  isLive: boolean = false;
 
   results: any[] = [
     { value: 'pending', label: 'Pending', disabled: false },
@@ -79,6 +81,7 @@ export class AddBetComponent {
         ]),
         bet: new FormControl(''),
         result: new FormControl('pending', Validators.required),
+        bets: new FormArray([])
       },
       { updateOn: 'change' }
     );
@@ -93,6 +96,26 @@ export class AddBetComponent {
               );
               if (selectedStrategy) {
                 this.bankroll = selectedStrategy.starting_bankroll;
+                const oddsControl = this.submitForm.get('odds');
+                const stakeControl = this.submitForm.get('stake');
+                const betsControl = this.submitForm.get('bets');
+                if (selectedStrategy.type === 'live') {
+                  this.isLive = true;
+                  oddsControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
+                  stakeControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
+                  betsControl?.setValidators([Validators.required]);
+                  oddsControl?.updateValueAndValidity();
+                  stakeControl?.updateValueAndValidity();
+                  betsControl?.updateValueAndValidity();
+                } else {
+                  this.isLive = false;
+                  oddsControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
+                  stakeControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
+                  betsControl?.setValidators([]);
+                  oddsControl?.updateValueAndValidity();
+                  stakeControl?.updateValueAndValidity();
+                  betsControl?.updateValueAndValidity();
+                }
               }
             }
           });
@@ -103,6 +126,36 @@ export class AddBetComponent {
       });
 
     this.submitForm.get('stake')?.valueChanges.subscribe((value) => {
+      this.onStakeChange(value);
+    });
+  }
+
+  onStakeChange(value: any) {
+    let betValue = '';
+    if (value) {
+      const floatValue = parseFloat(value);
+      if (!isNaN(floatValue)) {
+        const betFloatValue = this.bankroll * floatValue * 0.01;
+        betValue = '' + betFloatValue;
+      }
+    }
+    this.submitForm.patchValue({ bet: betValue });
+  }
+
+  get bets(): FormArray {
+    return this.submitForm.get('bets') as FormArray;
+  }
+
+  insertNewBet() {
+    const betGroup = new FormGroup({
+      stake: new FormControl('', [
+        Validators.required,
+        Validators.pattern(/^\d+(\.\d{1,2})?$/),
+      ]),
+      bet: new FormControl(''),
+    });
+
+    betGroup.get('stake')?.valueChanges.subscribe((value) => {
       let betValue = '';
       if (value) {
         const floatValue = parseFloat(value);
@@ -111,24 +164,48 @@ export class AddBetComponent {
           betValue = '' + betFloatValue;
         }
       }
-      this.submitForm.patchValue({ bet: betValue });
+      betGroup.patchValue({ bet: betValue });
     });
+
+    this.bets.push(betGroup);
+  }
+
+  removeBet(index: number) {
+    this.bets.removeAt(index);
   }
 
   onSubmit() {
-    const result: Bet = {
-      date: this.submitForm.value.date!,
-      bet: parseFloat(this.submitForm.value.bet!),
-      bookmaker: this.submitForm.value.bookmaker!,
-      odds: parseFloat(this.submitForm.value.odds!),
-      result: this.submitForm.value.result!,
-      stake: parseFloat(this.submitForm.value.stake!),
-      strategy_id: parseInt(this.submitForm.value.strategy_id!),
-      event: this.submitForm.value.event!,
-    };
+    if(this.isLive) {
+      for(const g of this.bets.controls) {
+        setTimeout(() => {
+          const result: Bet = {
+            date: this.submitForm.value.date!,
+            bet: parseFloat(g.value.bet!),
+            bookmaker: this.submitForm.value.bookmaker!,
+            result: this.submitForm.value.result!,
+            stake: parseFloat(g.value.stake!),
+            strategy_id: parseInt(this.submitForm.value.strategy_id!),
+            event: this.submitForm.value.event!,
+          };
+          
+          this.store.dispatch(ProfileActions.addBet({bet: result}));
+        }, 1500)
+      }
+    } else {
+      const result: Bet = {
+        date: this.submitForm.value.date!,
+        bet: parseFloat(this.submitForm.value.bet!),
+        bookmaker: this.submitForm.value.bookmaker!,
+        odds: parseFloat(this.submitForm.value.odds!),
+        result: this.submitForm.value.result!,
+        stake: parseFloat(this.submitForm.value.stake!),
+        strategy_id: parseInt(this.submitForm.value.strategy_id!),
+        event: this.submitForm.value.event!,
+      };
 
-    this.store.dispatch(ProfileActions.addBet({bet: result}));
+      this.store.dispatch(ProfileActions.addBet({bet: result}));
+    }
 
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/dashboard'], {queryParams: {strategy: this.submitForm.value.strategy_id!}});
   }
 }

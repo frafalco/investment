@@ -1,26 +1,20 @@
-import { Injectable, PipeTransform } from '@angular/core';
+import { Injectable } from '@angular/core';
 import {
   BehaviorSubject,
   debounceTime,
   delay,
-  from,
   Observable,
   of,
   Subject,
   switchMap,
   tap,
 } from 'rxjs';
-import { SupabaseService } from './supabase.service';
 import { SortColumn, SortDirection } from '../directives/sortable.directive';
-import { DecimalPipe } from '@angular/common';
 import { NgbDateParserFormatter, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
-import { Bet } from '../models/bet.model';
-import { AppState } from '../store/app.state';
-import { Store } from '@ngrx/store';
-import { ContentObserver } from '@angular/cdk/observers';
+import { TableBet } from '../models/table-bet.model';
 
 interface SearchResult {
-  bets: Bet[];
+  bets: TableBet[];
   total: number;
 }
 
@@ -51,10 +45,10 @@ const compare = (
 };
 
 function sort(
-  bets: Bet[],
+  bets: TableBet[],
   column: SortColumn,
   direction: string
-): Bet[] {
+): TableBet[] {
   if (direction === '' || column === '') {
     return bets;
   } else {
@@ -65,15 +59,15 @@ function sort(
   }
 }
 
-function filterBookmaker(result: Bet, term: string) {
+function filterBookmaker(result: TableBet, term: string) {
 	return result.bookmaker.toLowerCase().includes(term.toLowerCase());
 }
 
-function filterDate(result: Bet, term: string) {
+function filterDate(result: TableBet, term: string) {
   return result.date!.toLowerCase().includes(term.toLowerCase());
 }
 
-function filteResult(result: Bet, term: string) {
+function filteResult(result: TableBet, term: string) {
   return result.result.toLowerCase().includes(term.toLowerCase());
 }
 
@@ -83,10 +77,10 @@ function filteResult(result: Bet, term: string) {
 export class DashboardTableService {
   private _loading$ = new BehaviorSubject<boolean>(true);
   private _search$ = new Subject<void>();
-  private _bets$ = new BehaviorSubject<Bet[]>([]);
+  private _bets$ = new BehaviorSubject<TableBet[]>([]);
   private _total$ = new BehaviorSubject<number>(0);
 
-  private _cachedBets: Bet[] = [];
+  private _cachedBets: TableBet[] = [];
   private _state: State = {
     page: 1,
     pageSize: 10,
@@ -97,7 +91,7 @@ export class DashboardTableService {
     sortDirection: '',
   };
 
-  constructor(private pipe: DecimalPipe, private store: Store<AppState>, private ngbDateParserFormatter: NgbDateParserFormatter) {
+  constructor(private ngbDateParserFormatter: NgbDateParserFormatter) {
     this._search$
       .pipe(
         tap(() => this.addLoader()),
@@ -190,13 +184,22 @@ export class DashboardTableService {
     // );
   }
 
-  private _applyFiltersAndSorting(bets: Bet[]): Observable<SearchResult> {
+  private _applyFiltersAndSorting(bets: TableBet[]): Observable<SearchResult> {
     const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;
 
     // 1. sort updated_at
     let filteredBets = [...bets].sort((a, b) => {
       if ((a.updated_at === null || a.updated_at === undefined) && (b.updated_at === null || b.updated_at === undefined)) {
-        return 0;
+        if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
+          return 0;
+        }
+        if (b.date === null || b.date === undefined) {
+          return 1;
+        }
+        if (a.date === null || a.date === undefined) {
+          return -1;
+        }
+        return b.date < a.date ? -1 : b.date > a.date ? 1 : 0;
       }
       if (b.updated_at === null || b.updated_at === undefined) {
         return 1;
@@ -235,7 +238,7 @@ export class DashboardTableService {
     this._loading$.next(false);
   }
 
-  initializeBets(bets: Bet[]) {
+  initializeBets(bets: TableBet[]) {
     this._cachedBets = bets;
     this._search$.next(); 
   }

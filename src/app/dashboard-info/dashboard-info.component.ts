@@ -44,7 +44,7 @@ export class DashboardInfoComponent {
       let totalBetsWL = 0;
       this.filteredBets = this.strategy.bets;
       this.filteredBets.forEach((b) => {
-        totalOdds += b.odds;
+        totalOdds += b.odds ?? 0;
         if (b.result === 'won') {
           wonNumber++;
           totalBetsWL++;
