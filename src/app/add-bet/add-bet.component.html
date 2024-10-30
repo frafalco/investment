@@ -90,29 +90,29 @@
     </div> -->
     <ng-container *ngIf="!isLive; else liveContainer">
     <div class="mb-3 col-md-6">
-      <label class="form-label"> Stake </label>
+      <label class="form-label"> Unit </label>
       <input
-        id="stake"
+        id="unit"
         type="number"
         step="1"
-        formControlName="stake"
+        formControlName="unit"
         class="form-control"
       />
       <div
         *ngIf="
-          submitForm.controls['stake'].invalid &&
-          (submitForm.controls['stake'].dirty ||
-            submitForm.controls['stake'].touched)
+          submitForm.controls['unit'].invalid &&
+          (submitForm.controls['unit'].dirty ||
+            submitForm.controls['unit'].touched)
         "
       >
         <div
-          *ngIf="submitForm.controls['stake'].errors!['required']"
+          *ngIf="submitForm.controls['unit'].errors!['required']"
           class="error-message"
         >
           Il campo è obbligatorio
         </div>
         <div
-          *ngIf="submitForm.controls['stake'].errors!['pattern']"
+          *ngIf="submitForm.controls['unit'].errors!['pattern']"
           class="error-message"
         >
           Inserire un valore numerico
@@ -164,11 +164,11 @@
     <div formArrayName="bets">
       <div *ngFor="let betGroup of bets.controls; let i = index" [formGroupName]="i" class="row align-items-end">
         <div class="mb-3 col-md-5">
-          <label for="stake-{{ i }}">Stake:</label>
-          <input [id]="'stake-' + i" type="number" step="1" formControlName="stake" class="form-control"/>
-          <div *ngIf="betGroup.get('stake')?.invalid && betGroup.get('stake')?.touched">
-            <p *ngIf="betGroup.get('stake')?.errors?.['required']">Stake is required.</p>
-            <p *ngIf="betGroup.get('stake')?.errors?.['pattern']">Stake must be a number with up to two decimal places.</p>
+          <label for="unit-{{ i }}">Unit:</label>
+          <input [id]="'unit-' + i" type="number" step="1" formControlName="unit" class="form-control"/>
+          <div *ngIf="betGroup.get('unit')?.invalid && betGroup.get('unit')?.touched">
+            <p *ngIf="betGroup.get('unit')?.errors?.['required']">Unit is required.</p>
+            <p *ngIf="betGroup.get('unit')?.errors?.['pattern']">Unit must be a number with up to two decimal places.</p>
           </div>
         </div>
         <div class="mb-3 col-md-5">

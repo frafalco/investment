@@ -193,21 +193,21 @@ export class DashboardTableService {
         if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
           return 0;
         }
-        if (b.date === null || b.date === undefined) {
+        if (a.date === null || a.date === undefined) {
           return 1;
         }
-        if (a.date === null || a.date === undefined) {
+        if (b.date === null || b.date === undefined) {
           return -1;
         }
-        return b.date < a.date ? -1 : b.date > a.date ? 1 : 0;
-      }
-      if (b.updated_at === null || b.updated_at === undefined) {
-        return 1;
+        return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
       }
       if (a.updated_at === null || a.updated_at === undefined) {
+        return 1;
+      }
+      if (b.updated_at === null || b.updated_at === undefined) {
         return -1;
       }
-      return b.updated_at < a.updated_at ? -1 : b.updated_at > a.updated_at ? 1 : 0;
+      return a.updated_at < b.updated_at ? -1 : a.updated_at > b.updated_at ? 1 : 0;
     });
 
     // 2. sort

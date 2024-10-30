@@ -59,11 +59,11 @@
 <table class="table table-striped">
   <thead>
     <tr>
+      <th scope="col" >Date</th>
       <th scope="col">Event</th>
-      <th scope="col" *ngIf="isLive">Date</th>
       <th scope="col">Bookmaker</th>
       <th scope="col" *ngIf="!isLive">Odds</th>
-      <th scope="col">Stake</th>
+      <th scope="col">Unit</th>
       <th scope="col">Bet</th>
       <th scope="col">Result</th>
       <th scope="col">Profit</th>
@@ -74,13 +74,13 @@
   <tbody>
     @for (r of bets$ | async; track r.id) {
     <tr>
-      <td scope="row">
+      <td scope="row">{{ r.date | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td>
         {{ r.event }}
       </td>
-      <td *ngIf="isLive">{{ r.date | date:'dd/MM/yyyy HH:mm' }}</td>
       <td>{{ r.bookmaker }}</td>
       <td *ngIf="!isLive">{{ r.odds | number }}</td>
-      <td>{{ r.stake | number }}%</td>
+      <td>{{ r.unit | number }}%</td>
       <td>{{ r.bet | number }}</td>
       <td>
         @if (!editRow[r.id!]) {

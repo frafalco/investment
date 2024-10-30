@@ -63,6 +63,7 @@ export class DashboardComponent {
     if(this.addStrategyForm.valid) {
       const value = this.addStrategyForm.getRawValue()
       this.store.dispatch(ProfileActions.addStrategy(value));
+      this.addStrategyForm.reset();
       modal.close();
     } else {
       console.log('Not valid')

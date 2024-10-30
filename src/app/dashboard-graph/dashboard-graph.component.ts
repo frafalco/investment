@@ -64,8 +64,14 @@ export class DashboardGraphComponent {
   initChartData(): void {
     let dates = [];
     const filteredBets: Bet[] = this.bets.filter((b) => b.result !== 'pending');
-    for (let i = 0; i < filteredBets.length; i++) {
-      dates.push([i + 1, filteredBets[i].cumulated_profit!]);
+    const mappedBet = filteredBets.reduce((map: Map<number, number>, elem: Bet) => {
+      // const map = acc as Map<number, number>;
+      const time = new Date(elem.date!).getTime();
+      map.set(time, elem.cumulated_profit!);
+      return map;
+    }, new Map<number, number>())
+    for (let key of mappedBet.keys()) {
+      dates.push([key, mappedBet.get(key)!]);
     }
 
     this.series = [
@@ -104,9 +110,10 @@ export class DashboardGraphComponent {
       },
     };
     this.xaxis = {
-      labels: {
-        show: false,
-      },
+      type: "datetime"
+      // labels: {
+      //   show: false,
+      // },
     };
     this.tooltip = {
       shared: false,

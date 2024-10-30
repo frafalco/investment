@@ -80,14 +80,14 @@ export class DashboardTableComponent {
               betsTable.push({
                 date: keySplitted[1],
                 bookmaker: betRecord[key][0].bookmaker,
-                stake: 0,
+                unit: 0,
                 bet: 0,
                 result: '',
                 strategy_id: this.strategy_id,
                 event: keySplitted[0],
                 sub_bets: betRecord[key].map(bet => {
                   return {
-                    stake: bet.stake,
+                    unit: bet.unit,
                     bet: bet.bet,
                     result: bet.result,
                     profit: bet.profit,

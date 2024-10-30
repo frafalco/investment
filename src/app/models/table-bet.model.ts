@@ -3,7 +3,7 @@ export interface TableBet {
     date?: string;
     bookmaker: string;
     odds?: number;
-    stake: number;
+    unit: number;
     bet: number;
     result: string;
     profit?: number;
@@ -15,7 +15,7 @@ export interface TableBet {
 }
 
 export interface SubBet {
-    stake: number;
+    unit: number;
     bet: number;
     result: string;
     profit?: number;

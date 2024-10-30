@@ -75,7 +75,7 @@ export class AddBetComponent {
           Validators.required,
           Validators.pattern(/^\d+(\.\d{1,2})?$/),
         ]),
-        stake: new FormControl('', [
+        unit: new FormControl('', [
           Validators.required,
           Validators.pattern(/^\d+(\.\d{1,2})?$/),
         ]),
@@ -97,23 +97,23 @@ export class AddBetComponent {
               if (selectedStrategy) {
                 this.bankroll = selectedStrategy.starting_bankroll;
                 const oddsControl = this.submitForm.get('odds');
-                const stakeControl = this.submitForm.get('stake');
+                const unitControl = this.submitForm.get('unit');
                 const betsControl = this.submitForm.get('bets');
                 if (selectedStrategy.type === 'live') {
                   this.isLive = true;
                   oddsControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
-                  stakeControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
+                  unitControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
                   betsControl?.setValidators([Validators.required]);
                   oddsControl?.updateValueAndValidity();
-                  stakeControl?.updateValueAndValidity();
+                  unitControl?.updateValueAndValidity();
                   betsControl?.updateValueAndValidity();
                 } else {
                   this.isLive = false;
                   oddsControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
-                  stakeControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
+                  unitControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
                   betsControl?.setValidators([]);
                   oddsControl?.updateValueAndValidity();
-                  stakeControl?.updateValueAndValidity();
+                  unitControl?.updateValueAndValidity();
                   betsControl?.updateValueAndValidity();
                 }
               }
@@ -122,15 +122,15 @@ export class AddBetComponent {
         } else {
           this.bankroll = 0;
         }
-        this.submitForm.patchValue({ stake: '' });
+        this.submitForm.patchValue({ unit: '' });
       });
 
-    this.submitForm.get('stake')?.valueChanges.subscribe((value) => {
-      this.onStakeChange(value);
+    this.submitForm.get('unit')?.valueChanges.subscribe((value) => {
+      this.onUnitChange(value);
     });
   }
 
-  onStakeChange(value: any) {
+  onUnitChange(value: any) {
     let betValue = '';
     if (value) {
       const floatValue = parseFloat(value);
@@ -148,14 +148,14 @@ export class AddBetComponent {
 
   insertNewBet() {
     const betGroup = new FormGroup({
-      stake: new FormControl('', [
+      unit: new FormControl('', [
         Validators.required,
         Validators.pattern(/^\d+(\.\d{1,2})?$/),
       ]),
       bet: new FormControl(''),
     });
 
-    betGroup.get('stake')?.valueChanges.subscribe((value) => {
+    betGroup.get('unit')?.valueChanges.subscribe((value) => {
       let betValue = '';
       if (value) {
         const floatValue = parseFloat(value);
@@ -183,7 +183,7 @@ export class AddBetComponent {
             bet: parseFloat(g.value.bet!),
             bookmaker: this.submitForm.value.bookmaker!,
             result: this.submitForm.value.result!,
-            stake: parseFloat(g.value.stake!),
+            unit: parseFloat(g.value.unit!),
             strategy_id: parseInt(this.submitForm.value.strategy_id!),
             event: this.submitForm.value.event!,
           };
@@ -198,7 +198,7 @@ export class AddBetComponent {
         bookmaker: this.submitForm.value.bookmaker!,
         odds: parseFloat(this.submitForm.value.odds!),
         result: this.submitForm.value.result!,
-        stake: parseFloat(this.submitForm.value.stake!),
+        unit: parseFloat(this.submitForm.value.unit!),
         strategy_id: parseInt(this.submitForm.value.strategy_id!),
         event: this.submitForm.value.event!,
       };

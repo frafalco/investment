@@ -3,7 +3,7 @@ export interface Bet {
     date?: string;
     bookmaker: string;
     odds?: number;
-    stake: number;
+    unit: number;
     bet: number;
     result: string;
     profit?: number;
