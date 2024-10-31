@@ -168,13 +168,12 @@ export class SupabaseService {
     );
   }
 
-  updateBetAndStrategy(item: Bet, strategy: Strategy): Observable<Bet> {
+  updateBetAndStrategy(item: Bet, strategy: Strategy, previousProfit: number): Observable<Bet> {
     let currentProfit = 0;
     currentProfit = strategy.profit ?? 0;
-    currentProfit = currentProfit + item.profit!;
+    currentProfit = currentProfit - previousProfit + item.profit!;
     const bet: Bet = {
       ...item,
-      cumulated_profit: currentProfit,
     };
     //update bet
     const updateBetQuery = this.supabase

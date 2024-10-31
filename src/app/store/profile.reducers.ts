@@ -35,7 +35,7 @@ export const profileReducer = createReducer(
         if(strategy.id === bet.strategy_id) {
           return {
             ...strategy,
-            profit: bet.cumulated_profit!,
+            profit: strategy.profit + bet.profit!,
             bets: strategy.bets.map(b => b.id === bet.id ? bet : b)
           }
         }
@@ -60,7 +60,6 @@ export const profileReducer = createReducer(
         if(strategy.id === bet.strategy_id) {
           return {
             ...strategy,
-            profit: bet.cumulated_profit!,
             bets: [...strategy.bets, bet]
           }
         }
@@ -77,7 +76,7 @@ export const profileReducer = createReducer(
         if(strategy.id === bet.strategy_id) {
           return {
             ...strategy,
-            profit: bet.cumulated_profit!,
+            profit: strategy.profit - bet.profit!,
             bets: strategy.bets.filter(b => b.id !== bet.id)
           }
         }

@@ -67,7 +67,6 @@
       <th scope="col">Bet</th>
       <th scope="col">Result</th>
       <th scope="col">Profit</th>
-      <th scope="col">Cumulated Profit</th>
       <th></th>
     </tr>
   </thead>
@@ -80,7 +79,7 @@
       </td>
       <td>{{ r.bookmaker }}</td>
       <td *ngIf="!isLive">{{ r.odds | number }}</td>
-      <td>{{ r.unit | number }}%</td>
+      <td>{{ r.unit | number }}</td>
       <td>{{ r.bet | number }}</td>
       <td>
         @if (!editRow[r.id!]) {
@@ -98,22 +97,25 @@
         </select>
         }
       </td>
-      <td>{{ r.profit || "-" }}</td>
-      <td>{{ r.cumulated_profit || "-" }}</td>
-      <td class="col-sm-1 text-center">
-        @if(r.result === 'pending') {
+      <td  [ngClass]="r.result === 'won' ? 'text-success' : r.result === 'lost' ? 'text-danger' : r.result === 'void' ? 'text-primary' : ''">{{ r.profit ? r.profit :  r.result === 'pending' ? '-' : 'push' }}</td>
+      <td class="col-sm-2 text-center">
         <button
-          class="btn btn-outline-secondary mx-1 bi"
-          [ngClass]="editRow[r.id!] ? 'bi-save' : 'bi-pen'"
+          class="btn mx-1 bi bi-x-lg btn-outline-dark"
+          *ngIf="editRow[r.id!]"
           type="button"
-          (click)="toogleEditRow(r)"
+          (click)="toogleEditRow(r, true)"
+        ></button>
+        <button
+          class="btn mx-1 bi"
+          [ngClass]="editRow[r.id!] ? 'bi-check2 btn-outline-success' : 'bi-pen btn-outline-secondary'"
+          type="button"
+          (click)="toogleEditRow(r, false)"
         ></button>
         <button
           class="btn btn-outline-danger bi bi-trash"
           type="button"
           (click)="deleteItem(r)"
         ></button>
-        }
       </td>
     </tr>
     } @empty {

@@ -14,6 +14,7 @@ import {
 import { Bet } from '../models/bet.model';
 import { Observable } from 'rxjs';
 import { Profile } from '../models/profile.model';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-dashboard-graph',
@@ -64,10 +65,16 @@ export class DashboardGraphComponent {
   initChartData(): void {
     let dates = [];
     const filteredBets: Bet[] = this.bets.filter((b) => b.result !== 'pending');
+    const datePipe: DatePipe = new DatePipe('en-US');
+    let cumulated_profit: number = 0;
     const mappedBet = filteredBets.reduce((map: Map<number, number>, elem: Bet) => {
+      let formattedDate = datePipe.transform(elem.date!, 'YYYY-MM-dd')
       // const map = acc as Map<number, number>;
-      const time = new Date(elem.date!).getTime();
-      map.set(time, elem.cumulated_profit!);
+      const time = new Date(formattedDate!).getTime();
+      
+      cumulated_profit += elem.profit!;
+      map.set(time, cumulated_profit);
+
       return map;
     }, new Map<number, number>())
     for (let key of mappedBet.keys()) {
@@ -85,14 +92,23 @@ export class DashboardGraphComponent {
       stacked: false,
       height: 400,
       toolbar: {
-        show: false,
+        show: true,
       },
     };
     this.dataLabels = {
       enabled: false,
+      textAnchor: 'end',
+      formatter: function (val: number) {
+        return `$${val.toFixed(2)}`;
+      },
     };
     this.markers = {
-      size: 0,
+      size: 6, // dimensione del punto
+        // colors: ["#FFA41B"], // colore del punto
+        strokeWidth: 2,
+        hover: {
+          size: 8
+        }
     };
     // this.title = {
     // };

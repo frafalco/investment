@@ -91,7 +91,6 @@ export class DashboardTableComponent {
                     bet: bet.bet,
                     result: bet.result,
                     profit: bet.profit,
-                    cumulated_profit: bet.cumulated_profit
                   }
                 })
               })
@@ -112,13 +111,14 @@ export class DashboardTableComponent {
     this.dashboardTableService.result = '';
   }
 
-  toogleEditRow(item: Bet) {
+  toogleEditRow(item: Bet, cancel: boolean) {
     const id = item.id!;
     const currentState = this.editRow[id];
     this.editRow[id] = !currentState;
-    if (currentState) {
+    if (currentState && !cancel) {
       //TODO update table
       let profit = 0;
+      const previousProfit = item.profit ?? 0;
       switch (this.newResultValue) {
         case 'won':
           profit = item.bet * item.odds! - item.bet;
@@ -137,8 +137,9 @@ export class DashboardTableComponent {
         profit,
         updated_at: new Date().toISOString()
       };
+      console.log(bet);
       // this.dashboardTableService.addLoader();
-      this.store.dispatch(updateBet({bet, strategy: this.strategy!}))
+      this.store.dispatch(updateBet({bet, strategy: this.strategy!, previousProfit}))
       // this.dashboardTableService.refreshData();
     }
   }

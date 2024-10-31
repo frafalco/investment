@@ -7,7 +7,6 @@ export interface TableBet {
     bet: number;
     result: string;
     profit?: number;
-    cumulated_profit?: number;
     strategy_id: number;
     event: string;
     updated_at?: string;
@@ -19,5 +18,4 @@ export interface SubBet {
     bet: number;
     result: string;
     profit?: number;
-    cumulated_profit?: number;
 }
