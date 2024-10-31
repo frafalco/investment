@@ -34,13 +34,12 @@
       <button
         class="btn btn-primary btn-lg"
         type="submit"
-        [disabled]="!profileForm.valid && updatingProfile"
+        [disabled]="!profileForm.valid"
       >
-        {{ updatingProfile ? "Loading..." : "Update profile" }}
+        Update profile
       </button>
     </div>
   </form>
-  <div *ngIf="errorMessage">{{ errorMessage }}</div>
 </div>
 <ng-template #anon>
   <h3>Anonymus content</h3>

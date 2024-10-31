@@ -26,6 +26,8 @@ import { DatePipe } from '@angular/common';
 export class DashboardGraphComponent {
   @Input({ required: true }) profile$!: Observable<Profile | undefined>;
   @Input({ required: true }) strategy_id!: number;
+  @Input() height: number = 400;
+  @Input() showToolbar: boolean = true;
 
   bets: Bet[] = [];
 
@@ -45,16 +47,16 @@ export class DashboardGraphComponent {
         const strategy = p.strategies.find((s) => s.id === this.strategy_id);
         if (strategy) {
           this.bets = [...strategy.bets].sort((a, b) => {
-            if ((a.updated_at === null || a.updated_at === undefined) && (b.updated_at === null || b.updated_at === undefined)) {
+            if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
               return 0;
             }
-            if (a.updated_at === null || a.updated_at === undefined) {
+            if (a.date === null || a.date === undefined) {
               return 1;
             }
-            if (b.updated_at === null || b.updated_at === undefined) {
+            if (b.date === null || b.date === undefined) {
               return -1;
             }
-            return a.updated_at < b.updated_at ? -1 : a.updated_at > b.updated_at ? 1 : 0;
+            return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
           });;
           this.initChartData();
         }
@@ -90,9 +92,9 @@ export class DashboardGraphComponent {
     this.chart = {
       type: 'line',
       stacked: false,
-      height: 400,
+      height: this.height,
       toolbar: {
-        show: true,
+        show: this.showToolbar,
       },
     };
     this.dataLabels = {

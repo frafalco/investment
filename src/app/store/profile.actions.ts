@@ -12,7 +12,7 @@ export const logoutSuccess = createAction('[Profile] Logout Success');
 export const login = createAction('[Profile] Login', props<{ username: string, password:string }>());
 export const loginSuccess = createAction('[Profile] Login Success');
 
-export const updateProfile = createAction('[Profile] Update Profile');
+export const updateProfile = createAction('[Profile] Update Profile', props<{ username: string }>());
 export const updateProfileSuccess = createAction('[Profile] Update Profile Success', props<{ profile: Profile }>());
 
 export const updateBet = createAction('[Profile] Update Bet', props<{ bet: Bet, strategy: Strategy, previousProfit: number }>());

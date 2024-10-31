@@ -159,29 +159,7 @@ export class DashboardTableService {
   }
 
   private _search(): Observable<SearchResult> {
-
-    // Se i dati sono già in cache, non fare la chiamata a Supabase
-    // if (this._cachedBets) {
-    //   return this._applyFiltersAndSorting(this._cachedBets);
-    // }
-
-    // return this.supabase.userInfo$.pipe(
-    //   switchMap((response) => {
-    //     return this._applyFiltersAndSorting(response.bets);
-    //   })
-    // );
-
     return this._applyFiltersAndSorting(this._cachedBets);
-    // Se non ci sono dati in cache, fai la chiamata API a Supabase
-    // return from(this.supabase.getBets()).pipe(
-    //   switchMap((response) => {
-    //     // Salva i dati in cache
-    //     this._cachedBets = response;
-
-    //     // Applica i filtri, l'ordinamento e la paginazione
-    //     return this._applyFiltersAndSorting(this._cachedBets);
-    //   })
-    // );
   }
 
   private _applyFiltersAndSorting(bets: TableBet[]): Observable<SearchResult> {
@@ -189,25 +167,16 @@ export class DashboardTableService {
 
     // 1. sort updated_at
     let filteredBets = [...bets].sort((a, b) => {
-      if ((a.updated_at === null || a.updated_at === undefined) && (b.updated_at === null || b.updated_at === undefined)) {
-        if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
-          return 0;
-        }
-        if (a.date === null || a.date === undefined) {
-          return 1;
-        }
-        if (b.date === null || b.date === undefined) {
-          return -1;
-        }
-        return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+      if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
+        return 0;
       }
-      if (a.updated_at === null || a.updated_at === undefined) {
+      if (a.date === null || a.date === undefined) {
         return 1;
       }
-      if (b.updated_at === null || b.updated_at === undefined) {
+      if (b.date === null || b.date === undefined) {
         return -1;
       }
-      return a.updated_at < b.updated_at ? -1 : a.updated_at > b.updated_at ? 1 : 0;
+      return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
     });
 
     // 2. sort

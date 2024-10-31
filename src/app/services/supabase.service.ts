@@ -30,7 +30,6 @@ export class SupabaseService {
     this.restoreSession();
   }
 
-  // Funzione per ripristinare la sessione all'avvio dell'app
   async restoreSession() {
     const { data } = await this.supabase.auth.getSession();
     try {
@@ -41,50 +40,6 @@ export class SupabaseService {
     } catch (exception) {
       console.log(exception);
     }
-    // this.supabase
-    //   .channel('profiles')
-    //   .on(
-    //     'postgres_changes',
-    //     {
-    //       event: '*',
-    //       schema: 'public',
-    //       table: 'profiles',
-    //       filter: `id=eq.${this.getUser()?.id}`,
-    //     },
-    //     (payload) => {
-    //     }
-    //   )
-    //   .subscribe();
-    // //listen strategies table
-    // this.supabase
-    //   .channel('strategies')
-    //   .on(
-    //     'postgres_changes',
-    //     {
-    //       event: '*',
-    //       schema: 'public',
-    //       table: 'strategies',
-    //       filter: `user_id=eq.${this.getUser()?.id}`,
-    //     },
-    //     async (payload) => {
-    //     }
-    //   )
-    //   .subscribe();
-    // //listen bets table
-    // this.supabase
-    //   .channel('bets')
-    //   .on(
-    //     'postgres_changes',
-    //     {
-    //       event: 'INSERT',
-    //       schema: 'public',
-    //       table: 'bets',
-    //       filter: `user_id=eq.${this.getUser()?.id}`,
-    //     },
-    //     (payload) => {
-    //     }
-    //   )
-    //   .subscribe();
   }
 
   getProfile(): Observable<Profile> {
@@ -99,6 +54,25 @@ export class SupabaseService {
     return from(
       query.then(({ data, error }) => {
         if (error) {
+          throw new Error(error.message);
+        }
+        return data;
+      })
+    );
+  }
+
+  updateProfile(username: string): Observable<Profile> {
+    const usrn = username ? username : null;
+    const update = {
+      id: this.user_id,
+      username: usrn,
+      updated_at: new Date(),
+    };
+
+    const query = this.supabase.from('profiles').upsert(update).select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))').single();
+    return from(
+      query.then(({data, error}) => {
+        if(error) {
           throw new Error(error.message);
         }
         return data;
@@ -224,17 +198,5 @@ export class SupabaseService {
         return data;
       })
     );
-  }
-
-  async updateProfile(id: string, usernameFromTable: string) {
-    const username = usernameFromTable !== '' ? usernameFromTable : null;
-    const update = {
-      id,
-      username,
-      updated_at: new Date(),
-    };
-
-    const { data, error } = await this.supabase.from('profiles').upsert(update);
-    return { data, error };
   }
 }

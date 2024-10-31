@@ -21,6 +21,23 @@ export const loadProfile = createEffect(
   { functional: true }
 );
 
+export const updateProfile = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.updateProfile),
+      switchMap(({ username }) =>
+        supabase.updateProfile(username).pipe(
+          map((profile) => ProfileActions.updateProfileSuccess({ profile })),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
 export const logout = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(

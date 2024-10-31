@@ -17,6 +17,15 @@ export const profileReducer = createReducer(
   on(ProfileActions.loadProfile, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
   on(ProfileActions.loadProfileSuccess, (state: ProfileState, { profile }) => ({
     ...state,
+    profile: {
+      ...profile,
+      strategies: [...profile.strategies].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+    },
+    loading: false,
+  })),
+  on(ProfileActions.updateProfile, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.updateProfileSuccess, (state: ProfileState, { profile }) => ({
+    ...state,
     profile,
     loading: false,
   })),
@@ -48,7 +57,7 @@ export const profileReducer = createReducer(
   on(ProfileActions.addStrategySuccess, (state: ProfileState, { strategy }) => {
     const profile = {
       ...state.profile!,
-      strategies: [...state.profile?.strategies ?? [], {...strategy, bets: []}],
+      strategies: [...state.profile?.strategies ?? [], {...strategy, bets: []}].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
     };
     return ({ loading: false, error: undefined, profile })
   }),
