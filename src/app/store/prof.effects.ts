@@ -78,7 +78,7 @@ export const updateBet = createEffect(
       ofType(ProfileActions.updateBet),
       switchMap(({bet, strategy, previousProfit}) =>
         supabase.updateBetAndStrategy(bet, strategy, previousProfit).pipe(
-          map((bet) => ProfileActions.updateBetSuccess({bet})),
+          map((data) => ProfileActions.updateBetSuccess(data)),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))
           )

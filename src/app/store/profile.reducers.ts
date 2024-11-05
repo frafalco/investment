@@ -37,14 +37,14 @@ export const profileReducer = createReducer(
   })),
   on(ProfileActions.login, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
   on(ProfileActions.updateBet, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
-  on(ProfileActions.updateBetSuccess, (state: ProfileState, { bet }) => {
+  on(ProfileActions.updateBetSuccess, (state: ProfileState, { bet, profit }) => {
     const profile = {
       ...state.profile!,
       strategies: state.profile!.strategies.map(strategy => {
         if(strategy.id === bet.strategy_id) {
           return {
             ...strategy,
-            profit: strategy.profit + bet.profit!,
+            profit: profit,
             bets: strategy.bets.map(b => b.id === bet.id ? bet : b)
           }
         }

@@ -125,10 +125,8 @@ export class DashboardTableComponent {
         case 'lost':
           profit = -item.bet;
           break;
-        case 'void':
-          break;
         default:
-          return;
+          break;
       }
       const bet: Bet = {
         ...item,

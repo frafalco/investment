@@ -142,7 +142,7 @@ export class SupabaseService {
     );
   }
 
-  updateBetAndStrategy(item: Bet, strategy: Strategy, previousProfit: number): Observable<Bet> {
+  updateBetAndStrategy(item: Bet, strategy: Strategy, previousProfit: number): Observable<{bet: Bet, profit: number}> {
     let currentProfit = 0;
     currentProfit = strategy.profit ?? 0;
     currentProfit = currentProfit - previousProfit + item.profit!;
@@ -159,17 +159,19 @@ export class SupabaseService {
     const updateStrategyQuery = this.supabase
       .from('strategies')
       .update({ profit: currentProfit })
-      .eq('id', strategy.id);
+      .eq('id', strategy.id)
+      .select<'*', Strategy>()
+      .single();
     return from(
-      updateStrategyQuery.then(async ({ error }) => {
+      updateStrategyQuery.then(async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
-        const { data, error: error_1 } = await updateBetQuery;
+        const { data: bet, error: error_1 } = await updateBetQuery;
         if (error_1) {
           throw new Error(error_1.message);
         }
-        return data;
+        return {bet, profit: data.profit};
       })
     );
   }
