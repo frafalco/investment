@@ -73,7 +73,7 @@
   <tbody>
     @for (r of bets$ | async; track r.id) {
     <tr>
-      <td scope="row">{{ r.date | date:'dd/MM/yyyy HH:mm' }}</td>
+      <td scope="row">{{ r.date | date:'dd/MM/yyyy' }}</td>
       <td>
         {{ r.event }}
       </td>
