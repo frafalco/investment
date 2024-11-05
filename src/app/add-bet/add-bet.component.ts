@@ -14,17 +14,14 @@ import {
   RouterLinkActive,
   RouterOutlet,
 } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
 import { User } from '@supabase/supabase-js';
 import { Strategy } from '../models/strategy.model';
 import { Bet } from '../models/bet.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
-import { map, Observable } from 'rxjs';
-import { Profile } from '../models/profile.model';
+import { Observable } from 'rxjs';
 import { selectStrategies } from '../store/profile.selector';
 import { DatetimepickerComponent } from '../datetimepicker/datetimepicker.component';
-import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import * as ProfileActions from '../store/profile.actions';
 
 @Component({

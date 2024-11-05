@@ -65,8 +65,6 @@ export class DashboardComponent {
       this.store.dispatch(ProfileActions.addStrategy(value));
       this.addStrategyForm.reset();
       modal.close();
-    } else {
-      console.log('Not valid')
     }
   }
 }

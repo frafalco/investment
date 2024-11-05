@@ -24,7 +24,7 @@ export class DatetimepickerComponent implements ControlValueAccessor, OnInit, Af
   dateString!: string | null;
 
   @Input()
-  inputDatetimeFormat = 'dd/MM/yyyy HH:mm';
+  inputDatetimeFormat = 'dd/MM/yyyy';
   @Input()
   hourStep = 1;
   @Input()
@@ -147,14 +147,7 @@ export class DatetimepickerComponent implements ControlValueAccessor, OnInit, Af
   setDateStringModel() {
       this.dateString = this.datetime.toString();
 
-      if (!this.firstTimeAssign) {
-          this.onChange(this.dateString);
-      } else {
-          // Skip very first assignment to null done by Angular
-          if (this.dateString !== null) {
-              this.firstTimeAssign = false;
-          }
-      }
+      this.onChange(this.dateString);
   }
 
   inputBlur($event: FocusEvent) {

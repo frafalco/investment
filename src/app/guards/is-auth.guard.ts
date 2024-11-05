@@ -9,7 +9,6 @@ export const isAuthGuard: CanActivateFn = async (route, state) => {
   const supabase: SupabaseService = inject(SupabaseService);
   await supabase.restoreSession();  // Assicura che la sessione sia caricata
   const user_id = supabase.user_id;
-  console.log(user_id)
   if (user_id) {
     return true;
   } else {

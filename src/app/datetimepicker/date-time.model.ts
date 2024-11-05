@@ -17,7 +17,9 @@ export class DateTimeModel implements NgbDateTimeStruct {
     }
 
     public static fromLocalString(dateString: string): DateTimeModel | null {
-        const date = new Date(dateString);
+        var pattern = /(\d{2})\/(\d{2})\/(\d{4})/;
+        var date = new Date(dateString.replace(pattern,'$3-$2-$1'));
+        // const date = new Date(dateString);
 
         const isValidDate = !isNaN(date.valueOf());
 
@@ -70,9 +72,7 @@ export class DateTimeModel implements NgbDateTimeStruct {
                 return (norm < 10 ? '0' : '') + norm;
             };
 
-            const isoString = `${pad(+year)}-${pad(+month)}-${pad(+day)}T${pad(+hour)}:${pad(+minute)}:${pad(+second)}${dif}${pad(tzo / 60)}:${pad(tzo % 60)}`;
-            console.log(`IsoString: ${isoString}`)
-            return isoString;
+            return`${pad(+year)}-${pad(+month)}-${pad(+day)}T${pad(+hour)}:${pad(+minute)}:${pad(+second)}${dif}${pad(tzo / 60)}:${pad(tzo % 60)}`;
         }
 
         return null;

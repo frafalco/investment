@@ -95,7 +95,6 @@ export class DashboardTableComponent {
                 })
               })
             });
-            console.log(betsTable);
             this.dashboardTableService.initializeBets(this.strategy.bets);
           } else {
             this.dashboardTableService.initializeBets(this.strategy.bets);
@@ -137,7 +136,6 @@ export class DashboardTableComponent {
         profit,
         updated_at: new Date().toISOString()
       };
-      console.log(bet);
       // this.dashboardTableService.addLoader();
       this.store.dispatch(updateBet({bet, strategy: this.strategy!, previousProfit}))
       // this.dashboardTableService.refreshData();

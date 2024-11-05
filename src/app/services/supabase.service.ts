@@ -38,7 +38,7 @@ export class SupabaseService {
       }
       this.store.dispatch(ProfileActions.loadProfile());
     } catch (exception) {
-      console.log(exception);
+      
     }
   }
 
