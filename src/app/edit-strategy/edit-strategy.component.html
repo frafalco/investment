@@ -1,0 +1,55 @@
+<div class="card"  *ngIf="showForm">
+  <div class="card-body">
+    <form [formGroup]="addStrategyForm" (submit)="upsertStrategy()">
+      <div class="mb-3">
+        <label for="name">Strategy Name</label>
+        <div class="input-group">
+          <input
+            id="name"
+            class="form-control"
+            name="name"
+            formControlName="name"
+          />
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="starting_bankroll">Sarting Bankroll</label>
+        <div class="input-group">
+          <input
+            id="starting_bankroll"
+            class="form-control"
+            name="starting_bankroll"
+            formControlName="starting_bankroll"
+          />
+        </div>
+      </div>
+      <div class="mb-3">
+        <label for="str_type">Strategy Type</label>
+        <div class="input-group">
+          <select formControlName="str_type" class="form-select" id="str_type">
+            <option value="">Select type</option>
+            <option value="default">Default</option>
+            <option value="live">Live</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-3">
+        <button type="submit" class="btn btn-outline-primary w-100">Save Strategy</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card mt-3" *ngIf="strategy$ | async">
+  <div class="card-body">
+    <button type="button" class="btn btn-outline-danger w-100" (click)="open(content)">Delete Strategy</button>
+  </div>
+  <ng-template #content let-modal>
+    <div class="modal-body">
+      <div>Are you sure to delete this strategy?</div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-danger" (click)="deleteStrategy(modal)">Delete</button>
+    </div>
+  </ng-template>
+</div>

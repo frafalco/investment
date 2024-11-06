@@ -89,13 +89,13 @@ export const updateBet = createEffect(
   { functional: true }
 );
 
-export const addStrategy = createEffect(
+export const upsertStrategy = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(
-      ofType(ProfileActions.addStrategy),
-      switchMap(({name, starting_bankroll, str_type}) =>
-        supabase.addStrategy(name, starting_bankroll, str_type).pipe(
-          map((strategy) => ProfileActions.addStrategySuccess({strategy})),
+      ofType(ProfileActions.upsertStrategy),
+      switchMap(({id, name, starting_bankroll, str_type}) =>
+        supabase.upsertStrategy(id, name, starting_bankroll, str_type).pipe(
+          map((strategy) => ProfileActions.upsertStrategySuccess({strategy})),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))
           )
@@ -113,6 +113,23 @@ export const addBet = createEffect(
       mergeMap(({ bet }) =>
         supabase.insertBet(bet).pipe(
           map((newBet) => ProfileActions.addBetSuccess({bet: newBet})),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
+export const deleteStrategy = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.deleteStrategy),
+      switchMap(({ strategy_id }) =>
+        supabase.deleteStrategy(strategy_id).pipe(
+          map((oldStrategy) => ProfileActions.deleteStrategySuccess({strategy: oldStrategy})),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))
           )

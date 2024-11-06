@@ -108,10 +108,10 @@ export class SupabaseService {
     );
   }
 
-  addStrategy(name: string | null, starting_bankroll: number | null, str_type: string | null): Observable<Strategy> {
+  upsertStrategy(id: number | null,name: string | null, starting_bankroll: number | null, str_type: string | null): Observable<Strategy> {
     const query = this.supabase
       .from('strategies')
-      .insert({name, starting_bankroll, type: str_type})
+      .upsert({id: id === null ? undefined : id, name, starting_bankroll, type: str_type})
       .select<'*', Strategy>()
       .single();
 
@@ -172,6 +172,19 @@ export class SupabaseService {
           throw new Error(error_1.message);
         }
         return {bet, profit: data.profit};
+      })
+    );
+  }
+
+  deleteStrategy(strategy_id: number): Observable<Strategy> {
+    const deleteStrategyQuery = this.supabase.from('strategies').delete().eq('id', strategy_id).select<'*', Strategy>().single();
+
+    return from(
+      deleteStrategyQuery.then( async ({ data, error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        return data;
       })
     );
   }

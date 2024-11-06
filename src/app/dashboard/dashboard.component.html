@@ -1,72 +1,64 @@
 <div *ngIf="profile$ | async as profile; else anon">
-  <ul ngbNav #nav="ngbNav" class="nav-tabs" [activeId]="active_id">
-    @for (s of profile.strategies; track s.id) {
-      <ng-container [ngbNavItem]="s.id.toString()">
-        <button ngbNavLink>{{s.name}}</button>
-        <ng-template ngbNavContent>
-          <app-dashboard-info [profile$]="profile$" [strategy_id]="s.id"></app-dashboard-info>
-        </ng-template>
-      </ng-container>
-    }
-    <ng-container ngbNavItem="new">
-      <button ngbNavLink>New strategy</button>
-      <ng-template ngbNavContent>
-        <p>
-          Click the button below to add a new strategy.
-        </p>
-        <button class="btn btn-lg btn-outline-primary" (click)="open(content)">Add Strategy</button>
-        <ng-template #content let-modal>
-          <div class="modal-header">
-            <h4 class="modal-title" id="modal-basic-title">Add Strategy</h4>
-            <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  <div class="row row-cols-3 g-4">
+    <div class="col" *ngFor="let s of profile.strategies">
+      <div class="card">
+        <div class="card-header bg-transparent d-flex justify-content-between">
+          <div>{{ s.name }}</div>
+          <div>
+            <button
+              class="btn btn-round bi bi-three-dots"
+              [routerLink]="'/edit-strategy/' + s.id"
+            ></button>
           </div>
-          <div class="modal-body">
-            <form [formGroup]="addStrategyForm">
-              <div class="mb-3">
-                <label for="name">Startegy Name</label>
-                <div class="input-group">
-                  <input
-                    id="name"
-                    class="form-control"
-                    name="name"
-                    formControlName="name"
-                  />
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="starting_bankroll">Sarting Bankroll</label>
-                <div class="input-group">
-                  <input
-                    id="starting_bankroll"
-                    class="form-control"
-                    name="starting_bankroll"
-                    formControlName="starting_bankroll"
-                  />
-                </div>
-              </div>
-              <div class="mb-3">
-                <label for="str_type">Strategy Type</label>
-                <div class="input-group">
-                  <select formControlName="str_type" class="form-select" id="str_type">
-                    <option value="">Select type</option>
-                    <option value="default">Default</option>
-                    <option value="live">Live</option>
-                  </select>
-                </div>
-              </div>
-            </form>
+        </div>
+        <div
+          class="card-body row text-center"
+          [ngClass]="
+            !s.total_wagered || s.profit / s.total_wagered === 0
+              ? 'text-primary'
+              : s.profit / s.total_wagered > 0
+              ? 'text-success'
+              : 'text-danger'
+          "
+        >
+          <div class="col-md-6 border-end">
+            <p>ROI</p>
+            <p>
+              {{
+                (s.total_wagered ? s.profit / s.total_wagered : 0)
+                  | percent : "1.0-2"
+              }}
+            </p>
           </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-outline-primary" (click)="addStrategy(modal)">Save</button>
+          <div class="col-md-6">
+            <p>Units Won</p>
+            <p>
+              {{ s.profit / (s.starting_bankroll / 100) | number : "1.0-1" }}
+            </p>
           </div>
-        </ng-template>
-      </ng-template>
-    </ng-container>
-  </ul>
-  
-  <div [ngbNavOutlet]="nav" class="mt-2"></div>
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <small class="text-muted"
+            >Pending Bets {{ s.bets.filter(retrievePendingBets).length }}</small
+          >
+        </div>
+        <div class="card-footer bg-transparent text-center">
+          <button class="btn btn-primary" [routerLink]="'/strategy/' + s.id">View Details</button>
+        </div>
+      </div>
+    </div>
+    <div class="col">
+      <div class="card">
+        <div class="card-body card-new-strategy">
+          <button
+            class="btn btn-new-strategy bi bi-plus-circle text-primary"
+            [routerLink]="'/edit-strategy/new'"
+          ></button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 <ng-template #anon>
   <h3>Anonymus content</h3>
 </ng-template>
-

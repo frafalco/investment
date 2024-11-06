@@ -8,4 +8,5 @@ export interface Strategy {
     profit: number;
     user_id: string;
     bets: Bet[];
+    total_wagered: number;
 }

@@ -18,11 +18,14 @@ export const updateProfileSuccess = createAction('[Profile] Update Profile Succe
 export const updateBet = createAction('[Profile] Update Bet', props<{ bet: Bet, strategy: Strategy, previousProfit: number }>());
 export const updateBetSuccess = createAction('[Profile] Update Bet Success', props<{ bet: Bet, profit: number }>());
 
-export const addStrategy = createAction('[Profile] Add Strategy', props<{ name: string | null, starting_bankroll: number | null, str_type: string | null }>());
-export const addStrategySuccess = createAction('[Profile] Add Strategy Success', props<{ strategy: Strategy }>());
+export const upsertStrategy = createAction('[Profile] Add Strategy', props<{ id: number | null, name: string | null, starting_bankroll: number | null, str_type: string | null }>());
+export const upsertStrategySuccess = createAction('[Profile] Add Strategy Success', props<{ strategy: Strategy }>());
 
 export const addBet = createAction('[Profile] Add Bet', props<{ bet: Bet }>());
 export const addBetSuccess = createAction('[Profile] Add Bet Success', props<{ bet: Bet }>());
+
+export const deleteStrategy = createAction('[Profile] Delete Strategy', props<{ strategy_id: number }>());
+export const deleteStrategySuccess = createAction('[Profile] Delete Strategy Success', props<{ strategy: Strategy }>());
 
 export const deleteBet = createAction('[Profile] Delete Bet', props<{ bet: Bet, strategy: Strategy }>());
 export const deleteBetSuccess = createAction('[Profile] Delete Bet Success', props<{ bet: Bet }>());

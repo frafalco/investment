@@ -1,6 +1,7 @@
 import { createFeature, createReducer, on } from '@ngrx/store';
 import { Profile } from "../models/profile.model";
 import * as ProfileActions from './profile.actions';
+import { Strategy } from '../models/strategy.model';
 
 export interface ProfileState {
   profile?: Profile;
@@ -19,7 +20,13 @@ export const profileReducer = createReducer(
     ...state,
     profile: {
       ...profile,
-      strategies: [...profile.strategies].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0)
+      strategies: [...profile.strategies].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0).map((strategy) => {
+        const newStrategy = {
+          ...strategy,
+          total_wagered: [...strategy.bets].reduce((total, bet) => total += bet.bet, 0)
+        }
+        return newStrategy;
+      })
     },
     loading: false,
   })),
@@ -53,11 +60,30 @@ export const profileReducer = createReducer(
     };
     return ({ loading: false, error: undefined, profile })
   }),
-  on(ProfileActions.addStrategy, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
-  on(ProfileActions.addStrategySuccess, (state: ProfileState, { strategy }) => {
+  on(ProfileActions.upsertStrategy, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.upsertStrategySuccess, (state: ProfileState, { strategy }) => {
+    const currentStrategies = state.profile?.strategies;
+    let strategies: Strategy[] = [];
+    let alreadyExistingStrategy: boolean = false;
+    if(currentStrategies && currentStrategies.length > 0) {
+      strategies = currentStrategies.map((s) => {
+        if (s.id === strategy.id) {
+          alreadyExistingStrategy = true;
+          return {
+            ...strategy,
+            bets: [...s.bets]
+          }
+        }
+        return s;
+      });
+    }
+    if(!alreadyExistingStrategy) {
+      strategies.push({...strategy, bets: []});
+    }
+    strategies = strategies.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
     const profile = {
       ...state.profile!,
-      strategies: [...state.profile?.strategies ?? [], {...strategy, bets: []}].sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+      strategies,
     };
     return ({ loading: false, error: undefined, profile })
   }),
@@ -74,6 +100,14 @@ export const profileReducer = createReducer(
         }
         return strategy;
       })
+    };
+    return ({ loading: false, error: undefined, profile })
+  }),
+  on(ProfileActions.deleteStrategy, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.deleteStrategySuccess, (state: ProfileState, { strategy }) => {
+    const profile = {
+      ...state.profile!,
+      strategies: state.profile!.strategies.filter(s => s.id !== strategy.id)
     };
     return ({ loading: false, error: undefined, profile })
   }),

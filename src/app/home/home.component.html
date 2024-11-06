@@ -1,9 +1,9 @@
 <div *ngIf="profile$ | async as p; else anon">
     <div class="row">
-        <div class="col-md-4" *ngFor="let s of p.strategies">
+        <div class="col-md-4 mb-3" *ngFor="let s of p.strategies">
             <div class="box">
                 <h2>{{s.name}}</h2>
-                <app-dashboard-graph [profile$]="profile$" [strategy_id]="s.id" [height]="300" [showToolbar]="false"></app-dashboard-graph>
+                <app-dashboard-graph [strategy$]="getStrategy(s.id)" [height]="300" [showToolbar]="false"></app-dashboard-graph>
                 <div class="row text-center">
                     <div class="col-md-4">
                         <p>ROI</p>

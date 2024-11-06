@@ -1,0 +1,47 @@
+.box {
+    background-color: #fefefe;
+    border-radius: 12px;
+    border: 1px solid #000000;
+    padding: 16px;
+    box-shadow: 10px 10px 2px rgb(0, 0, 0, 0.3);
+}
+
+.box .name {
+    font-size: 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid grey;
+}
+
+.card {
+    height: 100%;
+}
+
+.btn-round {
+    border: 1px solid #a0a0a0;
+    border-radius: 20px;
+    padding: 0;
+    width: 26px;
+    height: 26px;
+    color: #a0a0a0;
+}
+
+.card-new-strategy {
+    position: relative;
+    min-height: 150px;
+}
+
+.card-new-strategy .btn-new-strategy {
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.card-new-strategy .btn-new-strategy:before {
+    font-size: 50px;
+}
+
+.btn-round:before {
+    line-height: 1.5;
+}

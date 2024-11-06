@@ -2,11 +2,12 @@ import { Component } from '@angular/core';
 import { Profile } from '../models/profile.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
-import { selectProfile } from '../store/profile.selector';
+import { selectProfile, selectStrategyFromId } from '../store/profile.selector';
 import { Observable } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { DashboardGraphComponent } from '../dashboard-graph/dashboard-graph.component';
 import { Bet } from '../models/bet.model';
+import { Strategy } from '../models/strategy.model';
 
 @Component({
   selector: 'app-home',
@@ -28,5 +29,9 @@ export class HomeComponent {
       return new Date(bet.date!) > new Date(latest.date!) ? bet : latest;
     }
     return bet;
+  }
+
+  getStrategy(strategy_id: number): Observable<Strategy | undefined> {
+    return this.store.select(selectStrategyFromId(strategy_id));
   }
 }

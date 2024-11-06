@@ -15,6 +15,7 @@ import { Bet } from '../models/bet.model';
 import { Observable } from 'rxjs';
 import { Profile } from '../models/profile.model';
 import { DatePipe } from '@angular/common';
+import { Strategy } from '../models/strategy.model';
 
 @Component({
   selector: 'app-dashboard-graph',
@@ -24,12 +25,13 @@ import { DatePipe } from '@angular/common';
   styleUrl: './dashboard-graph.component.css',
 })
 export class DashboardGraphComponent {
-  @Input({ required: true }) profile$!: Observable<Profile | undefined>;
-  @Input({ required: true }) strategy_id!: number;
+  @Input({ required: true }) strategy$!: Observable<Strategy | undefined>;
   @Input() height: number = 400;
   @Input() showToolbar: boolean = true;
+  @Input() showTitle: boolean = false;
 
   bets: Bet[] = [];
+  strategyName: string = '';
 
   public series!: ApexAxisChartSeries;
   public chart!: ApexChart;
@@ -42,10 +44,9 @@ export class DashboardGraphComponent {
   public tooltip!: ApexTooltip;
 
   ngOnInit() {
-    this.profile$.subscribe((p) => {
-      if (p) {
-        const strategy = p.strategies.find((s) => s.id === this.strategy_id);
+    this.strategy$.subscribe((strategy) => {
         if (strategy) {
+          this.strategyName = strategy.name;
           this.bets = [...strategy.bets].sort((a, b) => {
             if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
               return 0;
@@ -60,7 +61,6 @@ export class DashboardGraphComponent {
           });;
           this.initChartData();
         }
-      }
     });
   }
 
@@ -79,7 +79,12 @@ export class DashboardGraphComponent {
 
       return map;
     }, new Map<number, number>())
+    let isFirst: boolean = true;
     for (let key of mappedBet.keys()) {
+      if(isFirst) {
+        isFirst = false;
+        dates.push([key - 86400000, 0]);
+      }
       dates.push([key, mappedBet.get(key)!]);
     }
 
@@ -112,8 +117,15 @@ export class DashboardGraphComponent {
           size: 8
         }
     };
-    // this.title = {
-    // };
+    if(this.showTitle) {
+      this.title = {
+        text: this.strategyName,
+        align: 'center',
+        style: {
+          fontSize: '24px'
+        }
+      };
+    }
     // this.fill = {
 
     // };

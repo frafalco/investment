@@ -1,20 +1,15 @@
-import { AsyncPipe, CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
-import { ActivatedRoute, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
-import { SupabaseService } from '../services/supabase.service';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
-  FormBuilder,
   FormControl,
   FormGroup,
-  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { User } from '@supabase/supabase-js';
-import { NgbDatepickerModule, NgbModal, NgbNavModule, NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { Observable } from 'rxjs';
 import { DashboardTableService } from '../services/dashboard-table.service';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DashboardTableComponent } from "../dashboard-table/dashboard-table.component";
 import { DashboardInfoComponent } from '../dashboard-info/dashboard-info.component';
 import { Profile } from '../models/profile.model';
@@ -22,7 +17,7 @@ import { Strategy } from '../models/strategy.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
 import { selectProfile } from '../store/profile.selector';
-import * as ProfileActions from '../store/profile.actions';
+import { Bet } from '../models/bet.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -32,7 +27,8 @@ import * as ProfileActions from '../store/profile.actions';
     NgbNavModule,
     DashboardTableComponent,
     ReactiveFormsModule,
-    DashboardInfoComponent
+    DashboardInfoComponent,
+    RouterLink
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -59,12 +55,7 @@ export class DashboardComponent {
 		this.modalService.open(content, { ariaLabelledBy: 'modal-basic-title' });
 	}
 
-  addStrategy(modal: any) {
-    if(this.addStrategyForm.valid) {
-      const value = this.addStrategyForm.getRawValue()
-      this.store.dispatch(ProfileActions.addStrategy(value));
-      this.addStrategyForm.reset();
-      modal.close();
-    }
+  retrievePendingBets(bet: Bet, index: number, bets: Bet[]): boolean {
+    return bet.result === 'pending';
   }
 }

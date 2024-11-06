@@ -1,0 +1,11 @@
+.info-card {
+    text-align: center;
+    background-color: white;
+    padding: 8px;
+    border-radius: 16px;
+    margin: 0 4px;
+}
+
+.info-card p {
+    margin-bottom: 0;
+}

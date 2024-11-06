@@ -1,55 +1,70 @@
 @if(strategy) {
-  <div class="row">
+  <div class="row mb-3">
     <div class="col-sm-2">
-      <p>
-        Starting Bankroll <b>${{ strategy.starting_bankroll }}</b>
-      </p>
+      <div class="info-card">
+        <p>
+          Starting Bankroll <b>${{ strategy.starting_bankroll }}</b>
+        </p>
+      </div>
     </div>
     <div class="col-sm-2">
-      <p>
-        Bankroll
-        <b>${{ strategy.starting_bankroll + strategy.profit }}</b>
-      </p>
+      <div class="info-card">
+        <p>
+          Bankroll
+          <b>${{ strategy.starting_bankroll + strategy.profit }}</b>
+        </p>
+      </div>
     </div>
     <div class="col-sm-2">
-      <p>
-        Unit Won
-        <b>{{
-          strategy.profit / ( strategy.starting_bankroll / 100) | number : "1.0-4"
-        }}</b>
-      </p>
+      <div class="info-card">
+        <p>
+          Unit Won
+          <b>{{
+            strategy.profit / ( strategy.starting_bankroll / 100) | number : "1.0-4"
+          }}</b>
+        </p>
+      </div>
     </div>
     <div class="col-sm-2">
-      <p>
-        ROI
-        <b>{{
-          strategy.profit / strategy.starting_bankroll | percent : "1.0-4"
-        }}</b>
-      </p>
+      <div class="info-card">
+        <p>
+            Average odds <b>{{ mediaQuota | number : "1.0-2" }}</b>    
+        </p>
+      </div>
     </div>
     <div class="col-sm-2">
-      <p>
-        Average odds <b>{{ mediaQuota | number : "1.0-2" }}</b>
-      </p>
+      <div class="info-card">
+        <p>
+          ROI
+          <b>{{
+            strategy.profit / strategy.starting_bankroll | percent : "1.0-4"
+          }}</b>
+        </p>
+      </div>
     </div>
     <div class="col-sm-2">
-      <p>
-        Winrate <b>{{ winRate | percent : "1.0-2" }}</b>
-      </p>
+      <div class="info-card">
+        <p>
+          Winrate <b>{{ winRate | percent : "1.0-2" }}</b>
+        </p>
+      </div>
     </div>
   </div>
-  <div class="btn-group">
+  <div class="card mb-3">
+    <div class="card-body">
+      <app-dashboard-graph [strategy$]="strategy$" [showTitle]="true"></app-dashboard-graph>
+    </div>
+  </div>
+  <!-- <div class="btn-group">
     <button type="button" class="btn bi bi-table" [ngClass]="tableSelected ? 'btn-primary' : 'btn-outline-primary'" (click)="toogleButtonGroup('table')">
       <span class="visually-hidden">Table</span>
     </button>
     <button type="button" class="btn bi bi-graph-up" [ngClass]="graphSelected ? 'btn-primary' : 'btn-outline-primary'" (click)="toogleButtonGroup('graph')">
       <span class="visually-hidden">Graph</span>
     </button>
-  </div>
-  @if(tableSelected) {
-      <app-dashboard-table [profile$]="profile$" [strategy_id]="strategy.id"></app-dashboard-table>
-  }
-  @if(graphSelected) {
-      <app-dashboard-graph [profile$]="profile$" [strategy_id]="strategy.id"></app-dashboard-graph>
-  }
+  </div> -->
+  <app-dashboard-table [strategy$]="strategy$"></app-dashboard-table>
+  <!-- @if(graphSelected) {
+      <app-dashboard-graph [strategy$]="strategy$"></app-dashboard-graph>
+  } -->
 }

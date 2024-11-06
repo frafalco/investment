@@ -6,6 +6,10 @@ import { Strategy } from '../models/strategy.model';
 import { Bet } from '../models/bet.model';
 import { map, Observable } from 'rxjs';
 import { Profile } from '../models/profile.model';
+import { ActivatedRoute } from '@angular/router';
+import { Store } from '@ngrx/store';
+import { AppState } from '../store/app.state';
+import { selectStrategyFromId } from '../store/profile.selector';
 
 @Component({
   selector: 'app-dashboard-info',
@@ -15,9 +19,8 @@ import { Profile } from '../models/profile.model';
   styleUrl: './dashboard-info.component.css',
 })
 export class DashboardInfoComponent {
-  @Input({ required: true }) profile$!: Observable<Profile | undefined>;
-  @Input({ required: true }) strategy_id!: number;
-
+  strategyId: string | null = null;
+  strategy$!: Observable<Strategy | undefined>;
   filteredBets: Bet[] = [];
   mediaQuota: number = 0;
   winRate: number = 0;
@@ -25,15 +28,22 @@ export class DashboardInfoComponent {
   graphSelected: boolean = false;
   strategy?: Strategy;
 
-  constructor() {}
+  constructor(private route: ActivatedRoute, private store: Store<AppState>) {
+    this.strategyId = this.route.snapshot.paramMap.get('id');
+    this.strategy$ = this.store.select(selectStrategyFromId(+this.strategyId!));
+      this.strategy$.subscribe((s) => {
+        this.strategy = s;
+        this.doLogic();
+      });
+  }
 
   ngOnInit() {
-    this.profile$.subscribe((p) => {
-      if (p) {
-        this.strategy = p?.strategies.find((s) => s.id === this.strategy_id);
-        this.doLogic();
-      }
-    });
+    // this.profile$.subscribe((p) => {
+    //   if (p) {
+    //     this.strategy = p?.strategies.find((s) => s.id === this.strategy_id);
+    //     this.doLogic();
+    //   }
+    // });
   }
 
   doLogic() {

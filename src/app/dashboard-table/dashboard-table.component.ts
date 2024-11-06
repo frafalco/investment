@@ -33,8 +33,7 @@ import { TableBet } from '../models/table-bet.model';
   styleUrl: './dashboard-table.component.css',
 })
 export class DashboardTableComponent {
-  @Input({ required: true }) profile$!: Observable<Profile | undefined>;
-  @Input({ required: true }) strategy_id!: number;
+  @Input({ required: true }) strategy$!: Observable<Strategy | undefined>;
 
   mediaQuota: number = 0;
   winRate: number = 0;
@@ -60,9 +59,9 @@ export class DashboardTableComponent {
   ngOnInit() {
     this.bets$ = this.dashboardTableService.bets$;
     this.total$ = this.dashboardTableService.total$;
-    this.profile$.subscribe(p => {
-      if(p) {
-        this.strategy = p.strategies.find(s => s.id === this.strategy_id);
+    this.strategy$.subscribe(s => {
+      if(s) {
+        this.strategy = s;
         if(this.strategy) {
           this.isLive = this.strategy.type === 'live';
           if(this.isLive) {
@@ -83,7 +82,7 @@ export class DashboardTableComponent {
                 unit: 0,
                 bet: 0,
                 result: '',
-                strategy_id: this.strategy_id,
+                strategy_id: s.id,
                 event: keySplitted[0],
                 sub_bets: betRecord[key].map(bet => {
                   return {
