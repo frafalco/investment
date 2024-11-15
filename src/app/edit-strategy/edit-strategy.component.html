@@ -1,6 +1,6 @@
 <div class="card"  *ngIf="showForm">
   <div class="card-body">
-    <form [formGroup]="addStrategyForm" (submit)="upsertStrategy()">
+    <form [formGroup]="addStrategyForm" (submit)="upsertStrategy()" *ngIf="!isTotalStrategy; else totalForm">
       <div class="mb-3">
         <label for="name">Strategy Name</label>
         <div class="input-group">
@@ -37,10 +37,21 @@
         <button type="submit" class="btn btn-outline-primary w-100">Save Strategy</button>
       </div>
     </form>
+    <ng-template #totalForm>
+      <form [formGroup]="totalStrategyForm" (submit)="updateSelectedStrategies()">
+        <div class="mb-3">
+          <label for="strategies_selected">Strategies selected</label>
+          <app-multi-select formControlName="strategies_selected" [options]="optionsList"></app-multi-select>
+        </div>
+        <div class="mb-3">
+          <button type="submit" class="btn btn-outline-primary w-100">Save Strategy</button>
+        </div>
+      </form>
+    </ng-template>
   </div>
 </div>
 
-<div class="card mt-3" *ngIf="strategy$ | async">
+<div class="card mt-3" *ngIf="strategy">
   <div class="card-body">
     <button type="button" class="btn btn-outline-danger w-100" (click)="open(content)">Delete Strategy</button>
   </div>

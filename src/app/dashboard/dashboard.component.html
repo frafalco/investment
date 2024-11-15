@@ -1,5 +1,52 @@
 <div *ngIf="profile$ | async as profile; else anon">
   <div class="row row-cols-3 g-4">
+    
+  <!-- <div class="col">
+    <div class="card">
+      <div class="card-header bg-transparent d-flex justify-content-between">
+        <div>Total</div>
+        <div>
+        </div>
+      </div>
+      <div
+        class="card-body row text-center"
+        [ngClass]="
+          !totalWagered || totalProfit / totalWagered === 0
+            ? 'text-primary'
+            : totalProfit / totalWagered > 0
+            ? 'text-success'
+            : 'text-danger'
+        "
+      >
+        <div class="col-md-6 border-end">
+          <p>ROI</p>
+          <p>
+            {{
+              (totalWagered ? totalProfit / totalWagered : 0)
+                | percent : "1.0-2"
+            }}
+          </p>
+        </div>
+        <div class="col-md-6">
+          <p>Profit</p>
+          <p>
+            ${{ totalProfit | number : "1.0-2" }}
+          </p>
+        </div>
+      </div>
+      <div class="card-footer bg-transparent row text-center">
+        <small class="text-muted col-md-6 border-end"
+          >Total Bets {{ totalBets }}</small
+        >
+        <small class="text-muted col-md-6"
+          >Pending Bets {{ totalPendingBets }}</small
+        >
+      </div>
+      <div class="card-footer bg-transparent text-center">
+        <button class="btn btn-primary" [routerLink]="'/strategy/total'">View Details</button>
+      </div>
+    </div>
+  </div> -->
     <div class="col" *ngFor="let s of profile.strategies">
       <div class="card">
         <div class="card-header bg-transparent d-flex justify-content-between">
@@ -31,14 +78,24 @@
             </p>
           </div>
           <div class="col-md-6">
-            <p>Units Won</p>
-            <p>
-              {{ s.profit / (s.starting_bankroll / 100) | number : "1.0-1" }}
-            </p>
+            @if(s.type === 'total') {
+              <p>Profit</p>
+              <p>
+                ${{ s.profit | number : "1.0-2" }}
+              </p>
+            } @else {
+              <p>Units Won</p>
+              <p>
+                {{ s.profit / (s.starting_bankroll / 100) | number : "1.0-1" }}
+              </p>
+            }
           </div>
         </div>
-        <div class="card-footer bg-transparent text-center">
-          <small class="text-muted"
+        <div class="card-footer bg-transparent row text-center">
+          <small class="text-muted col-md-6 border-end"
+            >Total Bets {{ s.bets.length }}</small
+          >
+          <small class="text-muted col-md-6"
             >Pending Bets {{ s.bets.filter(retrievePendingBets).length }}</small
           >
         </div>

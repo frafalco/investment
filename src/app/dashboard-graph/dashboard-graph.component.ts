@@ -101,6 +101,9 @@ export class DashboardGraphComponent {
       toolbar: {
         show: this.showToolbar,
       },
+      zoom: {
+        enabled: false
+      }
     };
     this.dataLabels = {
       enabled: false,

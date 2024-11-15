@@ -77,7 +77,7 @@ export const updateBet = createEffect(
     return actions$.pipe(
       ofType(ProfileActions.updateBet),
       switchMap(({bet, strategy, previousProfit}) =>
-        supabase.updateBetAndStrategy(bet, strategy, previousProfit).pipe(
+        supabase.updateBetAndStrategy(bet, previousProfit).pipe(
           map((data) => ProfileActions.updateBetSuccess(data)),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))
@@ -147,6 +147,23 @@ export const deleteBet = createEffect(
       switchMap(({ bet, strategy }) =>
         supabase.deleteBet(bet, strategy).pipe(
           map((oldBet) => ProfileActions.deleteBetSuccess({bet: oldBet})),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
+export const updateSelectedStrategies = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.updateSelectedStrategy),
+      switchMap(({strategies_selected}) =>
+        supabase.updateSelectedStrategies(strategies_selected).pipe(
+          map((profile) => ProfileActions.updateSelectedStrategySuccess({profile})),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))
           )

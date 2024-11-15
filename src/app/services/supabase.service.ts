@@ -14,6 +14,7 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
 import * as ProfileActions from '../store/profile.actions';
 import { Strategy } from '../models/strategy.model';
+import { SelectedStrategy } from '../models/selected-strategy.model';
 
 @Injectable({
   providedIn: 'root',
@@ -116,9 +117,13 @@ export class SupabaseService {
       .single();
 
     return from(
-      query.then(({ data, error }) => {
+      query.then( async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
+        }
+        const { error: error_1 } = await this.supabase.rpc('add_selected_strategy', {user_id: this.user_id, new_strategy: {id: data.id, name: data.name}});
+        if (error_1) {
+          throw new Error(error_1.message);
         }
         return data;
       })
@@ -142,10 +147,7 @@ export class SupabaseService {
     );
   }
 
-  updateBetAndStrategy(item: Bet, strategy: Strategy, previousProfit: number): Observable<{bet: Bet, profit: number}> {
-    let currentProfit = 0;
-    currentProfit = strategy.profit ?? 0;
-    currentProfit = currentProfit - previousProfit + item.profit!;
+  updateBetAndStrategy(item: Bet, previousProfit: number): Observable<{bet: Bet, profit: number}> {
     const bet: Bet = {
       ...item,
     };
@@ -155,23 +157,20 @@ export class SupabaseService {
       .upsert(bet)
       .select<'*', Bet>()
       .single();
-    //update strategy
-    const updateStrategyQuery = this.supabase
-      .from('strategies')
-      .update({ profit: currentProfit })
-      .eq('id', strategy.id)
-      .select<'*', Strategy>()
-      .single();
+      
     return from(
-      updateStrategyQuery.then(async ({ data, error }) => {
+      updateBetQuery.then(async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
-        const { data: bet, error: error_1 } = await updateBetQuery;
+        const { data: profit, error: error_1 } = await this.supabase.rpc('increment_profit', {
+          increment_by: data.profit! - previousProfit,
+          strategy_id: data.strategy_id
+        });
         if (error_1) {
           throw new Error(error_1.message);
         }
-        return {bet, profit: data.profit};
+        return {bet: data, profit};
       })
     );
   }
@@ -209,6 +208,18 @@ export class SupabaseService {
         const { data, error: error_1 } = await deleteBetQuery;
         if (error_1) {
           throw new Error(error_1.message);
+        }
+        return data;
+      })
+    );
+  }
+
+  updateSelectedStrategies(strategies_selected: SelectedStrategy[] | null): Observable<Profile> {
+    const query = this.supabase.from('profiles').update({selected_strategies: strategies_selected}).eq('id', this.user_id).select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))').single();
+
+    return from(query.then(({ data, error}) => {
+        if (error) {
+          throw new Error(error.message);
         }
         return data;
       })

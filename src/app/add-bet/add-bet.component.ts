@@ -20,7 +20,7 @@ import { Bet } from '../models/bet.model';
 import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
 import { Observable } from 'rxjs';
-import { selectStrategies } from '../store/profile.selector';
+import { selectStrategiesAddBet } from '../store/profile.selector';
 import { DatetimepickerComponent } from '../datetimepicker/datetimepicker.component';
 import * as ProfileActions from '../store/profile.actions';
 
@@ -58,7 +58,7 @@ export class AddBetComponent {
   submitForm!: FormGroup;
 
   constructor(private store: Store<AppState>, private router: Router) {
-    this.strategies$ = store.select(selectStrategies);
+    this.strategies$ = store.select(selectStrategiesAddBet);
   }
 
   ngOnInit() {

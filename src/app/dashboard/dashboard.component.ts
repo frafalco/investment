@@ -45,10 +45,26 @@ export class DashboardComponent {
     str_type: new FormControl<string>('', Validators.required),
   });
   active_id: string | null;
+  totalWagered: number = 0;
+  totalProfit: number = 0;
+  totalBankroll: number = 0;
+  totalBets: number = 0;
+  totalPendingBets: number = 0;
 
   constructor(private store: Store<AppState>, private modalService: NgbModal, route: ActivatedRoute) {
     this.profile$ = store.select(selectProfile);
     this.active_id = route.snapshot.queryParamMap.get('strategy');
+    this.profile$.subscribe((p) => {
+      if(p) {
+        p.strategies.forEach((s) => {
+          this.totalWagered += s.total_wagered;
+          this.totalProfit += s.profit;
+          this.totalBankroll += s.starting_bankroll;
+          this.totalBets += s.bets.length;
+          this.totalPendingBets += s.bets.filter(b => b.result === 'pending').length;
+        })
+      }
+    })
   }
 
   open(content: TemplateRef<any>) {

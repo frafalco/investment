@@ -2,3 +2,7 @@
     max-width: 600px;
     margin: 0 auto;
 }
+
+.multiselect-dropdown .dropdown-btn .selected-item-container .selected-item {
+    max-width: none;
+}
