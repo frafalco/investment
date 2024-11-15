@@ -1,0 +1,21 @@
+.badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.badge-container .custom-badge {
+    width: 120px;
+    text-wrap: auto;
+    height: 30px;
+    align-content: center;
+    cursor: pointer;
+}
+
+/* .custom-badge .multiselect-checkbox {
+    opacity: 0;
+    position: absolute;
+    width: 120px;
+    height: 30px;
+    margin-left: -10px;
+} */

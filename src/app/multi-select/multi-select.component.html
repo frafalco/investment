@@ -1,0 +1,12 @@
+<div class="badge-container">
+    <ng-container *ngFor="let option of options; else empty">
+        <div class="badge rounded-pill" [ngClass]="selectedValues.has(option.id) ? 'bg-primary': 'bg-secondary'">
+            <div class="custom-badge" (click)="onBadgeClick(option)">
+            {{ option.name }}
+            </div>
+        </div>
+    </ng-container>
+    <ng-template #empty>
+        Add a new strategy
+    </ng-template>
+</div>
