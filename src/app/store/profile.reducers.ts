@@ -77,6 +77,7 @@ export const profileReducer = createReducer(
           alreadyExistingStrategy = true;
           return {
             ...strategy,
+            total_wagered: [...s.bets].reduce((total, bet) => total += bet.bet, 0),
             bets: [...s.bets]
           }
         }
@@ -86,10 +87,11 @@ export const profileReducer = createReducer(
     if(!alreadyExistingStrategy) {
       strategies.push({...strategy, bets: []});
     }
-    strategies = strategies.sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    strategies = strategies.filter(s => s.id !== 0).sort((a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0);
+    const totalStrategy = getTotalStrategy(state.profile!, strategies);
     const profile = {
       ...state.profile!,
-      strategies,
+      strategies: [totalStrategy, ...strategies],
     };
     return ({ loading: false, error: undefined, profile })
   }),
