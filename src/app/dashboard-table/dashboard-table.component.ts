@@ -149,6 +149,7 @@ export class DashboardTableComponent {
   }
 
   resetFilters(): void {
+    this.dashboardTableService.event = '';
     this.dashboardTableService.bookmaker = '';
     this.dashboardTableService.date = null;
     this.dashboardTableService.result = '';
