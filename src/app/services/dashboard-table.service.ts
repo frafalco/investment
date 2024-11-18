@@ -21,6 +21,7 @@ interface SearchResult {
 interface State {
   page: number;
   pageSize: number;
+  event: string;
   bookmaker: string;
   date: NgbDateStruct | null;
   result: string;
@@ -59,6 +60,10 @@ function sort(
   }
 }
 
+function filterEvent(result: TableBet, term: string) {
+	return result.event.toLowerCase().includes(term.toLowerCase());
+}
+
 function filterBookmaker(result: TableBet, term: string) {
 	return result.bookmaker.toLowerCase().includes(term.toLowerCase());
 }
@@ -84,6 +89,7 @@ export class DashboardTableService {
   private _state: State = {
     page: 1,
     pageSize: 10,
+    event: '',
     bookmaker: '',
     date: null,
     result: '',
@@ -121,6 +127,9 @@ export class DashboardTableService {
   get pageSize() {
     return this._state.pageSize;
   }
+  get event() {
+    return this._state.event;
+  }
   get bookmaker() {
     return this._state.bookmaker;
   }
@@ -136,6 +145,9 @@ export class DashboardTableService {
   }
   set pageSize(pageSize: number) {
     this._set({ pageSize });
+  }
+  set event(event: string) {
+    this._set({ event });
   }
   set bookmaker(bookmaker: string) {
     this._set({ bookmaker });
@@ -163,7 +175,7 @@ export class DashboardTableService {
   }
 
   private _applyFiltersAndSorting(bets: TableBet[]): Observable<SearchResult> {
-    const { sortColumn, sortDirection, pageSize, page, bookmaker, date, result } = this._state;
+    const { sortColumn, sortDirection, pageSize, page, event, bookmaker, date, result } = this._state;
 
     // 1. sort updated_at
     let filteredBets = [...bets].sort((a, b) => {
@@ -176,7 +188,22 @@ export class DashboardTableService {
       if (b.date === null || b.date === undefined) {
         return -1;
       }
-      return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
+      if(a.date < b.date) {
+        return -1;
+      }
+      if(a.date > b.date) {
+        return 1;
+      }
+      if ((a.updated_at === null || a.updated_at === undefined) && (b.updated_at === null || b.updated_at === undefined)) {
+        return 0;
+      }
+      if (a.updated_at === null || a.updated_at === undefined) {
+        return 1;
+      }
+      if (b.updated_at === null || b.updated_at === undefined) {
+        return -1;
+      }
+      return a.updated_at < b.updated_at ? -1 : a.updated_at > b.updated_at ? 1 : 0;
     });
 
     // 2. sort
@@ -185,7 +212,7 @@ export class DashboardTableService {
     // 3. filter
     const dateFormatted = this.ngbDateParserFormatter.format(date);
     filteredBets = filteredBets.filter(
-      (r) => filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result)
+      (r) => filterEvent(r, event) && filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result)
     );
 
     const total = filteredBets.length;

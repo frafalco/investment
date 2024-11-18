@@ -97,17 +97,20 @@ export const profileReducer = createReducer(
   }),
   on(ProfileActions.addBet, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
   on(ProfileActions.addBetSuccess, (state: ProfileState, { bet }) => {
+    const strategies = (state.profile?.strategies.filter(s => s.id !== 0) ?? []).map(strategy => {
+      if(strategy.id === bet.strategy_id || strategy.id === 0) {
+        return {
+          ...strategy,
+          total_wagered: [...strategy.bets, bet].reduce((total, bet) => total += bet.bet, 0),
+          bets: [...strategy.bets, bet]
+        }
+      }
+      return strategy;
+    });
+    const totalStrategy = getTotalStrategy(state.profile!, strategies);
     const profile = {
       ...state.profile!,
-      strategies: state.profile!.strategies.map(strategy => {
-        if(strategy.id === bet.strategy_id || strategy.id === 0) {
-          return {
-            ...strategy,
-            bets: [...strategy.bets, bet]
-          }
-        }
-        return strategy;
-      })
+      strategies: [totalStrategy, ...strategies]
     };
     return ({ loading: false, error: undefined, profile })
   }),
@@ -120,19 +123,22 @@ export const profileReducer = createReducer(
     return ({ loading: false, error: undefined, profile })
   }),
   on(ProfileActions.deleteBet, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
-  on(ProfileActions.deleteBetSuccess, (state: ProfileState, { bet }) => {
+  on(ProfileActions.deleteBetSuccess, (state: ProfileState, { bet, profit }) => {
+    const strategies = (state.profile?.strategies.filter(s => s.id !== 0) ?? []).map(strategy => {
+      if(strategy.id === bet.strategy_id || strategy.id === 0) {
+        return {
+          ...strategy,
+          profit,
+          total_wagered: strategy.bets.filter(b => b.id !== bet.id).reduce((total, bet) => total += bet.bet, 0),
+          bets: strategy.bets.filter(b => b.id !== bet.id)
+        }
+      }
+      return strategy;
+    });
+    const totalStrategy = getTotalStrategy(state.profile!, strategies);
     const profile = {
       ...state.profile!,
-      strategies: state.profile!.strategies.map(strategy => {
-        if(strategy.id === bet.strategy_id) {
-          return {
-            ...strategy,
-            profit: strategy.profit - bet.profit!,
-            bets: strategy.bets.filter(b => b.id !== bet.id)
-          }
-        }
-        return strategy;
-      })
+      strategies: [totalStrategy, ...strategies]
     };
     return ({ loading: false, error: undefined, profile })
   }),

@@ -76,7 +76,7 @@ export const updateBet = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(
       ofType(ProfileActions.updateBet),
-      switchMap(({bet, strategy, previousProfit}) =>
+      switchMap(({bet, previousProfit}) =>
         supabase.updateBetAndStrategy(bet, previousProfit).pipe(
           map((data) => ProfileActions.updateBetSuccess(data)),
           catchError((error) =>
@@ -144,9 +144,9 @@ export const deleteBet = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(
       ofType(ProfileActions.deleteBet),
-      switchMap(({ bet, strategy }) =>
-        supabase.deleteBet(bet, strategy).pipe(
-          map((oldBet) => ProfileActions.deleteBetSuccess({bet: oldBet})),
+      switchMap(({ bet }) =>
+        supabase.deleteBet(bet).pipe(
+          map(({bet, profit}) => ProfileActions.deleteBetSuccess({bet, profit})),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))
           )

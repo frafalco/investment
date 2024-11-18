@@ -6,6 +6,15 @@
 <div class="row align-items-end">
   <div class="col-sm-3">
     <input
+      id="event"
+      type="text"
+      placeholder="Event"
+      [(ngModel)]="dashboardTableService.event"
+      class="form-control"
+    />
+  </div>
+  <div class="col-sm-3">
+    <input
       id="bookmaker"
       type="text"
       placeholder="Bookmaker"
@@ -13,7 +22,7 @@
       class="form-control"
     />
   </div>
-  <div class="col-sm-3">
+  <div class="col-sm-2">
     <div class="input-group">
       <input
         class="form-control"
@@ -30,7 +39,7 @@
       ></button>
     </div>
   </div>
-  <div class="col-sm-3">
+  <div class="col-sm-2">
     <select
       [(ngModel)]="dashboardTableService.result"
       class="form-select"
@@ -42,7 +51,7 @@
       </option>
     </select>
   </div>
-  <div class="col-sm-3 text-end">
+  <div class="col-sm-2 text-end">
     <button class="btn btn-primary btn-lg" (click)="resetFilters()">
       Reset Filters
     </button>
@@ -71,8 +80,8 @@
       </td>
       <td>{{ r.bookmaker }}</td>
       <td *ngIf="!isLive">{{ r.odds | number }}</td>
-      <td>{{ r.unit | number }}</td>
-      <td>{{ r.bet | number }}</td>
+      <td>{{ r.unit | number : "1.0-2" }}</td>
+      <td>{{ r.bet | number : "1.0-2" }}</td>
       <td>
         @if (!editRow[r.id!]) {
         {{ r.result }}
@@ -89,9 +98,11 @@
         </select>
         }
       </td>
-      <td  [ngClass]="r.result === 'won' ? 'text-success' : r.result === 'lost' ? 'text-danger' : r.result === 'void' ? 'text-primary' : ''">{{ r.profit ? r.profit :  r.result === 'pending' ? '-' : 'push' }}</td>
-      <td class="col-sm-2 text-center">
-        <button
+      <td  [ngClass]="r.result === 'won' ? 'text-success' : r.result === 'lost' ? 'text-danger' : r.result === 'void' ? 'text-primary' : ''">
+        {{ r.profit ? (r.profit | number : "1.0-2") :  r.result === 'pending' ? '-' : 'push' }}
+      </td>
+      <td class="col-sm-1 text-center">
+        <!-- <button
           class="btn mx-1 bi bi-x-lg btn-outline-dark"
           *ngIf="editRow[r.id!]"
           type="button"
@@ -107,6 +118,11 @@
           class="btn btn-outline-danger bi bi-trash"
           type="button"
           (click)="deleteItem(r)"
+        ></button> -->
+        <button
+          class="btn mx-1 bi bi-pen btn-outline-secondary"
+          type="button"
+          (click)="open(content, r)"
         ></button>
       </td>
     </tr>
@@ -134,3 +150,163 @@
     <option [ngValue]="30">30 items per page</option>
   </select>
 </div>
+
+<ng-template #content let-modal>
+	<div class="modal-header">
+		<h4 class="modal-title" id="modal-edit-bet">Edit Bet</h4>
+		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+	</div>
+	<div class="modal-body">
+		<form class="row g-8" [formGroup]="editBetForm">
+      <div class="mb-3 col-md-6">
+        <label for="bookmaker" class="form-label"> Bookmaker </label>
+        <input
+          id="bookmaker"
+          type="text"
+          formControlName="bookmaker"
+          class="form-control"
+        />
+        <div
+          *ngIf="
+            editBetForm.controls['bookmaker'].invalid &&
+            (editBetForm.controls['bookmaker'].dirty ||
+            editBetForm.controls['bookmaker'].touched)
+          "
+        >
+          <div
+            *ngIf="editBetForm.controls['bookmaker'].errors!['required']"
+            class="error-message"
+          >
+            Il campo è obbligatorio
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="date" class="form-label">Event Date</label>
+        <app-datetimepicker formControlName="date" name="date"></app-datetimepicker>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label for="event" class="form-label"> Evento </label>
+        <input
+          id="event"
+          type="text"
+          formControlName="event"
+          class="form-control"
+        />
+        <div
+          *ngIf="
+            editBetForm.controls['event'].invalid &&
+            (editBetForm.controls['event'].dirty ||
+            editBetForm.controls['event'].touched)
+          "
+        >
+          <div
+            *ngIf="editBetForm.controls['event'].errors!['required']"
+            class="error-message"
+          >
+            Il campo è obbligatorio
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label class="form-label"> Unit </label>
+        <input
+          id="unit"
+          type="number"
+          step="1"
+          formControlName="unit"
+          class="form-control"
+        />
+        <div
+          *ngIf="
+            editBetForm.controls['unit'].invalid &&
+            (editBetForm.controls['unit'].dirty ||
+            editBetForm.controls['unit'].touched)
+          "
+        >
+          <div
+            *ngIf="editBetForm.controls['unit'].errors!['required']"
+            class="error-message"
+          >
+            Required field
+          </div>
+          <div
+            *ngIf="editBetForm.controls['unit'].errors!['min']"
+            class="error-message"
+          >
+            The value must be greater than 0
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label class="form-label"> Bet </label>
+        <input
+          id="bet"
+          type="text"
+          readonly
+          formControlName="bet"
+          class="form-control"
+        />
+        <div
+          *ngIf="
+            editBetForm.controls['bet'].invalid
+          "
+        >
+          <div
+            *ngIf="editBetForm.controls['bet'].errors!['required']"
+            class="error-message"
+          >
+            Required field
+          </div>
+          <div
+            *ngIf="editBetForm.controls['bet'].errors!['min']"
+            class="error-message"
+          >
+            The value must be greater than 0
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 col-md-6">
+        <label class="form-label"> Odds </label>
+        <input
+          id="odds"
+          type="number"
+          step="0.01"
+          formControlName="odds"
+          class="form-control"
+        />
+        <div
+          *ngIf="
+            editBetForm.controls['odds'].invalid &&
+            (editBetForm.controls['odds'].dirty ||
+            editBetForm.controls['odds'].touched)
+          "
+        >
+          <div
+            *ngIf="editBetForm.controls['odds'].errors!['required']"
+            class="error-message"
+          >
+            Il campo è obbligatorio
+          </div>
+          <div
+            *ngIf="editBetForm.controls['odds'].errors!['pattern']"
+            class="error-message"
+          >
+            Inserire un valore numerico
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 col-md-12">
+        <select id="result" formControlName="result" class="form-control">
+          <option *ngFor="let option of resultOptions" [value]="option.value">
+            {{ option.label }}
+          </option>
+          </select>
+      </div>
+    </form>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-outline-danger" (click)="deleteItem(modal)">Delete</button>
+		<button type="button" class="btn btn-outline-primary" (click)="editBet(modal)" [disabled]="!editBetForm.valid">Save</button>
+	</div>
+</ng-template>

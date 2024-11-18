@@ -16,7 +16,7 @@ export const loginSuccess = createAction('[Profile] Login Success');
 export const updateProfile = createAction('[Profile] Update Profile', props<{ username: string }>());
 export const updateProfileSuccess = createAction('[Profile] Update Profile Success', props<{ profile: Profile }>());
 
-export const updateBet = createAction('[Profile] Update Bet', props<{ bet: Bet, strategy: Strategy, previousProfit: number }>());
+export const updateBet = createAction('[Profile] Update Bet', props<{ bet: Bet, previousProfit: number }>());
 export const updateBetSuccess = createAction('[Profile] Update Bet Success', props<{ bet: Bet, profit: number }>());
 
 export const upsertStrategy = createAction('[Profile] Add Strategy', props<{ id: number | null, name: string | null, starting_bankroll: number | null, str_type: string | null }>());
@@ -28,8 +28,8 @@ export const addBetSuccess = createAction('[Profile] Add Bet Success', props<{ b
 export const deleteStrategy = createAction('[Profile] Delete Strategy', props<{ strategy_id: number }>());
 export const deleteStrategySuccess = createAction('[Profile] Delete Strategy Success', props<{ strategy: Strategy }>());
 
-export const deleteBet = createAction('[Profile] Delete Bet', props<{ bet: Bet, strategy: Strategy }>());
-export const deleteBetSuccess = createAction('[Profile] Delete Bet Success', props<{ bet: Bet }>());
+export const deleteBet = createAction('[Profile] Delete Bet', props<{ bet: Bet }>());
+export const deleteBetSuccess = createAction('[Profile] Delete Bet Success', props<{ bet: Bet, profit: number }>());
 
 export const updateSelectedStrategy = createAction('[Profile] Update Selected Strategies', props<{ strategies_selected: SelectedStrategy[] | null }>());
 export const updateSelectedStrategySuccess = createAction('[Profile] Update Selected Strategies Success', props<{ profile: Profile }>());

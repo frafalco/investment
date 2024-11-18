@@ -175,6 +175,27 @@ export class SupabaseService {
     );
   }
 
+  deleteBet(bet: Bet): Observable<{bet: Bet, profit: number}> {
+    //update bet
+    const deleteBetQuery = this.supabase.from('bets').delete().eq('id', bet.id).select<'*', Bet>().single();
+
+    return from(
+      deleteBetQuery.then( async ({ data, error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        const { data: profit, error: error_1 } = await this.supabase.rpc('increment_profit', {
+          increment_by: -data.profit!,
+          strategy_id: data.strategy_id
+        });
+        if (error_1) {
+          throw new Error(error_1.message);
+        }
+        return {bet: data, profit};
+      })
+    );
+  }
+
   deleteStrategy(strategy_id: number): Observable<Strategy> {
     const deleteStrategyQuery = this.supabase.from('strategies').delete().eq('id', strategy_id).select<'*', Strategy>().single();
 
@@ -182,32 +203,6 @@ export class SupabaseService {
       deleteStrategyQuery.then( async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
-        }
-        return data;
-      })
-    );
-  }
-
-  deleteBet(bet: Bet, strategy: Strategy): Observable<Bet> {
-    let currentProfit = 0;
-    currentProfit = strategy.profit ?? 0;
-    currentProfit = currentProfit - bet.profit!;
-    //update bet
-    const deleteBetQuery = this.supabase.from('bets').delete().eq('id', bet.id).select<'*', Bet>().single();
-    //update strategy
-    const updateStrategyQuery = this.supabase
-      .from('strategies')
-      .update({ profit: currentProfit })
-      .eq('id', strategy.id);
-
-    return from(
-      updateStrategyQuery.then( async ({ error }) => {
-        if (error) {
-          throw new Error(error.message);
-        }
-        const { data, error: error_1 } = await deleteBetQuery;
-        if (error_1) {
-          throw new Error(error_1.message);
         }
         return data;
       })

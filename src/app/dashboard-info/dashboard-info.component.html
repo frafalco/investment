@@ -3,7 +3,7 @@
     <div class="col-sm-2">
       <div class="info-card">
         <p>
-          Starting Bankroll <b>${{ strategy.starting_bankroll }}</b>
+          Starting Bankroll <b>${{ strategy.starting_bankroll | number : "1.0-2" }}</b>
         </p>
       </div>
     </div>
@@ -11,7 +11,7 @@
       <div class="info-card">
         <p>
           Bankroll
-          <b>${{ strategy.starting_bankroll + strategy.profit }}</b>
+          <b>${{ strategy.starting_bankroll + strategy.profit | number : "1.0-2" }}</b>
         </p>
       </div>
     </div>
@@ -20,7 +20,7 @@
         <p>
           Unit Won
           <b>{{
-            strategy.profit / ( strategy.starting_bankroll / 100) | number : "1.0-4"
+            strategy.profit / ( strategy.starting_bankroll / 100) | number : "1.0-1"
           }}</b>
         </p>
       </div>
@@ -37,7 +37,7 @@
         <p>
           ROI
           <b>{{
-            strategy.profit / strategy.starting_bankroll | percent : "1.0-4"
+            strategy.profit / strategy.starting_bankroll | percent : "1.0-2"
           }}</b>
         </p>
       </div>
@@ -55,16 +55,5 @@
       <app-dashboard-graph [strategy$]="strategy$" [showTitle]="true"></app-dashboard-graph>
     </div>
   </div>
-  <!-- <div class="btn-group">
-    <button type="button" class="btn bi bi-table" [ngClass]="tableSelected ? 'btn-primary' : 'btn-outline-primary'" (click)="toogleButtonGroup('table')">
-      <span class="visually-hidden">Table</span>
-    </button>
-    <button type="button" class="btn bi bi-graph-up" [ngClass]="graphSelected ? 'btn-primary' : 'btn-outline-primary'" (click)="toogleButtonGroup('graph')">
-      <span class="visually-hidden">Graph</span>
-    </button>
-  </div> -->
   <app-dashboard-table [strategy$]="strategy$"></app-dashboard-table>
-  <!-- @if(graphSelected) {
-      <app-dashboard-graph [strategy$]="strategy$"></app-dashboard-graph>
-  } -->
 }
