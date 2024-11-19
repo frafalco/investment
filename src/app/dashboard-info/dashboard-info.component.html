@@ -17,12 +17,11 @@
     </div>
     <div class="col-sm-2">
       <div class="info-card">
-        <p>
-          Unit Won
-          <b>{{
-            strategy.profit / ( strategy.starting_bankroll / 100) | number : "1.0-1"
-          }}</b>
-        </p>
+        @if(strategy.type === 'total') {
+          <p>Profit <b>${{ strategy.profit | number : "1.0-2" }}</b></p>
+        } @else {
+          <p>Units Won <b>{{ strategy.profit / (strategy.starting_bankroll / 100) | number : "1.0-1" }}</b></p>
+        }
       </div>
     </div>
     <div class="col-sm-2">
