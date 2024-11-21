@@ -12,6 +12,7 @@ import { provideEffects } from '@ngrx/effects';
 import { profileReducer } from './store/profile.reducers';
 
 import * as profileEffects from './store/prof.effects';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -22,5 +23,6 @@ export const appConfig: ApplicationConfig = {
     provideState({ name: 'profile', reducer: profileReducer }),
     provideStoreDevtools({ maxAge: 25, logOnly: !isDevMode() }),
     provideEffects(profileEffects),
+    provideHttpClient(withInterceptorsFromDi()),
   ],
 };

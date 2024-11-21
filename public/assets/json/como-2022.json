@@ -1,0 +1,2638 @@
+{
+    "get": "fixtures",
+    "parameters": {
+        "season": "2022",
+        "team": "895",
+        "league": "136"
+    },
+    "errors": [],
+    "results": 38,
+    "paging": {
+        "current": 1,
+        "total": 1
+    },
+    "response": [
+        {
+            "fixture": {
+                "id": 903546,
+                "referee": "G. Manganiello",
+                "timezone": "UTC",
+                "date": "2022-08-13T18:45:00+00:00",
+                "timestamp": 1660416300,
+                "periods": {
+                    "first": 1660416300,
+                    "second": 1660419900
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 1"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 490,
+                    "name": "Cagliari",
+                    "logo": "https://media.api-sports.io/football/teams/490.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903559,
+                "referee": "D. Doveri",
+                "timezone": "UTC",
+                "date": "2022-08-21T18:45:00+00:00",
+                "timestamp": 1661107500,
+                "periods": {
+                    "first": 1661107500,
+                    "second": 1661111100
+                },
+                "venue": {
+                    "id": 925,
+                    "name": "Arena Garibaldi - Stadio Romeo Anconetani",
+                    "city": "Pisa"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 2"
+            },
+            "teams": {
+                "home": {
+                    "id": 801,
+                    "name": "Pisa",
+                    "logo": "https://media.api-sports.io/football/teams/801.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903564,
+                "referee": "G. Miele",
+                "timezone": "UTC",
+                "date": "2022-08-29T18:45:00+00:00",
+                "timestamp": 1661798700,
+                "periods": {
+                    "first": 1661798700,
+                    "second": 1661802300
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 3"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                },
+                "away": {
+                    "id": 518,
+                    "name": "Brescia",
+                    "logo": "https://media.api-sports.io/football/teams/518.png",
+                    "winner": true
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903576,
+                "referee": "D. Massa",
+                "timezone": "UTC",
+                "date": "2022-09-03T12:00:00+00:00",
+                "timestamp": 1662206400,
+                "periods": {
+                    "first": 1662206400,
+                    "second": 1662210000
+                },
+                "venue": {
+                    "id": 904,
+                    "name": "Stadio Benito Stirpe",
+                    "city": "Frosinone"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 4"
+            },
+            "teams": {
+                "home": {
+                    "id": 512,
+                    "name": "Frosinone",
+                    "logo": "https://media.api-sports.io/football/teams/512.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903584,
+                "referee": "E. Feliciani",
+                "timezone": "UTC",
+                "date": "2022-09-10T12:00:00+00:00",
+                "timestamp": 1662811200,
+                "periods": {
+                    "first": 1662811200,
+                    "second": 1662814800
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 5"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                },
+                "away": {
+                    "id": 1578,
+                    "name": "Sudtirol",
+                    "logo": "https://media.api-sports.io/football/teams/1578.png",
+                    "winner": true
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903595,
+                "referee": "D. Rutella",
+                "timezone": "UTC",
+                "date": "2022-09-17T12:00:00+00:00",
+                "timestamp": 1663416000,
+                "periods": {
+                    "first": 1663416000,
+                    "second": 1663419600
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 6"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 493,
+                    "name": "Spal",
+                    "logo": "https://media.api-sports.io/football/teams/493.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 3,
+                "away": 3
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 3,
+                    "away": 3
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903606,
+                "referee": "I. Pezzuto",
+                "timezone": "UTC",
+                "date": "2022-09-30T18:30:00+00:00",
+                "timestamp": 1664562600,
+                "periods": {
+                    "first": 1664562600,
+                    "second": 1664566200
+                },
+                "venue": {
+                    "id": 893,
+                    "name": "Stadio San Vito-Luigi Marulla",
+                    "city": "Cosenza"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 7"
+            },
+            "teams": {
+                "home": {
+                    "id": 10137,
+                    "name": "Nuova Cosenza",
+                    "logo": "https://media.api-sports.io/football/teams/10137.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 3,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 2,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 3,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903614,
+                "referee": "M. Gariglio",
+                "timezone": "UTC",
+                "date": "2022-10-09T14:15:00+00:00",
+                "timestamp": 1665324900,
+                "periods": {
+                    "first": 1665324900,
+                    "second": 1665328500
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 8"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 524,
+                    "name": "Perugia",
+                    "logo": "https://media.api-sports.io/football/teams/524.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903627,
+                "referee": "F. La Penna",
+                "timezone": "UTC",
+                "date": "2022-10-15T12:00:00+00:00",
+                "timestamp": 1665835200,
+                "periods": {
+                    "first": 1665835200,
+                    "second": 1665838800
+                },
+                "venue": {
+                    "id": 2771,
+                    "name": "Stadio Alberto Braglia",
+                    "city": "Modena"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 9"
+            },
+            "teams": {
+                "home": {
+                    "id": 899,
+                    "name": "Modena",
+                    "logo": "https://media.api-sports.io/football/teams/899.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 5,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 3,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 5,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903634,
+                "referee": "D. Ghersini",
+                "timezone": "UTC",
+                "date": "2022-10-22T12:00:00+00:00",
+                "timestamp": 1666440000,
+                "periods": {
+                    "first": 1666440000,
+                    "second": 1666443600
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 10"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 506,
+                    "name": "Benevento",
+                    "logo": "https://media.api-sports.io/football/teams/506.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 2,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903648,
+                "referee": "A. Prontera",
+                "timezone": "UTC",
+                "date": "2022-10-29T12:00:00+00:00",
+                "timestamp": 1667044800,
+                "periods": {
+                    "first": 1667044800,
+                    "second": 1667048400
+                },
+                "venue": {
+                    "id": 921,
+                    "name": "Stadio Ennio Tardini",
+                    "city": "Parma"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 11"
+            },
+            "teams": {
+                "home": {
+                    "id": 523,
+                    "name": "Parma",
+                    "logo": "https://media.api-sports.io/football/teams/523.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903655,
+                "referee": "G. Miele",
+                "timezone": "UTC",
+                "date": "2022-11-06T15:15:00+00:00",
+                "timestamp": 1667747700,
+                "periods": {
+                    "first": 1667747700,
+                    "second": 1667751300
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 12"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 517,
+                    "name": "Venezia",
+                    "logo": "https://media.api-sports.io/football/teams/517.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903666,
+                "referee": "L. Massimi",
+                "timezone": "UTC",
+                "date": "2022-11-13T15:15:00+00:00",
+                "timestamp": 1668352500,
+                "periods": {
+                    "first": 1668352500,
+                    "second": 1668356100
+                },
+                "venue": {
+                    "id": 905,
+                    "name": "Stadio Comunale Luigi Ferraris",
+                    "city": "Genova"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 13"
+            },
+            "teams": {
+                "home": {
+                    "id": 495,
+                    "name": "Genoa",
+                    "logo": "https://media.api-sports.io/football/teams/495.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903674,
+                "referee": "E. Marchetti",
+                "timezone": "UTC",
+                "date": "2022-11-27T14:00:00+00:00",
+                "timestamp": 1669557600,
+                "periods": {
+                    "first": 1669557600,
+                    "second": 1669561200
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 14"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 508,
+                    "name": "Bari",
+                    "logo": "https://media.api-sports.io/football/teams/508.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903682,
+                "referee": "D. Chiffi",
+                "timezone": "UTC",
+                "date": "2022-12-04T14:00:00+00:00",
+                "timestamp": 1670162400,
+                "periods": {
+                    "first": 1670162400,
+                    "second": 1670166000
+                },
+                "venue": {
+                    "id": 876,
+                    "name": "Stadio Cino e Lillo Del Duca",
+                    "city": "Ascoli Piceno"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 15"
+            },
+            "teams": {
+                "home": {
+                    "id": 507,
+                    "name": "Ascoli",
+                    "logo": "https://media.api-sports.io/football/teams/507.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 3,
+                "away": 3
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 2
+                },
+                "fulltime": {
+                    "home": 3,
+                    "away": 3
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903696,
+                "referee": "F. Dionisi",
+                "timezone": "UTC",
+                "date": "2022-12-08T19:30:00+00:00",
+                "timestamp": 1670527800,
+                "periods": {
+                    "first": 1670527800,
+                    "second": 1670531400
+                },
+                "venue": {
+                    "id": 920,
+                    "name": "Stadio Renzo Barbera",
+                    "city": "Palermo"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 16"
+            },
+            "teams": {
+                "home": {
+                    "id": 522,
+                    "name": "Palermo",
+                    "logo": "https://media.api-sports.io/football/teams/522.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903707,
+                "referee": "I. Pezzuto",
+                "timezone": "UTC",
+                "date": "2022-12-11T14:00:00+00:00",
+                "timestamp": 1670767200,
+                "periods": {
+                    "first": 1670767200,
+                    "second": 1670770800
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 17"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                },
+                "away": {
+                    "id": 1692,
+                    "name": "Reggina",
+                    "logo": "https://media.api-sports.io/football/teams/1692.png",
+                    "winner": true
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903721,
+                "referee": "D. Rutella",
+                "timezone": "UTC",
+                "date": "2022-12-18T13:00:00+00:00",
+                "timestamp": 1671368400,
+                "periods": {
+                    "first": 1671368400,
+                    "second": 1671372000
+                },
+                "venue": {
+                    "id": 942,
+                    "name": "Stadio Libero Liberati",
+                    "city": "Terni"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 18"
+            },
+            "teams": {
+                "home": {
+                    "id": 516,
+                    "name": "Ternana",
+                    "logo": "https://media.api-sports.io/football/teams/516.png",
+                    "winner": false
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 3
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 3
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903727,
+                "referee": "M. Guida",
+                "timezone": "UTC",
+                "date": "2022-12-26T14:00:00+00:00",
+                "timestamp": 1672063200,
+                "periods": {
+                    "first": 1672063200,
+                    "second": 1672066800
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 19"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 510,
+                    "name": "Cittadella",
+                    "logo": "https://media.api-sports.io/football/teams/510.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903733,
+                "referee": "F. Meraviglia",
+                "timezone": "UTC",
+                "date": "2023-01-14T13:00:00+00:00",
+                "timestamp": 1673701200,
+                "periods": {
+                    "first": 1673701200,
+                    "second": 1673704800
+                },
+                "venue": {
+                    "id": 12275,
+                    "name": "Unipol Domus",
+                    "city": "Cagliari"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 20"
+            },
+            "teams": {
+                "home": {
+                    "id": 490,
+                    "name": "Cagliari",
+                    "logo": "https://media.api-sports.io/football/teams/490.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903745,
+                "referee": "L. Maggioni",
+                "timezone": "UTC",
+                "date": "2023-01-21T13:00:00+00:00",
+                "timestamp": 1674306000,
+                "periods": {
+                    "first": 1674306000,
+                    "second": 1674309600
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 21"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 801,
+                    "name": "Pisa",
+                    "logo": "https://media.api-sports.io/football/teams/801.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903754,
+                "referee": "G. Camplone",
+                "timezone": "UTC",
+                "date": "2023-01-28T13:00:00+00:00",
+                "timestamp": 1674910800,
+                "periods": {
+                    "first": 1674910800,
+                    "second": 1674914400
+                },
+                "venue": {
+                    "id": 882,
+                    "name": "Stadio Mario Rigamonti",
+                    "city": "Brescia"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 22"
+            },
+            "teams": {
+                "home": {
+                    "id": 518,
+                    "name": "Brescia",
+                    "logo": "https://media.api-sports.io/football/teams/518.png",
+                    "winner": false
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903764,
+                "referee": "G. Manganiello",
+                "timezone": "UTC",
+                "date": "2023-02-04T15:15:00+00:00",
+                "timestamp": 1675523700,
+                "periods": {
+                    "first": 1675523700,
+                    "second": 1675527300
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 23"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                },
+                "away": {
+                    "id": 512,
+                    "name": "Frosinone",
+                    "logo": "https://media.api-sports.io/football/teams/512.png",
+                    "winner": true
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 2
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903779,
+                "referee": "A. Santoro",
+                "timezone": "UTC",
+                "date": "2023-02-11T13:00:00+00:00",
+                "timestamp": 1676120400,
+                "periods": {
+                    "first": 1676120400,
+                    "second": 1676124000
+                },
+                "venue": {
+                    "id": 940,
+                    "name": "Stadio Marco Druso",
+                    "city": "Bozen"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 24"
+            },
+            "teams": {
+                "home": {
+                    "id": 1578,
+                    "name": "Sudtirol",
+                    "logo": "https://media.api-sports.io/football/teams/1578.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903791,
+                "referee": "M. Gariglio",
+                "timezone": "UTC",
+                "date": "2023-02-18T13:00:00+00:00",
+                "timestamp": 1676725200,
+                "periods": {
+                    "first": 1676725200,
+                    "second": 1676728800
+                },
+                "venue": {
+                    "id": 938,
+                    "name": "Stadio Paolo Mazza",
+                    "city": "Ferrara"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 25"
+            },
+            "teams": {
+                "home": {
+                    "id": 493,
+                    "name": "Spal",
+                    "logo": "https://media.api-sports.io/football/teams/493.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903794,
+                "referee": "M. Gualtieri",
+                "timezone": "UTC",
+                "date": "2023-02-25T13:00:00+00:00",
+                "timestamp": 1677330000,
+                "periods": {
+                    "first": 1677330000,
+                    "second": 1677333600
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 26"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 10137,
+                    "name": "Nuova Cosenza",
+                    "logo": "https://media.api-sports.io/football/teams/10137.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 5,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 2,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 5,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903810,
+                "referee": "D. Perenzoni",
+                "timezone": "UTC",
+                "date": "2023-03-01T19:30:00+00:00",
+                "timestamp": 1677699000,
+                "periods": {
+                    "first": 1677699000,
+                    "second": 1677702600
+                },
+                "venue": {
+                    "id": 922,
+                    "name": "Stadio Renato Curi",
+                    "city": "Perugia"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 27"
+            },
+            "teams": {
+                "home": {
+                    "id": 524,
+                    "name": "Perugia",
+                    "logo": "https://media.api-sports.io/football/teams/524.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903814,
+                "referee": "D. Rutella",
+                "timezone": "UTC",
+                "date": "2023-03-05T14:00:00+00:00",
+                "timestamp": 1678024800,
+                "periods": {
+                    "first": 1678024800,
+                    "second": 1678028400
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 28"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 899,
+                    "name": "Modena",
+                    "logo": "https://media.api-sports.io/football/teams/899.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903823,
+                "referee": "A. Santoro",
+                "timezone": "UTC",
+                "date": "2023-03-11T13:00:00+00:00",
+                "timestamp": 1678539600,
+                "periods": {
+                    "first": 1678539600,
+                    "second": 1678543200
+                },
+                "venue": {
+                    "id": 880,
+                    "name": "Stadio Ciro Vigorito",
+                    "city": "Benevento"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 29"
+            },
+            "teams": {
+                "home": {
+                    "id": 506,
+                    "name": "Benevento",
+                    "logo": "https://media.api-sports.io/football/teams/506.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903835,
+                "referee": "F. Meraviglia",
+                "timezone": "UTC",
+                "date": "2023-03-18T13:00:00+00:00",
+                "timestamp": 1679144400,
+                "periods": {
+                    "first": 1679144400,
+                    "second": 1679148000
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 30"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 523,
+                    "name": "Parma",
+                    "logo": "https://media.api-sports.io/football/teams/523.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903851,
+                "referee": "M. Serra",
+                "timezone": "UTC",
+                "date": "2023-04-01T12:00:00+00:00",
+                "timestamp": 1680350400,
+                "periods": {
+                    "first": 1680350400,
+                    "second": 1680354000
+                },
+                "venue": {
+                    "id": 948,
+                    "name": "Stadio Pierluigi Penzo",
+                    "city": "Venezia"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 31"
+            },
+            "teams": {
+                "home": {
+                    "id": 517,
+                    "name": "Venezia",
+                    "logo": "https://media.api-sports.io/football/teams/517.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 3,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 3,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903855,
+                "referee": "L. Pairetto",
+                "timezone": "UTC",
+                "date": "2023-04-10T13:00:00+00:00",
+                "timestamp": 1681131600,
+                "periods": {
+                    "first": 1681131600,
+                    "second": 1681135200
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 32"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 495,
+                    "name": "Genoa",
+                    "logo": "https://media.api-sports.io/football/teams/495.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903863,
+                "referee": "D. Chiffi",
+                "timezone": "UTC",
+                "date": "2023-04-15T12:00:00+00:00",
+                "timestamp": 1681560000,
+                "periods": {
+                    "first": 1681560000,
+                    "second": 1681563600
+                },
+                "venue": {
+                    "id": 2763,
+                    "name": "Stadio Comunale San Nicola",
+                    "city": "Bari"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 33"
+            },
+            "teams": {
+                "home": {
+                    "id": 508,
+                    "name": "Bari",
+                    "logo": "https://media.api-sports.io/football/teams/508.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 2
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 2
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 2
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903873,
+                "referee": "G. Ayroldi",
+                "timezone": "UTC",
+                "date": "2023-04-22T12:00:00+00:00",
+                "timestamp": 1682164800,
+                "periods": {
+                    "first": 1682164800,
+                    "second": 1682168400
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 34"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 507,
+                    "name": "Ascoli",
+                    "logo": "https://media.api-sports.io/football/teams/507.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903887,
+                "referee": "D. Paterna",
+                "timezone": "UTC",
+                "date": "2023-05-01T10:30:00+00:00",
+                "timestamp": 1682937000,
+                "periods": {
+                    "first": 1682937000,
+                    "second": 1682940600
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 35"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 522,
+                    "name": "Palermo",
+                    "logo": "https://media.api-sports.io/football/teams/522.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 1,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 1,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903900,
+                "referee": "L. Massimi",
+                "timezone": "UTC",
+                "date": "2023-05-06T12:00:00+00:00",
+                "timestamp": 1683374400,
+                "periods": {
+                    "first": 1683374400,
+                    "second": 1683378000
+                },
+                "venue": {
+                    "id": 2760,
+                    "name": "Stadio Oreste Granillo",
+                    "city": "Reggio Calabria"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 36"
+            },
+            "teams": {
+                "home": {
+                    "id": 1692,
+                    "name": "Reggina",
+                    "logo": "https://media.api-sports.io/football/teams/1692.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 2,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 1,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 2,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903907,
+                "referee": "M. Gariglio",
+                "timezone": "UTC",
+                "date": "2023-05-13T12:00:00+00:00",
+                "timestamp": 1683979200,
+                "periods": {
+                    "first": 1683979200,
+                    "second": 1683982800
+                },
+                "venue": {
+                    "id": 892,
+                    "name": "Stadio Giuseppe Sinigaglia",
+                    "city": "Como"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 37"
+            },
+            "teams": {
+                "home": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": true
+                },
+                "away": {
+                    "id": 516,
+                    "name": "Ternana",
+                    "logo": "https://media.api-sports.io/football/teams/516.png",
+                    "winner": false
+                }
+            },
+            "goals": {
+                "home": 3,
+                "away": 1
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 1
+                },
+                "fulltime": {
+                    "home": 3,
+                    "away": 1
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        },
+        {
+            "fixture": {
+                "id": 903912,
+                "referee": "G. Manganiello",
+                "timezone": "UTC",
+                "date": "2023-05-19T18:30:00+00:00",
+                "timestamp": 1684521000,
+                "periods": {
+                    "first": 1684521000,
+                    "second": 1684524600
+                },
+                "venue": {
+                    "id": 891,
+                    "name": "Stadio Pier Cesare Tombolato",
+                    "city": "Cittadella"
+                },
+                "status": {
+                    "long": "Match Finished",
+                    "short": "FT",
+                    "elapsed": 90,
+                    "extra": null
+                }
+            },
+            "league": {
+                "id": 136,
+                "name": "Serie B",
+                "country": "Italy",
+                "logo": "https://media.api-sports.io/football/leagues/136.png",
+                "flag": "https://media.api-sports.io/flags/it.svg",
+                "season": 2022,
+                "round": "Regular Season - 38"
+            },
+            "teams": {
+                "home": {
+                    "id": 510,
+                    "name": "Cittadella",
+                    "logo": "https://media.api-sports.io/football/teams/510.png",
+                    "winner": null
+                },
+                "away": {
+                    "id": 895,
+                    "name": "como",
+                    "logo": "https://media.api-sports.io/football/teams/895.png",
+                    "winner": null
+                }
+            },
+            "goals": {
+                "home": 0,
+                "away": 0
+            },
+            "score": {
+                "halftime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "fulltime": {
+                    "home": 0,
+                    "away": 0
+                },
+                "extratime": {
+                    "home": null,
+                    "away": null
+                },
+                "penalty": {
+                    "home": null,
+                    "away": null
+                }
+            }
+        }
+    ]
+}
