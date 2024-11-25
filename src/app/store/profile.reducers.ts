@@ -158,7 +158,9 @@ export const profileReducer = createReducer(
     ...state,
     error,
     loading: false,
-  }))
+  })),
+  on(ProfileActions.addLoader, (state: ProfileState) => ({ ...state, loading: true })),
+  on(ProfileActions.removeLoader, (state: ProfileState) => ({ ...state, loading: false })),
 );
 
 const updateProfileFunction = (profile: Profile): {profileStrategies: Strategy[], strategies: Strategy[]} => {

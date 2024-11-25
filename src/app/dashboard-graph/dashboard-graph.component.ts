@@ -58,7 +58,7 @@ export class DashboardGraphComponent {
               return -1;
             }
             return a.date < b.date ? -1 : a.date > b.date ? 1 : 0;
-          });;
+          });
           this.initChartData();
         }
     });

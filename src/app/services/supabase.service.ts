@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import {
   AuthError,
   createClient,
+  RealtimeChannel,
   Session,
   SupabaseClient,
   User,
@@ -15,13 +16,18 @@ import { AppState } from '../store/app.state';
 import * as ProfileActions from '../store/profile.actions';
 import { Strategy } from '../models/strategy.model';
 import { SelectedStrategy } from '../models/selected-strategy.model';
+import { BetBT } from '../models/bet_bt.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SupabaseService {
+export class SupabaseService implements OnDestroy {
   private supabase: SupabaseClient;
   user_id?: string;
+
+  strategiesBTSubscription!: RealtimeChannel;
+  // betsBTSubscription!: RealtimeChannel;
+  strategiesBT = new BehaviorSubject<{id: number, created_at: string, name: string, profit: number, betsBT: {date: string, event: string, odds: number, bet: number, result: string, profit: number}[]}[]>([]);
 
   constructor(private store: Store<AppState>) {
     this.supabase = createClient(
@@ -29,6 +35,7 @@ export class SupabaseService {
       environment.supabaseKey
     );
     this.restoreSession();
+    this.changesSubscription();
   }
 
   async restoreSession() {
@@ -38,9 +45,7 @@ export class SupabaseService {
         this.user_id = data.session.user.id;
       }
       this.store.dispatch(ProfileActions.loadProfile());
-    } catch (exception) {
-      
-    }
+    } catch (exception) {}
   }
 
   getProfile(): Observable<Profile> {
@@ -70,10 +75,14 @@ export class SupabaseService {
       updated_at: new Date(),
     };
 
-    const query = this.supabase.from('profiles').upsert(update).select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))').single();
+    const query = this.supabase
+      .from('profiles')
+      .upsert(update)
+      .select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))')
+      .single();
     return from(
-      query.then(({data, error}) => {
-        if(error) {
+      query.then(({ data, error }) => {
+        if (error) {
           throw new Error(error.message);
         }
         return data;
@@ -109,19 +118,35 @@ export class SupabaseService {
     );
   }
 
-  upsertStrategy(id: number | null,name: string | null, starting_bankroll: number | null, str_type: string | null): Observable<Strategy> {
+  upsertStrategy(
+    id: number | null,
+    name: string | null,
+    starting_bankroll: number | null,
+    str_type: string | null
+  ): Observable<Strategy> {
     const query = this.supabase
       .from('strategies')
-      .upsert({id: id === null ? undefined : id, name, starting_bankroll, type: str_type})
+      .upsert({
+        id: id === null ? undefined : id,
+        name,
+        starting_bankroll,
+        type: str_type,
+      })
       .select<'*', Strategy>()
       .single();
 
     return from(
-      query.then( async ({ data, error }) => {
+      query.then(async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
-        const { error: error_1 } = await this.supabase.rpc('add_selected_strategy', {user_id: this.user_id, new_strategy: {id: data.id, name: data.name}});
+        const { error: error_1 } = await this.supabase.rpc(
+          'add_selected_strategy',
+          {
+            user_id: this.user_id,
+            new_strategy: { id: data.id, name: data.name },
+          }
+        );
         if (error_1) {
           throw new Error(error_1.message);
         }
@@ -147,7 +172,10 @@ export class SupabaseService {
     );
   }
 
-  updateBetAndStrategy(item: Bet, previousProfit: number): Observable<{bet: Bet, profit: number}> {
+  updateBetAndStrategy(
+    item: Bet,
+    previousProfit: number
+  ): Observable<{ bet: Bet; profit: number }> {
     const bet: Bet = {
       ...item,
     };
@@ -157,50 +185,66 @@ export class SupabaseService {
       .upsert(bet)
       .select<'*', Bet>()
       .single();
-      
+
     return from(
       updateBetQuery.then(async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
-        const { data: profit, error: error_1 } = await this.supabase.rpc('increment_profit', {
-          increment_by: data.profit! - previousProfit,
-          strategy_id: data.strategy_id
-        });
+        const { data: profit, error: error_1 } = await this.supabase.rpc(
+          'increment_profit',
+          {
+            increment_by: data.profit! - previousProfit,
+            strategy_id: data.strategy_id,
+          }
+        );
         if (error_1) {
           throw new Error(error_1.message);
         }
-        return {bet: data, profit};
+        return { bet: data, profit };
       })
     );
   }
 
-  deleteBet(bet: Bet): Observable<{bet: Bet, profit: number}> {
+  deleteBet(bet: Bet): Observable<{ bet: Bet; profit: number }> {
     //update bet
-    const deleteBetQuery = this.supabase.from('bets').delete().eq('id', bet.id).select<'*', Bet>().single();
+    const deleteBetQuery = this.supabase
+      .from('bets')
+      .delete()
+      .eq('id', bet.id)
+      .select<'*', Bet>()
+      .single();
 
     return from(
-      deleteBetQuery.then( async ({ data, error }) => {
+      deleteBetQuery.then(async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
-        const { data: profit, error: error_1 } = await this.supabase.rpc('increment_profit', {
-          increment_by: -data.profit!,
-          strategy_id: data.strategy_id
-        });
+        const { data: profit, error: error_1 } = await this.supabase.rpc(
+          'increment_profit',
+          {
+            increment_by: -data.profit!,
+            strategy_id: data.strategy_id,
+          }
+        );
         if (error_1) {
           throw new Error(error_1.message);
         }
-        return {bet: data, profit};
+        return { bet: data, profit };
       })
     );
   }
 
   deleteStrategy(strategy_id: number): Observable<Strategy> {
-    const deleteStrategyQuery = this.supabase.from('strategies').delete().eq('id', strategy_id).select<'*', Strategy>().single();
+    const deleteStrategyQuery = this.supabase
+      .from('strategies')
+      .delete()
+      .eq('id', strategy_id)
+      .select<'*', Strategy>()
+      .single();
 
     return from(
-      deleteStrategyQuery.then( async ({ data, error }) => {
+      deleteStrategyQuery.then(async ({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
@@ -209,15 +253,95 @@ export class SupabaseService {
     );
   }
 
-  updateSelectedStrategies(strategies_selected: SelectedStrategy[] | null): Observable<Profile> {
-    const query = this.supabase.from('profiles').update({selected_strategies: strategies_selected}).eq('id', this.user_id).select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))').single();
+  updateSelectedStrategies(
+    strategies_selected: SelectedStrategy[] | null
+  ): Observable<Profile> {
+    const query = this.supabase
+      .from('profiles')
+      .update({ selected_strategies: strategies_selected })
+      .eq('id', this.user_id)
+      .select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))')
+      .single();
 
-    return from(query.then(({ data, error}) => {
+    return from(
+      query.then(({ data, error }) => {
         if (error) {
           throw new Error(error.message);
         }
         return data;
       })
     );
+  }
+
+  async insertStrategyBT(name: string) {
+    await this.supabase.from('strategiesBT').insert({ name });
+  }
+
+  async selectStrategiesBT() {
+    const { data: strategies, error } = await this.supabase.from('strategiesBT').select('*, betsBT(*)');
+
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    this.strategiesBT.next(strategies);
+  }
+
+  selectStrategyBTByID(id: number) {
+    const query = this.supabase.from('strategiesBT').select('*, betsBT(*)').eq('id', id).single();
+
+    return from(
+      query.then(({data, error}) => {
+        if(error) {
+          throw new Error(error.message);
+        }
+        const profit = data.betsBT.reduce((acc: number, elem: any) => acc + elem.profit, 0);
+        const totalWagered = data.betsBT.reduce((acc: number, elem: any) => acc + elem.bet, 0);
+        const strategy: Strategy = {
+          id: data.id,
+          name: data.name,
+          type: 'BT',
+          starting_bankroll: 1000,
+          profit: profit,
+          user_id: '',
+          bets: data.betsBT.map((b: any) => ({...b, bookmaker: 'Fixed'})),
+          total_wagered: totalWagered
+        }
+        return strategy;
+      })
+    )
+  }
+
+  async insertBetsBT(bets: {date: string, event: string, odds: number, bet: number, result: string, profit: number, strategy_id: number}[]) {
+    await this.supabase.from('betsBT').insert(bets);
+  }
+
+  changesSubscription() {
+    this.selectStrategiesBT();
+    this.strategiesBTSubscription = this.supabase
+      .channel('strategiesBT-all-channel')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'strategiesBT' },
+        (payload) => {
+          this.selectStrategiesBT();
+        }
+      )
+      .subscribe();
+    // this.betsBTSubscription = this.supabase
+    //     .channel('betsBT-all-channel')
+    //     .on(
+    //       'postgres_changes',
+    //       { event: '*', schema: 'public', table: 'betsBT' },
+    //       (payload) => {
+    //         this.selectStrategiesBT();
+    //       }
+    //     )
+    //     .subscribe();
+  }
+
+  ngOnDestroy() {
+      this.strategiesBTSubscription.unsubscribe();
+      // this.betsBTSubscription.unsubscribe();
   }
 }

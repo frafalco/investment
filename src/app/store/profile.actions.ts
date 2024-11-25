@@ -35,3 +35,6 @@ export const updateSelectedStrategy = createAction('[Profile] Update Selected St
 export const updateSelectedStrategySuccess = createAction('[Profile] Update Selected Strategies Success', props<{ profile: Profile }>());
 
 export const actionFailure = createAction('[Profile] Action Failure', props<{ error: string }>());
+
+export const addLoader = createAction('[Profile] Add Loader');
+export const removeLoader = createAction('[Profile] Remove Loader');
