@@ -29,6 +29,7 @@ export class BacktestComponent {
   season: string = '';
   totalProfit: number = 0;
   matchWithoutX: number = 0;
+  type: string = '';
   progressions: { name: string; bets: any[] }[] = [];
   obStrategyBT= new BehaviorSubject<Strategy | undefined>(undefined);
   strategyOptions: {name: string, id: number}[] = [];
@@ -143,8 +144,8 @@ export class BacktestComponent {
                 result: '',
                 profit: 0,
               };
-              if (element.fullTimeScore === 'X') {
-                const won = currentUnit * this.averageOdds;
+              if (element.fullTimeScore === 'X' || (this.type === 'half_time' && element.halfTimeScore === 'X')) {
+                const won = (currentUnit * this.averageOdds) - currentUnit;
                 const profit = won - total;
                 this.totalProfit += profit;
                 console.log(`Sequence won, profit ${profit}`);
@@ -167,7 +168,7 @@ export class BacktestComponent {
             }
           }
           if (counterFullTimeX < this.matchWithoutX) {
-            if (element.fullTimeScore === 'X') {
+            if (element.fullTimeScore === 'X' || (this.type === 'half_time' && element.halfTimeScore === 'X')) {
               console.log(`X at match ${counterFullTimeX}, reset`);
               counterFullTimeX = 0;
             } else {

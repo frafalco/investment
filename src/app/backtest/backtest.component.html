@@ -141,6 +141,16 @@
                                         [(ngModel)]="averageOdds"
                                       />
                                     </div>
+                                    <div class="mb-3">
+                                      <label for="season" class="form-label"
+                                        >Type</label
+                                      >
+                                      <select [(ngModel)]="type" class="form-select" id="season" name="season">
+                                        <option value="">Select type</option>
+                                        <option value="full_time">Full Time</option>
+                                        <option value="half_time">Half Time</option>
+                                      </select>
+                                    </div>
                                   </div>
                                   <div class="text-center mb-3">
                                     <button
