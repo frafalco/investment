@@ -68,7 +68,7 @@
       <th scope="col">Bet</th>
       <th scope="col">Result</th>
       <th scope="col">Profit</th>
-      <th></th>
+      <th *ngIf="!hideEdit"></th>
     </tr>
   </thead>
   <tbody>
@@ -101,7 +101,7 @@
       <td  [ngClass]="r.result === 'won' ? 'text-success' : r.result === 'lost' ? 'text-danger' : r.result === 'void' ? 'text-primary' : ''">
         {{ r.profit ? (r.profit | number : "1.0-2") :  r.result === 'pending' ? '-' : 'push' }}
       </td>
-      <td class="col-sm-1 text-center">
+      <td class="col-sm-1 text-center" *ngIf="!hideEdit">
         <!-- <button
           class="btn mx-1 bi bi-x-lg btn-outline-dark"
           *ngIf="editRow[r.id!]"

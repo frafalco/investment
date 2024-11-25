@@ -37,6 +37,9 @@ export class BacktestComponent {
     name: new FormControl('', Validators.required)
   });
 
+  strategyName: string = '';
+  editStrategyNameDisabled: boolean = true;
+
   constructor(private store: Store<AppState>, private http: HttpClient, private supabase: SupabaseService, private modalService: NgbModal) {
     supabase.strategiesBT.subscribe(data => {
       this.strategyOptions = data.map(e => ({name: e.name, id: e.id}));
@@ -57,7 +60,10 @@ export class BacktestComponent {
 
   strategySelectChangeHandler() {
     if(this.selectedStrategy) {
-      this.supabase.selectStrategyBTByID(parseInt(this.selectedStrategy)).subscribe(data => this.obStrategyBT.next(data));
+      this.supabase.selectStrategyBTByID(parseInt(this.selectedStrategy)).subscribe(data => {
+        this.strategyName = data.name;
+        this.obStrategyBT.next(data);
+      });
     } else {
       this.obStrategyBT.next(undefined);
     }
@@ -198,6 +204,10 @@ export class BacktestComponent {
       this.obStrategyBT.next(data);
       this.store.dispatch(ProfileActions.removeLoader());
     });
+  }
+
+  updateStrategyBTName() {
+    this.supabase.updateStrategyBTName(this.strategyName, parseInt(this.selectedStrategy));
   }
 
 }

@@ -12,6 +12,19 @@
             <div class="form-text">You can add a new strategy by clicking <button class="btn btn-link p-0" (click)="open(content)">here</button></div>
           </div>
           <div *ngIf="selectedStrategy">
+            <div class="row">
+                <div class=" mb-3 col-sm-6">
+                    <div class="input-group">
+                        <input type="text" class="form-control" [(ngModel)]="strategyName" [disabled]="editStrategyNameDisabled">
+                        <span class="input-group-text" id="basic-addon1">
+                            <button class="btn mx-1 bi bi-pen btn-outline-secondary" type="button" (click)="editStrategyNameDisabled = !editStrategyNameDisabled"></button>
+                        </span>
+                    </div>
+                </div>
+                <div class="mb-3 col-sm-6">
+                    <button type="button" class="btn btn-primary btn-lg" [disabled]="editStrategyNameDisabled" (click)="updateStrategyBTName()">Edit strategy name</button>
+                </div>
+            </div>
             <div ngbAccordion>
                 <div ngbAccordionItem>
                     <h2 ngbAccordionHeader>
@@ -20,7 +33,7 @@
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                             <ng-template>
-                                <app-dashboard-graph [strategy$]="obStrategyBT" [height]="300" [showToolbar]="false"></app-dashboard-graph>
+                                <app-dashboard-graph [strategy$]="obStrategyBT" [height]="600" [showToolbar]="false"></app-dashboard-graph>
                             </ng-template>
                         </div>
                     </div>
@@ -32,7 +45,7 @@
                     <div ngbAccordionCollapse>
                         <div ngbAccordionBody>
                             <ng-template>
-                                <app-dashboard-table [strategy$]="obStrategyBT"></app-dashboard-table>
+                                <app-dashboard-table [strategy$]="obStrategyBT" [hideEdit]="true"></app-dashboard-table>
                             </ng-template>
                         </div>
                     </div>

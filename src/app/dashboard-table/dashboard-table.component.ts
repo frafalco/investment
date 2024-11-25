@@ -46,6 +46,7 @@ import { DatetimepickerComponent } from '../datetimepicker/datetimepicker.compon
 })
 export class DashboardTableComponent {
   @Input({ required: true }) strategy$!: Observable<Strategy | undefined>;
+  @Input() hideEdit: boolean = false;
 
   mediaQuota: number = 0;
   winRate: number = 0;

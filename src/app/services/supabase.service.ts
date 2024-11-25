@@ -277,6 +277,10 @@ export class SupabaseService implements OnDestroy {
     await this.supabase.from('strategiesBT').insert({ name });
   }
 
+  async updateStrategyBTName(name: string, id: number) {
+    await this.supabase.from('strategiesBT').update({ name }).eq('id', id);
+  }
+
   async selectStrategiesBT() {
     const { data: strategies, error } = await this.supabase.from('strategiesBT').select('*, betsBT(*)');
 
