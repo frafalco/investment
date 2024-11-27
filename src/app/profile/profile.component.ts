@@ -1,11 +1,10 @@
-import { Component, TemplateRef } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormControl,
   FormGroup,
   FormsModule,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 import { Profile } from '../models/profile.model';
 import { Store } from '@ngrx/store';
@@ -13,16 +12,11 @@ import { AppState } from '../store/app.state';
 import { selectProfile } from '../store/profile.selector';
 import { Observable } from 'rxjs';
 import * as ProfileActions from '../store/profile.actions';
-import { HttpClient } from '@angular/common/http';
-import { SupabaseService } from '../services/supabase.service';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { DashboardGraphComponent } from '../dashboard-graph/dashboard-graph.component';
-import { Strategy } from '../models/strategy.model';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css',
 })
@@ -31,6 +25,11 @@ export class ProfileComponent {
   profileForm: FormGroup = new FormGroup({
     username: new FormControl(),
   });
+
+  progressionLength: number = 0;
+  progressionMultiplier: number = 0;
+  averageOdds: number = 0;
+  progression?: any[];
 
   constructor(private store: Store<AppState>) {
     this.profile$ = store.select(selectProfile);
@@ -42,6 +41,24 @@ export class ProfileComponent {
   async onSubmitUpdateProfile(): Promise<void> {
     const username: string = this.profileForm.value.username as string;
     this.store.dispatch(ProfileActions.updateProfile({ username }));
+  }
+
+  generateProgression() {
+    this.progression = [];
+    let currentUnit = 1;
+    let totalUnit = 0;
+    for(let i = 0; i < this.progressionLength; i++) {
+      totalUnit += currentUnit;
+      const bet = {
+        id: i + 1,
+        unit: currentUnit,
+        odds: this.averageOdds,
+        profit: (currentUnit * this.averageOdds) - totalUnit,
+        totalLoss: -totalUnit
+      }
+      this.progression.push(bet);
+      currentUnit = currentUnit * this.progressionMultiplier;
+    }
   }
 
 }

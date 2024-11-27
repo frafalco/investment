@@ -40,6 +40,63 @@
       </button>
     </div>
   </form>
+  <div class="card">
+    <div class="card-body">
+      <div class="row align-items-end">
+        <div class="mb-3 col-md-3">
+          <label for="progressionLength" class="form-label">Progression Length</label>
+          <input
+            id="progressionLength"
+            type="number"
+            class="form-control"
+            [(ngModel)]="progressionLength"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label for="progressionMultiplier" class="form-label">Progression Multipleir</label>
+          <input
+            id="progressionMultiplier"
+            type="number"
+            class="form-control"
+            [(ngModel)]="progressionMultiplier"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <label for="averageOdds" class="form-label">Average Odds</label>
+          <input
+            id="averageOdds"
+            type="number"
+            class="form-control"
+            [(ngModel)]="averageOdds"/>
+        </div>
+        <div class="mb-3 col-md-3">
+          <button class="btn btn-primary btn-lg" (click)="generateProgression()">Generate Progression</button>
+        </div>
+      </div>
+      @if(progression) {
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Unit</th>
+              <th scope="col">Odds</th>
+              <th scope="col">Total Profit</th>
+              <th scope="col">Total Loss</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(p of progression; track p.id) {
+            <tr>
+              <td scope="row">{{ p.id }}</td>
+              <td>{{ p.unit | number : "1.0-2" }}</td>
+              <td>{{ p.odds | number : "1.0-2" }}</td>
+              <td class="text-success">{{ p.profit | number : "1.0-2" }}</td>
+              <td class="text-danger">{{ p.totalLoss | number : "1.0-2" }}</td>
+            </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+  </div>
 </div>
 <ng-template #anon>
   <h3>Anonymus content</h3>

@@ -133,7 +133,7 @@ export class AddBetComponent {
       const floatValue = parseFloat(value);
       if (!isNaN(floatValue)) {
         const betFloatValue = this.bankroll * floatValue * 0.01;
-        betValue = '' + betFloatValue;
+        betValue = betFloatValue.toFixed(2);
       }
     }
     this.submitForm.patchValue({ bet: betValue });
