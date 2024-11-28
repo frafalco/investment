@@ -9,9 +9,11 @@
           <label for="strategy_id" class="form-label">Strategy</label>
           <select formControlName="strategy_id" class="form-select" id="strategy_id">
             <option value="">Select a strategy</option>
-            <option *ngFor="let strategy of strategies$ | async" [value]="strategy.id">
-              {{ strategy.name }}
-            </option>
+            @for(strategy of strategies$ | async; track strategy.id) {
+              <option *ngIf="!strategy.archived" [value]="strategy.id">
+                {{ strategy.name }}
+              </option>
+            }
           </select>
           <div
             *ngIf="

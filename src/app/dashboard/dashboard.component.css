@@ -45,3 +45,14 @@
 .btn-round:before {
     line-height: 1.5;
 }
+
+.filters-box {
+    width: 190px;
+    padding: 16px;
+    background-color: #efefef;
+    border-radius: 16px;
+    position: fixed;
+    bottom: 10px;
+    right: 20px;
+    z-index: 99;
+}

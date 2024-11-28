@@ -1,13 +1,13 @@
 <div *ngIf="profile$ | async as profile; else anon">
-  <div class="row mb-3">
-    <form [formGroup]="filterForm" class="col-sm-4 offset-sm-4">
-      <div class="card">
-        <div class="card-body">
-          <label for="strategies_selected">Strategies selected</label>
-          <app-multi-select formControlName="filters" [options]="[{id: 0, name: 'Not Archived'}, {id: 1, name: 'Archived'}]"></app-multi-select>
-        </div>
-      </div>
-    </form>
+  <div class="filters-box">
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="showNotArchived" [(ngModel)]="showActive" (change)="toggleFilters()">
+      <label class="form-check-label" for="showNotArchived">Show Active</label>
+    </div>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="showArchived" [(ngModel)]="showArchived" (change)="toggleFilters()">
+      <label class="form-check-label" for="showArchived">Show Archived</label>
+    </div>
   </div>
   <div class="row row-cols-3 g-4">
     @for(s of filteredStrategies; track s.id) {

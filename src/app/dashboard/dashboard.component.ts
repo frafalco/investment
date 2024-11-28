@@ -55,9 +55,8 @@ export class DashboardComponent {
   totalBets: number = 0;
   totalPendingBets: number = 0;
   
-  filterForm = new FormGroup({
-    filters: new FormControl<SelectedStrategy[]>([{id: 0, name: 'Not Archived'}]),
-  });
+  showArchived: boolean = false;
+  showActive: boolean = true;
 
   constructor(private store: Store<AppState>, private modalService: NgbModal, route: ActivatedRoute) {
     this.profile$ = store.select(selectProfile);
@@ -82,34 +81,20 @@ export class DashboardComponent {
     })
   }
 
-  ngOnInit() {
-    this.filterForm.get('filters')?.valueChanges.subscribe((value) => {
-      let archived = false;
-      let notArchived = false;
-      value?.forEach(e => {
-        if(e.id === 0) {
-          notArchived = true;
-        }
-        if(e.id === 1) {
-          archived = true;
-        }
-      });
-      this.filteredStrategies = this.strategies.filter(s => {
-        console.log(`Archived filter: ${archived}, notArchived filter: ${notArchived}, strategy ${s.name} is archived ${s.archived}`)
-        if(s.type === 'total') {
-          return true;
-        }
-        if(archived && s.archived) {
-          console.log('Is archived')
-          return true;
-        }
-        if(notArchived && !s.archived) {
-          console.log('Is not archived')
-          return true;
-        }
-        return false;
-      });
-      console.log(this.filteredStrategies);
+  toggleFilters() {
+    this.filteredStrategies = this.strategies.filter(s => {
+      if(s.type === 'total') {
+        return true;
+      }
+      if(this.showArchived && s.archived) {
+        console.log('Is archived')
+        return true;
+      }
+      if(this.showActive && !s.archived) {
+        console.log('Is not archived')
+        return true;
+      }
+      return false;
     });
   }
 
