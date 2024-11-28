@@ -191,7 +191,8 @@ const getTotalStrategy = (profile: Profile, strategies: Strategy[]): Strategy =>
     profit: 0,
     user_id: profile.id,
     bets: [],
-    total_wagered: 0
+    total_wagered: 0,
+    archived: false
   }
   const selectedStrategiesIds = profile.selected_strategies?.map(s => s.id);
   strategies.forEach(s => {

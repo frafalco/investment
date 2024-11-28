@@ -93,8 +93,8 @@ export const upsertStrategy = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(
       ofType(ProfileActions.upsertStrategy),
-      switchMap(({id, name, starting_bankroll, str_type}) =>
-        supabase.upsertStrategy(id, name, starting_bankroll, str_type).pipe(
+      switchMap(({id, name, starting_bankroll, str_type, archived}) =>
+        supabase.upsertStrategy(id, name, starting_bankroll, str_type, archived).pipe(
           map((strategy) => ProfileActions.upsertStrategySuccess({strategy})),
           catchError((error) =>
             of(ProfileActions.actionFailure({ error: error.message }))

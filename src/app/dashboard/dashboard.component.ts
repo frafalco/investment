@@ -1,9 +1,10 @@
-import { CommonModule, DecimalPipe } from '@angular/common';
+import { CommonModule, DecimalPipe, JsonPipe } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import {
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
@@ -18,6 +19,8 @@ import { Store } from '@ngrx/store';
 import { AppState } from '../store/app.state';
 import { selectProfile } from '../store/profile.selector';
 import { Bet } from '../models/bet.model';
+import { MultiSelectComponent } from '../multi-select/multi-select.component';
+import { SelectedStrategy } from '../models/selected-strategy.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -25,10 +28,10 @@ import { Bet } from '../models/bet.model';
   imports: [
     CommonModule,
     NgbNavModule,
-    DashboardTableComponent,
+    FormsModule,
     ReactiveFormsModule,
-    DashboardInfoComponent,
-    RouterLink
+    RouterLink,
+    MultiSelectComponent
 ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -39,6 +42,7 @@ export class DashboardComponent {
   profile$: Observable<Profile | undefined>;
   username: string = '';
   strategies: Strategy[] = [];
+  filteredStrategies: Strategy[] = [];
   addStrategyForm = new FormGroup({
     name: new FormControl<string>('', Validators.required),
     starting_bankroll: new FormControl<number>(0, Validators.required),
@@ -50,12 +54,23 @@ export class DashboardComponent {
   totalBankroll: number = 0;
   totalBets: number = 0;
   totalPendingBets: number = 0;
+  
+  filterForm = new FormGroup({
+    filters: new FormControl<SelectedStrategy[]>([{id: 0, name: 'Not Archived'}]),
+  });
 
   constructor(private store: Store<AppState>, private modalService: NgbModal, route: ActivatedRoute) {
     this.profile$ = store.select(selectProfile);
     this.active_id = route.snapshot.queryParamMap.get('strategy');
     this.profile$.subscribe((p) => {
       if(p) {
+        this.strategies = p.strategies;
+        this.filteredStrategies = p.strategies.filter(s => {
+          if(s.type === 'total') {
+            return true;
+          }
+          return !s.archived;
+        });
         p.strategies.forEach((s) => {
           this.totalWagered += s.total_wagered;
           this.totalProfit += s.profit;
@@ -65,6 +80,37 @@ export class DashboardComponent {
         })
       }
     })
+  }
+
+  ngOnInit() {
+    this.filterForm.get('filters')?.valueChanges.subscribe((value) => {
+      let archived = false;
+      let notArchived = false;
+      value?.forEach(e => {
+        if(e.id === 0) {
+          notArchived = true;
+        }
+        if(e.id === 1) {
+          archived = true;
+        }
+      });
+      this.filteredStrategies = this.strategies.filter(s => {
+        console.log(`Archived filter: ${archived}, notArchived filter: ${notArchived}, strategy ${s.name} is archived ${s.archived}`)
+        if(s.type === 'total') {
+          return true;
+        }
+        if(archived && s.archived) {
+          console.log('Is archived')
+          return true;
+        }
+        if(notArchived && !s.archived) {
+          console.log('Is not archived')
+          return true;
+        }
+        return false;
+      });
+      console.log(this.filteredStrategies);
+    });
   }
 
   open(content: TemplateRef<any>) {

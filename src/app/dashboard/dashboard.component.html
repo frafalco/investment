@@ -1,109 +1,74 @@
 <div *ngIf="profile$ | async as profile; else anon">
-  <div class="row row-cols-3 g-4">
-    
-  <!-- <div class="col">
-    <div class="card">
-      <div class="card-header bg-transparent d-flex justify-content-between">
-        <div>Total</div>
-        <div>
-        </div>
-      </div>
-      <div
-        class="card-body row text-center"
-        [ngClass]="
-          !totalWagered || totalProfit / totalWagered === 0
-            ? 'text-primary'
-            : totalProfit / totalWagered > 0
-            ? 'text-success'
-            : 'text-danger'
-        "
-      >
-        <div class="col-md-6 border-end">
-          <p>ROI</p>
-          <p>
-            {{
-              (totalWagered ? totalProfit / totalWagered : 0)
-                | percent : "1.0-2"
-            }}
-          </p>
-        </div>
-        <div class="col-md-6">
-          <p>Profit</p>
-          <p>
-            ${{ totalProfit | number : "1.0-2" }}
-          </p>
-        </div>
-      </div>
-      <div class="card-footer bg-transparent row text-center">
-        <small class="text-muted col-md-6 border-end"
-          >Total Bets {{ totalBets }}</small
-        >
-        <small class="text-muted col-md-6"
-          >Pending Bets {{ totalPendingBets }}</small
-        >
-      </div>
-      <div class="card-footer bg-transparent text-center">
-        <button class="btn btn-primary" [routerLink]="'/strategy/total'">View Details</button>
-      </div>
-    </div>
-  </div> -->
-    <div class="col" *ngFor="let s of profile.strategies">
+  <div class="row mb-3">
+    <form [formGroup]="filterForm" class="col-sm-4 offset-sm-4">
       <div class="card">
-        <div class="card-header bg-transparent d-flex justify-content-between">
-          <div>{{ s.name }}</div>
-          <div>
-            <button
-              class="btn btn-round bi bi-three-dots"
-              [routerLink]="'/edit-strategy/' + s.id"
-            ></button>
-          </div>
-        </div>
-        <div
-          class="card-body row text-center"
-          [ngClass]="
-            !s.total_wagered || s.profit / s.total_wagered === 0
-              ? 'text-primary'
-              : s.profit / s.total_wagered > 0
-              ? 'text-success'
-              : 'text-danger'
-          "
-        >
-          <div class="col-md-6 border-end">
-            <p>ROI</p>
-            <p>
-              {{
-                (s.total_wagered ? s.profit / s.total_wagered : 0)
-                  | percent : "1.0-2"
-              }}
-            </p>
-          </div>
-          <div class="col-md-6">
-            @if(s.type === 'total') {
-              <p>Profit</p>
-              <p>
-                ${{ s.profit | number : "1.0-2" }}
-              </p>
-            } @else {
-              <p>Units Won</p>
-              <p>
-                {{ s.profit / (s.starting_bankroll / 100) | number : "1.0-1" }}
-              </p>
-            }
-          </div>
-        </div>
-        <div class="card-footer bg-transparent row text-center">
-          <small class="text-muted col-md-6 border-end"
-            >Total Bets {{ s.bets.length }}</small
-          >
-          <small class="text-muted col-md-6"
-            >Pending Bets {{ s.bets.filter(retrievePendingBets).length }}</small
-          >
-        </div>
-        <div class="card-footer bg-transparent text-center">
-          <button class="btn btn-primary" [routerLink]="'/strategy/' + s.id">View Details</button>
+        <div class="card-body">
+          <label for="strategies_selected">Strategies selected</label>
+          <app-multi-select formControlName="filters" [options]="[{id: 0, name: 'Not Archived'}, {id: 1, name: 'Archived'}]"></app-multi-select>
         </div>
       </div>
-    </div>
+    </form>
+  </div>
+  <div class="row row-cols-3 g-4">
+    @for(s of filteredStrategies; track s.id) {
+      <div class="col">
+        <div class="card">
+          <div class="card-header bg-transparent d-flex justify-content-between">
+            <div>{{ s.name }}</div>
+            <div>
+              <button
+                class="btn btn-round bi bi-three-dots"
+                [routerLink]="'/edit-strategy/' + s.id"
+              ></button>
+            </div>
+          </div>
+          <div
+            class="card-body row text-center"
+            [ngClass]="
+              !s.total_wagered || s.profit / s.total_wagered === 0
+                ? 'text-primary'
+                : s.profit / s.total_wagered > 0
+                ? 'text-success'
+                : 'text-danger'
+            "
+          >
+            <div class="col-md-6 border-end">
+              <p>ROI</p>
+              <p>
+                {{
+                  (s.total_wagered ? s.profit / s.total_wagered : 0)
+                    | percent : "1.0-2"
+                }}
+              </p>
+            </div>
+            <div class="col-md-6">
+              @if(s.type === 'total') {
+                <p>Profit</p>
+                <p>
+                  ${{ s.profit | number : "1.0-2" }}
+                </p>
+              } @else {
+                <p>Units Won</p>
+                <p>
+                  {{ s.profit / (s.starting_bankroll / 100) | number : "1.0-1" }}
+                </p>
+              }
+            </div>
+          </div>
+          <div class="card-footer bg-transparent row text-center">
+            <small class="text-muted col-md-6 border-end"
+              >Total Bets {{ s.bets.length }}</small
+            >
+            <small class="text-muted col-md-6"
+              >Pending Bets {{ s.bets.filter(retrievePendingBets).length }}</small
+            >
+          </div>
+          <div class="card-footer bg-transparent text-center">
+            <button class="btn btn-primary" [routerLink]="'/strategy/' + s.id">View Details</button>
+          </div>
+        </div>
+      </div>
+    }
     <div class="col">
       <div class="card">
         <div class="card-body card-new-strategy">

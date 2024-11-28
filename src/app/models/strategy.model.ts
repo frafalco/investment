@@ -9,4 +9,5 @@ export interface Strategy {
     user_id: string;
     bets: Bet[];
     total_wagered: number;
+    archived: boolean;
 }

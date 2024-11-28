@@ -122,7 +122,8 @@ export class SupabaseService implements OnDestroy {
     id: number | null,
     name: string | null,
     starting_bankroll: number | null,
-    str_type: string | null
+    str_type: string | null,
+    archived: boolean | null
   ): Observable<Strategy> {
     const query = this.supabase
       .from('strategies')
@@ -131,6 +132,7 @@ export class SupabaseService implements OnDestroy {
         name,
         starting_bankroll,
         type: str_type,
+        archived
       })
       .select<'*', Strategy>()
       .single();
@@ -140,15 +142,17 @@ export class SupabaseService implements OnDestroy {
         if (error) {
           throw new Error(error.message);
         }
-        const { error: error_1 } = await this.supabase.rpc(
-          'add_selected_strategy',
-          {
-            user_id: this.user_id,
-            new_strategy: { id: data.id, name: data.name },
+        if(!id) {
+          const { error: error_1 } = await this.supabase.rpc(
+            'add_selected_strategy',
+            {
+              user_id: this.user_id,
+              new_strategy: { id: data.id, name: data.name },
+            }
+          );
+          if (error_1) {
+            throw new Error(error_1.message);
           }
-        );
-        if (error_1) {
-          throw new Error(error_1.message);
         }
         return data;
       })
@@ -309,7 +313,8 @@ export class SupabaseService implements OnDestroy {
           profit: profit,
           user_id: '',
           bets: data.betsBT.map((b: any) => ({...b, bookmaker: 'Fixed'})),
-          total_wagered: totalWagered
+          total_wagered: totalWagered,
+          archived: false
         }
         return strategy;
       })

@@ -28,6 +28,7 @@ export class EditStrategyComponent {
     name: new FormControl<string>('', Validators.required),
     starting_bankroll: new FormControl<number>(0, Validators.required),
     str_type: new FormControl<string>('', Validators.required),
+    archived: new FormControl<boolean>(false)
   });
   totalStrategyForm = new FormGroup({
     strategies_selected: new FormControl<SelectedStrategy[]>([]),
@@ -60,7 +61,8 @@ export class EditStrategyComponent {
               id: strategy.id,
               name: strategy.name,
               starting_bankroll: strategy.starting_bankroll,
-              str_type: strategy.type
+              str_type: strategy.type,
+              archived: strategy.archived
             });
             this.isTotalStrategy = false;
           }

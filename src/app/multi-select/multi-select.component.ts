@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
-import { NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { SelectedStrategy } from '../models/selected-strategy.model';
 
 @Component({
@@ -17,7 +17,7 @@ import { SelectedStrategy } from '../models/selected-strategy.model';
   templateUrl: './multi-select.component.html',
   styleUrl: './multi-select.component.css'
 })
-export class MultiSelectComponent {
+export class MultiSelectComponent implements ControlValueAccessor {
   @Input() options: SelectedStrategy[] = []; // Lista di opzioni da visualizzare
   selectedValues: Set<number> = new Set(); // Valori selezionati
 

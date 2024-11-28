@@ -19,7 +19,7 @@ export const updateProfileSuccess = createAction('[Profile] Update Profile Succe
 export const updateBet = createAction('[Profile] Update Bet', props<{ bet: Bet, previousProfit: number }>());
 export const updateBetSuccess = createAction('[Profile] Update Bet Success', props<{ bet: Bet, profit: number }>());
 
-export const upsertStrategy = createAction('[Profile] Add Strategy', props<{ id: number | null, name: string | null, starting_bankroll: number | null, str_type: string | null }>());
+export const upsertStrategy = createAction('[Profile] Add Strategy', props<{ id: number | null, name: string | null, starting_bankroll: number | null, str_type: string | null, archived: boolean | null }>());
 export const upsertStrategySuccess = createAction('[Profile] Add Strategy Success', props<{ strategy: Strategy }>());
 
 export const addBet = createAction('[Profile] Add Bet', props<{ bet: Bet }>());
