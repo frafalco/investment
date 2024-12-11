@@ -82,7 +82,13 @@
                 <h3>Progressions Lost <span class="text-danger">{{lostProgressions}}</span></h3>
             </div>
             <div class="col-sm-4 mb-3 text-center">
-                <h3>Profit <span [ngClass]="cumulatedProfit > 0 ? 'text-success' : 'text-danger'">{{cumulatedProfit | number: "1.0-2"}}</span></h3>
+                <h3>Profit <span [ngClass]="cumulatedProfit > 0 ? 'text-success' : 'text-danger'">${{cumulatedProfit | number: "1.0-2"}}</span></h3>
+            </div>
+            <div class="col-sm-6 mb-3 text-center">
+                <h3>Max Drawdown: <span class="text-danger">${{maxDrawDown | number: "1.0-2"}}</span></h3>
+            </div>
+            <div class="col-sm-6 mb-3 text-center">
+                <h3>Relative Drawdown <span class="text-danger">${{relativeDrawDown | number: "1.0-2"}}</span></h3>
             </div>
             <div class="d-flex mb-3 text-center justify-content-around">
                 @for(entry of prorgessionResults.entries(); track entry[0]) {
@@ -122,7 +128,7 @@
       <tbody>
         @for(bet of bets; track bet.id) {
             <tr>
-                <td scope="row">{{ bet.date | date:'dd/MM/yyyy hh:mm' }}</td>
+                <td scope="row">{{ bet.date | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td>
                   {{ bet.event }}
                 </td>

@@ -64,6 +64,8 @@ export class BacktestComponent {
   unitValue: number = 0;
 
   cumulatedProfit: number = 0;
+  maxDrawDown: number = 0;
+  relativeDrawDown: number = 0;
   totalBets: number = 0;
   betWon: number = 0;
   lostProgressions = 0;
@@ -127,6 +129,9 @@ export class BacktestComponent {
       const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber);
       if(matches.length > 0) {
         this.prorgessionResults = new Map<string, number>();
+        this.cumulatedProfit = 0;
+        this.maxDrawDown = 0;
+        this.relativeDrawDown = 0;
         const strategy: Strategy = {
           id: 999,
           name: 'Backtest',
@@ -144,12 +149,29 @@ export class BacktestComponent {
         let cumulatedProfitUnit = 0;
         let betWon = 0;
         let lostProgressions = 0;
-        this.bets = matches.filter(m => m.goals_home !== null && m.goals_away !== null).map(m => {
+        let currentDrawDown = 0;
+        const filteredMatches = matches.filter(m => m.goals_home !== null && m.goals_away !== null);
+        // const matchesMap = new Map<string, any[]>();
+        // filteredMatches.forEach(m => {
+        //   let array = matchesMap.get(m.event_date);
+        //   if(array) {
+        //     array.push(m);
+        //     matchesMap.set(m.event_date, array);
+        //   } else {
+        //     matchesMap.set(m.event_date, [m]);
+        //   }
+        // })
+        // console.log(matchesMap);
+        this.bets = filteredMatches.map(m => {
           currentUnit = Math.pow(this.multiplier, currentProgressionStep - 1);
+          const currentBet = currentUnit * this.unitValue;
           const isDraw = m.goals_home === m.goals_away;
-          const profit = isDraw ? currentUnit * 3.25 * this.unitValue: -(currentUnit * this.unitValue);
-          const profitUnit = isDraw ? currentUnit * 3.25 : -currentUnit;
+          const profit = isDraw ? (currentBet * 3.07) - currentBet  : -currentBet;
+          const profitUnit = isDraw ? (currentUnit * 3.07) - currentUnit : -currentUnit;
           this.cumulatedProfit += profit;
+          if(this.cumulatedProfit < this.maxDrawDown) {
+            this.maxDrawDown = this.cumulatedProfit;
+          }
           cumulatedProfitUnit += profitUnit;
           const progressionChar = String.fromCharCode(64 + currentProgressionStep);
           const bet: any = {
@@ -157,17 +179,24 @@ export class BacktestComponent {
             date: m.event_date,
             bookmaker: 'pippo',
             unit: currentUnit,
-            bet: currentUnit * this.unitValue,
+            bet: currentBet,
             result: isDraw ? 'won' : 'lost',
             strategy_id: 999,
             event: `${m.homeTeam}-${m.awayTeam} [${progressionChar}]`,
             matchResult: `${m.goals_home}-${m.goals_away}`,
-            profitUnit: isDraw ? currentUnit * 3.25 : -currentUnit,
+            profitUnit: profitUnit,
             profit: profit,
             cumulatedProfit: this.cumulatedProfit,
             cumulatedProfitUnit: cumulatedProfitUnit
           }
+          if(profit < 0) {
+            currentDrawDown += profit;
+            if(currentDrawDown < this.relativeDrawDown) {
+              this.relativeDrawDown = currentDrawDown;
+            }
+          }
           if(isDraw) {
+            currentDrawDown = 0;
             const winAt = this.prorgessionResults.get(progressionChar);
             if(winAt) {
               this.prorgessionResults.set(progressionChar, winAt + 1);
