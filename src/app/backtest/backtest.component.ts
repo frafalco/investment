@@ -1,214 +1,290 @@
-import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, TemplateRef } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { NgbModal, NgbActiveModal, NgbAccordionModule } from '@ng-bootstrap/ng-bootstrap';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../services/supabase.service';
-import { BehaviorSubject } from 'rxjs';
 import { Strategy } from '../models/strategy.model';
-import { DashboardGraphComponent } from "../dashboard-graph/dashboard-graph.component";
-import { DashboardTableComponent } from "../dashboard-table/dashboard-table.component";
-import { Store } from '@ngrx/store';
-import { AppState } from '../store/app.state';
-import * as ProfileActions from '../store/profile.actions';
+import { Bet } from '../models/bet.model';
+import { HttpClient } from '@angular/common/http';
+import { lastValueFrom } from 'rxjs';
+import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexFill, ApexMarkers, ApexTitleSubtitle, ApexTooltip, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
+
+interface FixturesResponse {
+  results: number;
+  response: Fixture[];
+}
+interface Fixture {
+  fixture: FixtureElem;
+  league: League;
+  teams: Teams;
+  score: Scores;
+}
+interface FixtureElem {
+  id: number;
+  date: string;
+  status: Status;
+}
+interface Status {
+  short: string;
+}
+interface League {
+  id: number;
+  name: string;
+  country: string;
+  round: string;
+}
+interface Teams {
+  home: Team;
+  away: Team;
+}
+interface Team {
+  id: number;
+  name: string;
+}
+interface Scores {
+  halftime: Score;
+  fulltime: Score;
+}
+interface Score {
+  home: number | null;
+  away: number | null;
+}
 
 @Component({
   selector: 'app-backtest',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, DashboardGraphComponent, DashboardTableComponent, NgbAccordionModule],
+  imports: [CommonModule, FormsModule, NgApexchartsModule],
   templateUrl: './backtest.component.html',
   styleUrl: './backtest.component.css'
 })
 export class BacktestComponent {
-
   progressionLength: number = 0;
   multiplier: number = 0;
-  averageOdds: number = 0;
-  teamID: string = '';
-  leagueID: string = '';
-  season: string = '';
-  totalProfit: number = 0;
-  matchWithoutX: number = 0;
-  type: string = '';
-  progressions: { name: string; bets: any[] }[] = [];
-  obStrategyBT= new BehaviorSubject<Strategy | undefined>(undefined);
-  strategyOptions: {name: string, id: number}[] = [];
-  selectedStrategy: string = '';
-  addStrategyBTForm = new FormGroup({
-    name: new FormControl('', Validators.required)
-  });
+  underPercentage: number = 0;
+  sameMatchNumber: number = 0;
+  unitValue: number = 0;
 
-  strategyName: string = '';
-  editStrategyNameDisabled: boolean = true;
+  cumulatedProfit: number = 0;
+  totalBets: number = 0;
+  betWon: number = 0;
+  lostProgressions = 0;
+  bets: any[] = [];
+  prorgessionResults = new Map<string, number>();
 
-  constructor(private store: Store<AppState>, private http: HttpClient, private supabase: SupabaseService, private modalService: NgbModal) {
-    supabase.strategiesBT.subscribe(data => {
-      this.strategyOptions = data.map(e => ({name: e.name, id: e.id}));
-    })
-  }
+  public series!: ApexAxisChartSeries;
+  public chart!: ApexChart;
+  public dataLabels!: ApexDataLabels;
+  public markers!: ApexMarkers;
+  public title?: ApexTitleSubtitle;
+  public fill?: ApexFill;
+  public yaxis!: ApexYAxis;
+  public xaxis!: ApexXAxis;
+  public tooltip!: ApexTooltip;
 
-  addStrategyBT(modal: NgbActiveModal) {
-    this.supabase.insertStrategyBT(this.addStrategyBTForm.value.name!);
-    modal.close();
-  }
+  constructor(private httpClient: HttpClient, private supabase: SupabaseService) {}
 
-  open(content: TemplateRef<any>) {
-    this.modalService.open(content, {
-      ariaLabelledBy: 'modal-add-strategyBT',
-      backdrop: 'static',
-    });
-  }
+  // async manipulate() {
+  //   try {
+  //     const matches = await this.supabase.selectDataMiningMatchesWithoutGoal();
+  //     const matchesId = matches.map(m => m.fixture_id);
+  //     for(const id of matchesId) {
+  //       const fixturesResponse = await lastValueFrom(
+  //         this.httpClient.get<FixturesResponse>(
+  //           `https://v3.football.api-sports.io/fixtures?id=${id}`,
+  //           {
+  //             headers: {
+  //               'x-rapidapi-key': 'd694a908807e57340a12f89cba9d6eee',
+  //               'x-rapidapi-host': 'v3.football.api-sports.io',
+  //             },
+  //           }
+  //         )
+  //       );
+  //       const fixture = fixturesResponse.response[0];
+  //       if(fixture.fixture.status.short === 'FT') {
+  //         // const data = {
+  //         //   goals_home: fixture.score.fulltime.home,
+  //         //   goals_away: fixture.score.fulltime.away,
+  //         //   score_ht_home: fixture.score.halftime.home,
+  //         //   score_ht_away: fixture.score.halftime.away,
+  //         // }
+  //         // console.log(data);
+  //         // await this.supabase.updateDataMining(id, data);
+  //       } else if (fixture.fixture.status.short !== 'NS') {
+  //         // const data = {
+  //         //   canceled: true,
+  //         // }
+  //         // await this.supabase.updateDataMining(id, data);
+  //       } else {
+  //         console.log(fixture.fixture.date);
+  //       }
+  //     }
+  //   }catch (err) {
+  //     console.error(err);
+  //   }
+  // }
 
-  strategySelectChangeHandler() {
-    if(this.selectedStrategy) {
-      this.supabase.selectStrategyBTByID(parseInt(this.selectedStrategy)).subscribe(data => {
-        this.strategyName = data.name;
-        this.obStrategyBT.next(data);
-      });
-    } else {
-      this.obStrategyBT.next(undefined);
+  async runBacktest() {
+    try {
+      const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber);
+      if(matches.length > 0) {
+        this.prorgessionResults = new Map<string, number>();
+        const strategy: Strategy = {
+          id: 999,
+          name: 'Backtest',
+          type: 'bt',
+          starting_bankroll: 0,
+          profit: 0,
+          user_id: '',
+          bets: [],
+          total_wagered: 0,
+          archived: false
+        }
+        let index = 0;
+        let currentProgressionStep = 1;
+        let currentUnit;
+        let cumulatedProfitUnit = 0;
+        let betWon = 0;
+        let lostProgressions = 0;
+        this.bets = matches.filter(m => m.goals_home !== null && m.goals_away !== null).map(m => {
+          currentUnit = Math.pow(this.multiplier, currentProgressionStep - 1);
+          const isDraw = m.goals_home === m.goals_away;
+          const profit = isDraw ? currentUnit * 3.25 * this.unitValue: -(currentUnit * this.unitValue);
+          const profitUnit = isDraw ? currentUnit * 3.25 : -currentUnit;
+          this.cumulatedProfit += profit;
+          cumulatedProfitUnit += profitUnit;
+          const progressionChar = String.fromCharCode(64 + currentProgressionStep);
+          const bet: any = {
+            id: index++,
+            date: m.event_date,
+            bookmaker: 'pippo',
+            unit: currentUnit,
+            bet: currentUnit * this.unitValue,
+            result: isDraw ? 'won' : 'lost',
+            strategy_id: 999,
+            event: `${m.homeTeam}-${m.awayTeam} [${progressionChar}]`,
+            matchResult: `${m.goals_home}-${m.goals_away}`,
+            profitUnit: isDraw ? currentUnit * 3.25 : -currentUnit,
+            profit: profit,
+            cumulatedProfit: this.cumulatedProfit,
+            cumulatedProfitUnit: cumulatedProfitUnit
+          }
+          if(isDraw) {
+            const winAt = this.prorgessionResults.get(progressionChar);
+            if(winAt) {
+              this.prorgessionResults.set(progressionChar, winAt + 1);
+            } else {
+              this.prorgessionResults.set(progressionChar, 1);
+            }
+            betWon++;
+            currentProgressionStep = 1;
+          } else if (currentProgressionStep === this.progressionLength) {
+            lostProgressions++;
+            currentProgressionStep = 1;
+          } else {
+            currentProgressionStep++;
+          }
+          return bet;
+        });
+        this.totalBets = this.bets.length;
+        this.betWon = betWon;
+        this.lostProgressions = lostProgressions;
+        this.prorgessionResults = new Map([...this.prorgessionResults.entries()].sort());
+        this.initChartData();
+      }
+    } catch (error: any) {
+      console.error(error.message);
     }
   }
 
-  runBacktest(): void {
-    const headers = {
-      'x-rapidapi-host': 'v3.football.api-sports.io',
-      'x-rapidapi-key': 'd694a908807e57340a12f89cba9d6eee',
+  initChartData(): void {
+    let dates = [];
+    const filteredBets: Bet[] = this.bets.sort((a, b) => {
+      if(a.date > b.date) {
+        return 1;
+      }
+      if(a.date < b.date) {
+        return -1;
+      }
+      return 0;
+    });
+    const datePipe: DatePipe = new DatePipe('en-US');
+    let cumulated_profit: number = 0;
+    const mappedBet = filteredBets.reduce((map: Map<number, number>, elem: Bet) => {
+      // let formattedDate = datePipe.transform(elem.date!, 'YYYY-MM-dd')
+      // const map = acc as Map<number, number>;
+      const time = new Date(elem.date!).getTime();
+      
+      cumulated_profit += elem.profit!;
+      map.set(time, cumulated_profit);
+
+      return map;
+    }, new Map<number, number>())
+    let isFirst: boolean = true;
+    for (let key of mappedBet.keys()) {
+      if(isFirst) {
+        isFirst = false;
+        dates.push([key - 86400000, 0]);
+      }
+      dates.push([key, mappedBet.get(key)!]);
+    }
+
+    this.series = [
+      {
+        name: 'Profit',
+        data: dates,
+      },
+    ];
+    this.chart = {
+      type: 'line',
+      stacked: false,
+      height: 600,
+      toolbar: {
+        show: false,
+      },
+      zoom: {
+        enabled: false
+      }
     };
-    this.progressions = [];
-    this.totalProfit = 0;
-    const urlMatches = `https://v3.football.api-sports.io/fixtures?season=${this.season}&team=${this.teamID}&league=${this.leagueID}`;
-    this.http.get(urlMatches, { headers }).subscribe({
-      next: (data: any) => {
-        let selectedTeamName = '';
-        const mappedArray = data.response.map((elem: any) => {
-          if(!selectedTeamName) {
-            selectedTeamName = elem.teams.home.id == this.teamID ? elem.teams.home.name : elem.teams.away.name;
-          }
-          const match = `${elem.teams.home.name}-${elem.teams.away.name}`;
-          const halfTimeScore =
-            elem.score.halftime.home > elem.score.halftime.away
-              ? '1'
-              : elem.score.halftime.home < elem.score.halftime.away
-              ? '2'
-              : 'X';
-          const fullTimeScore =
-            elem.score.fulltime.home > elem.score.fulltime.away
-              ? '1'
-              : elem.score.fulltime.home < elem.score.fulltime.away
-              ? '2'
-              : 'X';
-          const date = elem.fixture.date;
-          return {
-            match,
-            halfTimeScore,
-            fullTimeScore,
-            date,
-          };
-        });
-        let counterFullTimeX = 0;
-        let progressionSequence = 1;
-        let currentUnit = 1;
-        let total = 0;
-        let prorgessionCounter = 1;
-        let currentProgression: { name: string; bets: any[] } | null = null;
-        mappedArray.forEach((element: any) => {
-          if (counterFullTimeX >= this.matchWithoutX) {
-            if (!currentProgression) {
-              currentProgression = {
-                name: `Progression ${prorgessionCounter}`,
-                bets: [],
-              };
-              prorgessionCounter++;
-            }
-            if(progressionSequence > this.progressionLength) {
-              console.log(`Sequence lost`);
-              this.totalProfit -= total;
-              counterFullTimeX = 0;
-              progressionSequence = 1;
-              currentUnit = 1;
-              total = 0;
-              this.progressions.push(currentProgression);
-              currentProgression = null;
-            } else {
-              total += currentUnit;
-              console.log(
-                `Bet n° ${progressionSequence}, unit betted ${currentUnit}`
-              );
-              const bet = {
-                date: element.date,
-                match: element.match,
-                event: `${selectedTeamName} [${String.fromCharCode(64 + progressionSequence)}]`,
-                odds: this.averageOdds,
-                bet: currentUnit,
-                result: '',
-                profit: 0,
-              };
-              if (element.fullTimeScore === 'X' || (this.type === 'half_time' && element.halfTimeScore === 'X')) {
-                const won = (currentUnit * this.averageOdds) - currentUnit;
-                const profit = won - total;
-                this.totalProfit += profit;
-                console.log(`Sequence won, profit ${profit}`);
-                counterFullTimeX = 0;
-                progressionSequence = 1;
-                currentUnit = 1;
-                total = 0;
-                bet.result = 'won';
-                bet.profit = won;
-                currentProgression.bets = [...currentProgression.bets, bet];
-                this.progressions.push(currentProgression);
-                currentProgression = null;
-              } else {
-                bet.result = 'lost';
-                bet.profit = -currentUnit;
-                currentProgression.bets = [...currentProgression.bets, bet];
-                progressionSequence++;
-                currentUnit = currentUnit * this.multiplier;
-              }
-            }
-          }
-          if (counterFullTimeX < this.matchWithoutX) {
-            if (element.fullTimeScore === 'X' || (this.type === 'half_time' && element.halfTimeScore === 'X')) {
-              console.log(`X at match ${counterFullTimeX}, reset`);
-              counterFullTimeX = 0;
-            } else {
-              counterFullTimeX++;
-              console.log(
-                `Not betted, consecutive matches without X ${counterFullTimeX}`
-              );
-            }
-          }
-        });
-        console.log(`Total Profit for a season ${this.totalProfit}`);
+    this.dataLabels = {
+      enabled: false,
+      textAnchor: 'end',
+      formatter: function (val: number) {
+        return `$${val.toFixed(2)}`;
       },
-      error: (error) => {
-        console.error('HTTP Error:', error);
+    };
+    this.markers = {
+      size: 6, // dimensione del punto
+        // colors: ["#FFA41B"], // colore del punto
+        strokeWidth: 2,
+        hover: {
+          size: 8
+        }
+    };
+    // this.fill = {
+
+    // };
+    this.yaxis = {
+      labels: {
+        formatter: function (val) {
+          return `$${val.toFixed(2)}`;
+        },
       },
-      complete: () => {
-        console.log('Request complete.');
+      title: {
+        text: 'Profit',
       },
-    });
+    };
+    this.xaxis = {
+      type: "datetime"
+      // labels: {
+      //   show: false,
+      // },
+    };
+    this.tooltip = {
+      shared: false,
+      y: {
+        formatter: function (val) {
+          return `$${val.toFixed(2)}`;
+        },
+      },
+    };
   }
-
-  async addBets() {
-    this.store.dispatch(ProfileActions.addLoader());
-    let bets: any[] = [];
-    const strategyId = this.selectedStrategy;
-    this.progressions.forEach(elem => {
-      const array = elem.bets.map(b => ({...b, strategy_id: parseInt(strategyId)}));
-      bets = [...bets, ...array];
-    });
-    await this.supabase.insertBetsBT(bets);
-    this.supabase.selectStrategyBTByID(parseInt(this.selectedStrategy)).subscribe(data => {
-      this.progressions = [];
-      this.totalProfit = 0;
-      this.obStrategyBT.next(data);
-      this.store.dispatch(ProfileActions.removeLoader());
-    });
-  }
-
-  updateStrategyBTName() {
-    this.supabase.updateStrategyBTName(this.strategyName, parseInt(this.selectedStrategy));
-  }
-
 }

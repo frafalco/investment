@@ -1,252 +1,155 @@
 <div class="card">
-    <div class="card-body">
-        <h5 class="card-title">Backtest Section</h5>
-        <div class="mb-3">
-            <label for="selectedStrategy" class="form-label">Select a strategy</label>
-            <select [(ngModel)]="selectedStrategy" class="form-select" id="selectedStrategy" name="selectedStrategy" (change)="strategySelectChangeHandler()">
-              <option value="">Select strategy</option>
-              @for (s of strategyOptions; track s.id) {
-                <option [value]="s.id">{{s.name}}</option>
-              }
-            </select>
-            <div class="form-text">You can add a new strategy by clicking <button class="btn btn-link p-0" (click)="open(content)">here</button></div>
-          </div>
-          <div *ngIf="selectedStrategy">
-            <div class="row">
-                <div class=" mb-3 col-sm-6">
-                    <div class="input-group">
-                        <input type="text" class="form-control" [(ngModel)]="strategyName" [disabled]="editStrategyNameDisabled">
-                        <span class="input-group-text" id="basic-addon1">
-                            <button class="btn mx-1 bi bi-pen btn-outline-secondary" type="button" (click)="editStrategyNameDisabled = !editStrategyNameDisabled"></button>
-                        </span>
-                    </div>
-                </div>
-                <div class="mb-3 col-sm-6">
-                    <button type="button" class="btn btn-primary btn-lg" [disabled]="editStrategyNameDisabled" (click)="updateStrategyBTName()">Edit strategy name</button>
-                </div>
-            </div>
-            <div ngbAccordion>
-                <div ngbAccordionItem>
-                    <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton>Graph</button>
-                    </h2>
-                    <div ngbAccordionCollapse>
-                        <div ngbAccordionBody>
-                            <ng-template>
-                                <app-dashboard-graph [strategy$]="obStrategyBT" [height]="600" [showToolbar]="false"></app-dashboard-graph>
-                            </ng-template>
-                        </div>
-                    </div>
-                </div>
-                <div ngbAccordionItem>
-                    <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton>Table</button>
-                    </h2>
-                    <div ngbAccordionCollapse>
-                        <div ngbAccordionBody>
-                            <ng-template>
-                                <app-dashboard-table [strategy$]="obStrategyBT" [hideEdit]="true"></app-dashboard-table>
-                            </ng-template>
-                        </div>
-                    </div>
-                </div>
-                <div ngbAccordionItem>
-                    <h2 ngbAccordionHeader>
-                        <button ngbAccordionButton>Run backtest</button>
-                    </h2>
-                    <div ngbAccordionCollapse>
-                        <div ngbAccordionBody>
-                            <ng-template>
-                                <div class="d-flex justify-content-center gap-4 flex-wrap">
-                                    <div class="mb-3">
-                                      <label for="teamID" class="form-label"
-                                        >Team ID</label
-                                      >
-                                      <input
-                                        id="teamID"
-                                        type="text"
-                                        class="form-control"
-                                        name="teamID"
-                                        [(ngModel)]="teamID"
-                                      />
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="leagueName" class="form-label"
-                                        >League ID</label
-                                      >
-                                      <input
-                                        id="leagueName"
-                                        type="text"
-                                        class="form-control"
-                                        name="leagueName"
-                                        [(ngModel)]="leagueID"
-                                      />
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="season" class="form-label"
-                                        >Season</label
-                                      >
-                                      <select [(ngModel)]="season" class="form-select" id="season" name="season">
-                                        <option value="">Select season</option>
-                                        <option value="2020">2020</option>
-                                        <option value="2021">2021</option>
-                                        <option value="2022">2022</option>
-                                        <option value="2023">2023</option>
-                                        <option value="2024">2024</option>
-                                      </select>
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="progressionLength" class="form-label"
-                                        >Progression length</label
-                                      >
-                                      <input
-                                        id="progressionLength"
-                                        type="number"
-                                        class="form-control"
-                                        name="progressionLength"
-                                        [(ngModel)]="progressionLength"
-                                      />
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="matchWithoutX" class="form-label"
-                                        >Match Without X</label
-                                      >
-                                      <input
-                                        id="matchWithoutX"
-                                        type="number"
-                                        class="form-control"
-                                        name="matchWithoutX"
-                                        [(ngModel)]="matchWithoutX"
-                                      />
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="multiplier" class="form-label"
-                                        >Progression multiplier</label
-                                      >
-                                      <input
-                                        id="multiplier"
-                                        type="number"
-                                        class="form-control"
-                                        name="multiplier"
-                                        [(ngModel)]="multiplier"
-                                      />
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="averageOdds" class="form-label">Average odds</label>
-                                      <input
-                                        id="averageOdds"
-                                        type="number"
-                                        class="form-control"
-                                        name="averageOdds"
-                                        [(ngModel)]="averageOdds"
-                                      />
-                                    </div>
-                                    <div class="mb-3">
-                                      <label for="season" class="form-label"
-                                        >Type</label
-                                      >
-                                      <select [(ngModel)]="type" class="form-select" id="season" name="season">
-                                        <option value="">Select type</option>
-                                        <option value="full_time">Full Time</option>
-                                        <option value="half_time">Half Time</option>
-                                      </select>
-                                    </div>
-                                  </div>
-                                  <div class="text-center mb-3">
-                                    <button
-                                      type="button"
-                                      class="btn btn-primary btn-lg"
-                                      (click)="runBacktest()"
-                                    >
-                                      Run Backtest
-                                    </button>
-                                  </div>
-                                  @if (progressions.length) {
-                                    @for(p of progressions; track p.name) {
-                                      <div>
-                                        <h3>{{p.name}}</h3>
-                                        <table class="table table-bordered">
-                                          <thead>
-                                            <tr>
-                                              <th scope="col">Date</th>
-                                              <th scope="col">Event</th>
-                                              <th scope="col">Match</th>
-                                              <th scope="col">Odds</th>
-                                              <th scope="col">Unit</th>
-                                              <th scope="col">Result</th>
-                                              <th scope="col">Profit</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            @for(b of p.bets; track b.match) {
-                                            <tr>
-                                              <td scope="row">{{ b.date | date : "dd/MM/yyyy" }}</td>
-                                              <td>{{ b.event }}</td>
-                                              <td>{{ b.match }}</td>
-                                              <td>{{ b.odds | number : "1.0-2" }}</td>
-                                              <td>{{ b.bet | number : "1.0-2" }}</td>
-                                              <td>{{ b.result }}</td>
-                                              <td [class]="b.profit > 0 ? 'text-success' : 'text-danger'">
-                                                {{ b.profit | number : "1.0-2" }}
-                                              </td>
-                                            </tr>
-                                            }
-                                          </tbody>
-                                        </table>
-                                      </div>
-                                    }
-                                    <h4>Total Profit: <span [class]="totalProfit > 0 ? 'text-success' : 'text-danger'">{{totalProfit | number : "1.0-2" }}</span></h4>
-                                    <div class="mb-3">
-                                      <button
-                                      type="button"
-                                      class="btn btn-primary btn-lg"
-                                      (click)="addBets()"
-                                    >
-                                      Add bets to selected strategy
-                                    </button>
-                                    </div>
-                                  }
-                            </ng-template>
-                        </div>
-                    </div>
-                </div>
-            </div>
-          </div>
+  <div class="card-body">
+    <h5 class="card-title text-center">Backtest</h5>
+    <p class="card-text text-center">
+      Choose your criteria and perform the backtest.
+    </p>
+    <div class="row">
+      <div class="mb-3 col-sm-2 offset-sm-1">
+        <label for="progressionLength" class="form-label"
+          >Progression Length</label
+        >
+        <input
+          type="number"
+          id="progressionLength"
+          class="form-control"
+          [(ngModel)]="progressionLength"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="multiplier" class="form-label">Multiplier</label>
+        <input
+          type="number"
+          id="multiplier"
+          class="form-control"
+          [(ngModel)]="multiplier"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="unitValue" class="form-label">Unit Value</label>
+        <input
+          type="number"
+          id="unitValue"
+          class="form-control"
+          [(ngModel)]="unitValue"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="underPercentage" class="form-label"
+          >Under 2.5 Percentage</label
+        >
+        <input
+          type="number"
+          id="underPercentage"
+          class="form-control"
+          [(ngModel)]="underPercentage"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="sameMatchNumber" class="form-label"
+          >Same Match Number</label
+        >
+        <input
+          type="number"
+          id="sameMatchNumber"
+          class="form-control"
+          [(ngModel)]="sameMatchNumber"
+        />
+      </div>
     </div>
-</div>
-<ng-template #content let-modal>
-    <div class="modal-header">
-      <h4 class="modal-title" id="modal-add-strategyBT">Add new strategy</h4>
-      <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+    <div class="text-center mb-3">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        (click)="runBacktest()"
+      >
+        Run Backtest
+      </button>
+      <!-- <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        (click)="manipulate()"
+      >
+        Manipulate
+      </button> -->
     </div>
-    <div class="modal-body">
-      <form class="row g-8" [formGroup]="addStrategyBTForm">
-        <div class="mb-3 col-md-6">
-          <label for="bookmaker" class="form-label"> Name </label>
-          <input
-            id="name"
-            type="text"
-            formControlName="name"
-            class="form-control"
-          />
-          <div
-            *ngIf="
-              addStrategyBTForm.controls['name'].invalid &&
-              (addStrategyBTForm.controls['name'].dirty ||
-              addStrategyBTForm.controls['name'].touched)
-            "
-          >
-            <div
-              *ngIf="addStrategyBTForm.controls['name'].errors!['required']"
-              class="error-message"
-            >
-              Il campo è obbligatorio
+    @if(bets.length > 0) {
+        <div class="row">
+            <div class="col-sm-4 mb-3 text-center">
+                <h3>Won: <span class="text-success">{{betWon / totalBets | percent: "1.0-2"}}</span>({{betWon}} of {{totalBets}})</h3>
             </div>
-          </div>
+            <div class="col-sm-4 mb-3 text-center">
+                <h3>Progressions Lost <span class="text-danger">{{lostProgressions}}</span></h3>
+            </div>
+            <div class="col-sm-4 mb-3 text-center">
+                <h3>Profit <span [ngClass]="cumulatedProfit > 0 ? 'text-success' : 'text-danger'">{{cumulatedProfit | number: "1.0-2"}}</span></h3>
+            </div>
+            <div class="d-flex mb-3 text-center justify-content-around">
+                @for(entry of prorgessionResults.entries(); track entry[0]) {
+                    <h3>{{entry[0]}}: {{entry[1]}}</h3>
+                }
+            </div>
         </div>
-      </form>
-    </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-outline-primary" (click)="addStrategyBT(modal)" [disabled]="!addStrategyBTForm.valid">Add</button>
-    </div>
-  </ng-template>
+        <apx-chart
+  [series]="series"
+  [chart]="chart"
+  [dataLabels]="dataLabels"
+  [markers]="markers"
+  [title]="title"
+  [fill]="fill"
+  [yaxis]="yaxis"
+  [xaxis]="xaxis"
+  [tooltip]="tooltip"
+  [autoUpdateSeries]="true"
+></apx-chart>
+    <table class="table table-striped">
+      <thead class="sticky-top">
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Event</th>
+          <th scope="col">Match Result</th>
+          <th scope="col">Bookmaker</th>
+          <th scope="col">Odds</th>
+          <th scope="col">Unit</th>
+          <th scope="col">Bet</th>
+          <th scope="col">Result</th>
+          <th scope="col">Profit Unit</th>
+          <th scope="col">Profit</th>
+          <th scope="col">Cumulated Profit</th>
+          <th scope="col">Cumulated Profit Unit</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(bet of bets; track bet.id) {
+            <tr>
+                <td scope="row">{{ bet.date | date:'dd/MM/yyyy hh:mm' }}</td>
+                <td>
+                  {{ bet.event }}
+                </td>
+                <td>
+                  {{ bet.matchResult }}
+                </td>
+                <td>{{ bet.bookmaker }}</td>
+                <td>{{ bet.odds | number }}</td>
+                <td>{{ bet.unit | number : "1.0-2" }}</td>
+                <td>{{ bet.bet | number : "1.0-2" }}</td>
+                <td>{{bet.result}}</td>
+                <td  [ngClass]="bet.result === 'won' ? 'text-success' : 'text-danger'">
+                  {{ bet.profitUnit | number : "1.0-2"}}
+                </td>
+                <td  [ngClass]="bet.result === 'won' ? 'text-success' : 'text-danger'">
+                  {{ bet.profit | number : "1.0-2"}}
+                </td>
+                <td  [ngClass]="bet.cumulatedProfit > 0 ? 'text-success' : 'text-danger'">
+                  {{ bet.cumulatedProfit | number : "1.0-2"}}
+                </td>
+                <td  [ngClass]="bet.cumulatedProfitUnit > 0 ? 'text-success' : 'text-danger'">
+                  {{ bet.cumulatedProfitUnit | number : "1.0-2"}}
+                </td>
+              </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+</div>

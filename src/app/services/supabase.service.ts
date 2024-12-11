@@ -17,6 +17,7 @@ import * as ProfileActions from '../store/profile.actions';
 import { Strategy } from '../models/strategy.model';
 import { SelectedStrategy } from '../models/selected-strategy.model';
 import { BetBT } from '../models/bet_bt.model';
+import { DataMiningMatch } from '../models/datamining_match';
 
 @Injectable({
   providedIn: 'root',
@@ -347,6 +348,33 @@ export class SupabaseService implements OnDestroy {
     //       }
     //     )
     //     .subscribe();
+  }
+
+  async selectDataMiningMatches(underPercentage: number, sameMatchNumber: number) {
+    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatchNumber).lte('over25', underPercentage).order('event_date', {ascending: true});
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async selectDataMiningMatchesWithoutGoal() {
+    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').is('score_ht_home', null).is('canceled', false);
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async updateDataMining(id: number, updatedData: any) {
+    const {data, error} = await this.supabase.from('data_mining').update(updatedData).eq('fixture_id', id).select<'*', DataMiningMatch>('*').single();
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
   }
 
   ngOnDestroy() {
