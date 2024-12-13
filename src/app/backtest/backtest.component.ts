@@ -63,6 +63,7 @@ export class BacktestComponent {
   underPercentage: number = 0;
   sameMatchNumber: number = 0;
   unitValue: number = 0;
+  isHalfTime: boolean = false;
 
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
@@ -73,6 +74,7 @@ export class BacktestComponent {
   bets: any[] = [];
   prorgessionResults = new Map<string, number>();
   progressions: Bet[][] = [];
+  totalProgressions: any[] = [];
 
   public series!: ApexAxisChartSeries;
   public chart!: ApexChart;
@@ -130,23 +132,17 @@ export class BacktestComponent {
     try {
       this.bets = [];
       this.progressions = [];
-      const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber);
+      this.totalProgressions = [];
+      let filterColumn = 'over25';
+      if(this.isHalfTime) {
+        filterColumn = 'over05pt';
+      }
+      const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber, filterColumn);
       if(matches.length > 0) {
         this.prorgessionResults = new Map<string, number>();
         this.cumulatedProfit = 0;
         this.maxDrawDown = 0;
         this.relativeDrawDown = 0;
-        const strategy: Strategy = {
-          id: 999,
-          name: 'Backtest',
-          type: 'bt',
-          starting_bankroll: 0,
-          profit: 0,
-          user_id: '',
-          bets: [],
-          total_wagered: 0,
-          archived: false
-        }
         const BreakException = {};
         let indexID = 0;
         let currentProgressionStep = 1;
@@ -155,7 +151,15 @@ export class BacktestComponent {
         let betWon = 0;
         let lostProgressions = 0;
         let currentDrawDown = 0;
-        const filteredMatches = matches.filter(m => m.goals_home !== null && m.goals_away !== null);
+        let propertyGoalHome = 'goals_home';
+        let propertyGoalAway = 'goals_away';
+        let odds = 3.07;
+        if(this.isHalfTime) {
+          propertyGoalHome = 'score_ht_home';
+          propertyGoalAway = 'score_ht_away';
+          odds = 2.1;
+        }
+        const filteredMatches = matches.filter((m: any) => m[propertyGoalHome] !== null && m[propertyGoalAway] !== null);
         const matchesMap = new Map<string, DataMiningMatch[]>();
         filteredMatches.forEach(m => {
           let array = matchesMap.get(m.event_date);
@@ -185,7 +189,7 @@ export class BacktestComponent {
             }
             return -1;
           })
-          .forEach((m, index, array) => {
+          .forEach((m: any, index, array) => {
             let progressionIndex = -1;
             currentProgressionStep = 1;
             if(this.progressions.length) {
@@ -204,9 +208,9 @@ export class BacktestComponent {
             }
             currentUnit = Math.pow(this.multiplier, currentProgressionStep - 1);
             const currentBet = currentUnit * this.unitValue;
-            const isDraw = m.goals_home === m.goals_away;
-            const profit = isDraw ? (currentBet * 3.07) - currentBet  : -currentBet;
-            const profitUnit = isDraw ? (currentUnit * 3.07) - currentUnit : -currentUnit;
+            const isDraw = m[propertyGoalHome] === m[propertyGoalAway];
+            const profit = isDraw ? (currentBet * odds) - currentBet  : -currentBet;
+            const profitUnit = isDraw ? (currentUnit * odds) - currentUnit : -currentUnit;
             this.cumulatedProfit += profit;
             if(this.cumulatedProfit < this.maxDrawDown) {
               this.maxDrawDown = this.cumulatedProfit;
@@ -217,12 +221,13 @@ export class BacktestComponent {
               id: indexID++,
               date: m.event_date,
               bookmaker: 'pippo',
+              odds: odds,
               unit: currentUnit,
               bet: currentBet,
               result: isDraw ? 'won' : 'lost',
               strategy_id: 999,
               event: `${m.homeTeam}-${m.awayTeam} [${progressionChar}]`,
-              matchResult: `${m.goals_home}-${m.goals_away}`,
+              matchResult: `${m[propertyGoalHome]}-${m[propertyGoalAway]}`,
               profitUnit: profitUnit,
               profit: profit,
               cumulatedProfit: this.cumulatedProfit,
@@ -236,6 +241,7 @@ export class BacktestComponent {
             }
             if(progressionIndex == -1) {
               this.progressions.push([bet]);
+              progressionIndex = this.progressions.length - 1;
             } else {
               const currentProgression = this.progressions.at(progressionIndex);
               this.progressions[progressionIndex] = [...currentProgression!, bet];
@@ -248,11 +254,13 @@ export class BacktestComponent {
               } else {
                 this.prorgessionResults.set(progressionChar, 1);
               }
-              this.progressions.shift();
+              const finishedProgression = this.progressions.splice(progressionIndex, 1);
+              this.totalProgressions.push(...finishedProgression);
               betWon++;
               currentProgressionStep = 1;
             } else if (currentProgressionStep === this.progressionLength) {
-              this.progressions.shift();
+              const finishedProgression = this.progressions.splice(progressionIndex, 1);
+              this.totalProgressions.push(...finishedProgression);
               lostProgressions++;
               currentProgressionStep = 1;
             } else {
@@ -265,6 +273,7 @@ export class BacktestComponent {
         this.betWon = betWon;
         this.lostProgressions = lostProgressions;
         this.prorgessionResults = new Map([...this.prorgessionResults.entries()].sort());
+        console.log(this.totalProgressions);
         this.initChartData();
       }
     } catch (error: any) {
@@ -329,7 +338,7 @@ export class BacktestComponent {
       },
     };
     this.markers = {
-      size: 6, // dimensione del punto
+      size: 0, // dimensione del punto
         // colors: ["#FFA41B"], // colore del punto
         strokeWidth: 2,
         hover: {
