@@ -7,6 +7,7 @@ import { Bet } from '../models/bet.model';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexFill, ApexMarkers, ApexTitleSubtitle, ApexTooltip, ApexXAxis, ApexYAxis, NgApexchartsModule } from 'ng-apexcharts';
+import { DataMiningMatch } from '../models/datamining_match';
 
 interface FixturesResponse {
   results: number;
@@ -71,6 +72,7 @@ export class BacktestComponent {
   lostProgressions = 0;
   bets: any[] = [];
   prorgessionResults = new Map<string, number>();
+  progressions: Bet[][] = [];
 
   public series!: ApexAxisChartSeries;
   public chart!: ApexChart;
@@ -126,6 +128,8 @@ export class BacktestComponent {
 
   async runBacktest() {
     try {
+      this.bets = [];
+      this.progressions = [];
       const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber);
       if(matches.length > 0) {
         this.prorgessionResults = new Map<string, number>();
@@ -143,7 +147,8 @@ export class BacktestComponent {
           total_wagered: 0,
           archived: false
         }
-        let index = 0;
+        const BreakException = {};
+        let indexID = 0;
         let currentProgressionStep = 1;
         let currentUnit;
         let cumulatedProfitUnit = 0;
@@ -151,67 +156,110 @@ export class BacktestComponent {
         let lostProgressions = 0;
         let currentDrawDown = 0;
         const filteredMatches = matches.filter(m => m.goals_home !== null && m.goals_away !== null);
-        // const matchesMap = new Map<string, any[]>();
-        // filteredMatches.forEach(m => {
-        //   let array = matchesMap.get(m.event_date);
-        //   if(array) {
-        //     array.push(m);
-        //     matchesMap.set(m.event_date, array);
-        //   } else {
-        //     matchesMap.set(m.event_date, [m]);
-        //   }
-        // })
-        // console.log(matchesMap);
-        this.bets = filteredMatches.map(m => {
-          currentUnit = Math.pow(this.multiplier, currentProgressionStep - 1);
-          const currentBet = currentUnit * this.unitValue;
-          const isDraw = m.goals_home === m.goals_away;
-          const profit = isDraw ? (currentBet * 3.07) - currentBet  : -currentBet;
-          const profitUnit = isDraw ? (currentUnit * 3.07) - currentUnit : -currentUnit;
-          this.cumulatedProfit += profit;
-          if(this.cumulatedProfit < this.maxDrawDown) {
-            this.maxDrawDown = this.cumulatedProfit;
-          }
-          cumulatedProfitUnit += profitUnit;
-          const progressionChar = String.fromCharCode(64 + currentProgressionStep);
-          const bet: any = {
-            id: index++,
-            date: m.event_date,
-            bookmaker: 'pippo',
-            unit: currentUnit,
-            bet: currentBet,
-            result: isDraw ? 'won' : 'lost',
-            strategy_id: 999,
-            event: `${m.homeTeam}-${m.awayTeam} [${progressionChar}]`,
-            matchResult: `${m.goals_home}-${m.goals_away}`,
-            profitUnit: profitUnit,
-            profit: profit,
-            cumulatedProfit: this.cumulatedProfit,
-            cumulatedProfitUnit: cumulatedProfitUnit
-          }
-          if(profit < 0) {
-            currentDrawDown += profit;
-            if(currentDrawDown < this.relativeDrawDown) {
-              this.relativeDrawDown = currentDrawDown;
-            }
-          }
-          if(isDraw) {
-            currentDrawDown = 0;
-            const winAt = this.prorgessionResults.get(progressionChar);
-            if(winAt) {
-              this.prorgessionResults.set(progressionChar, winAt + 1);
-            } else {
-              this.prorgessionResults.set(progressionChar, 1);
-            }
-            betWon++;
-            currentProgressionStep = 1;
-          } else if (currentProgressionStep === this.progressionLength) {
-            lostProgressions++;
-            currentProgressionStep = 1;
+        const matchesMap = new Map<string, DataMiningMatch[]>();
+        filteredMatches.forEach(m => {
+          let array = matchesMap.get(m.event_date);
+          if(array) {
+            array.push(m);
+            matchesMap.set(m.event_date, array);
           } else {
-            currentProgressionStep++;
+            matchesMap.set(m.event_date, [m]);
           }
-          return bet;
+        })
+        const keys = Array.from(matchesMap.keys());
+        // const keys = Array.from(matchesMap.keys()).filter((key, index, array) => {
+        //   if(index === 0) {
+        //     return true;
+        //   }
+        //   if(new Date(key).getTime() - new Date(array[index - 1]).getTime() < 6600000) {
+        //     return false;
+        //   }
+        //   return true;
+        // })
+        keys.forEach(key => {
+          const matchArray = matchesMap.get(key);
+          matchArray!
+          .sort((a, b) => {
+            if(a.over25 > b.over25) {
+              return 1;
+            }
+            return -1;
+          })
+          .forEach((m, index, array) => {
+            let progressionIndex = -1;
+            currentProgressionStep = 1;
+            if(this.progressions.length) {
+              try {
+              this.progressions.forEach((p: Bet[], pIndex) => {
+                const mP = p.at(-1);
+                if(new Date(m.event_date).getTime() - new Date(mP!.date!).getTime() >= 6600000) {
+                  currentProgressionStep = p.length + 1;
+                  progressionIndex = pIndex;
+                  throw BreakException;
+                }
+              })
+              } catch(e) {
+                if(e !== BreakException) throw e;
+              }
+            }
+            currentUnit = Math.pow(this.multiplier, currentProgressionStep - 1);
+            const currentBet = currentUnit * this.unitValue;
+            const isDraw = m.goals_home === m.goals_away;
+            const profit = isDraw ? (currentBet * 3.07) - currentBet  : -currentBet;
+            const profitUnit = isDraw ? (currentUnit * 3.07) - currentUnit : -currentUnit;
+            this.cumulatedProfit += profit;
+            if(this.cumulatedProfit < this.maxDrawDown) {
+              this.maxDrawDown = this.cumulatedProfit;
+            }
+            cumulatedProfitUnit += profitUnit;
+            const progressionChar = String.fromCharCode(64 + currentProgressionStep);
+            const bet: any = {
+              id: indexID++,
+              date: m.event_date,
+              bookmaker: 'pippo',
+              unit: currentUnit,
+              bet: currentBet,
+              result: isDraw ? 'won' : 'lost',
+              strategy_id: 999,
+              event: `${m.homeTeam}-${m.awayTeam} [${progressionChar}]`,
+              matchResult: `${m.goals_home}-${m.goals_away}`,
+              profitUnit: profitUnit,
+              profit: profit,
+              cumulatedProfit: this.cumulatedProfit,
+              cumulatedProfitUnit: cumulatedProfitUnit
+            }
+            if(profit < 0) {
+              currentDrawDown += profit;
+              if(currentDrawDown < this.relativeDrawDown) {
+                this.relativeDrawDown = currentDrawDown;
+              }
+            }
+            if(progressionIndex == -1) {
+              this.progressions.push([bet]);
+            } else {
+              const currentProgression = this.progressions.at(progressionIndex);
+              this.progressions[progressionIndex] = [...currentProgression!, bet];
+            }
+            if(isDraw) {
+              currentDrawDown = 0;
+              const winAt = this.prorgessionResults.get(progressionChar);
+              if(winAt) {
+                this.prorgessionResults.set(progressionChar, winAt + 1);
+              } else {
+                this.prorgessionResults.set(progressionChar, 1);
+              }
+              this.progressions.shift();
+              betWon++;
+              currentProgressionStep = 1;
+            } else if (currentProgressionStep === this.progressionLength) {
+              this.progressions.shift();
+              lostProgressions++;
+              currentProgressionStep = 1;
+            } else {
+              currentProgressionStep++;
+            }
+            this.bets.push(bet);
+          })
         });
         this.totalBets = this.bets.length;
         this.betWon = betWon;
