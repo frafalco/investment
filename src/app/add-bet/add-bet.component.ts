@@ -10,9 +10,6 @@ import {
 } from '@angular/forms';
 import {
   Router,
-  RouterLink,
-  RouterLinkActive,
-  RouterOutlet,
 } from '@angular/router';
 import { User } from '@supabase/supabase-js';
 import { Strategy } from '../models/strategy.model';
@@ -29,13 +26,10 @@ import * as ProfileActions from '../store/profile.actions';
   standalone: true,
   imports: [
     CommonModule,
-    RouterOutlet,
     FormsModule,
-    RouterLink,
-    RouterLinkActive,
     ReactiveFormsModule,
-    DatetimepickerComponent,
-  ],
+    DatetimepickerComponent
+],
   templateUrl: './add-bet.component.html',
   styleUrl: './add-bet.component.css',
 })
@@ -67,7 +61,7 @@ export class AddBetComponent {
         strategy_id: new FormControl('', Validators.required),
         date: new FormControl('', Validators.required),
         event: new FormControl('', Validators.required),
-        bookmaker: new FormControl('', Validators.required),
+        // bookmaker: new FormControl('', Validators.required),
         odds: new FormControl('', [
           Validators.required,
           Validators.pattern(/^\d+(\.\d{1,2})?$/),
@@ -93,26 +87,6 @@ export class AddBetComponent {
               );
               if (selectedStrategy) {
                 this.bankroll = selectedStrategy.starting_bankroll;
-                const oddsControl = this.submitForm.get('odds');
-                const unitControl = this.submitForm.get('unit');
-                const betsControl = this.submitForm.get('bets');
-                if (selectedStrategy.type === 'live') {
-                  this.isLive = true;
-                  oddsControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
-                  unitControl?.setValidators([Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
-                  betsControl?.setValidators([Validators.required]);
-                  oddsControl?.updateValueAndValidity();
-                  unitControl?.updateValueAndValidity();
-                  betsControl?.updateValueAndValidity();
-                } else {
-                  this.isLive = false;
-                  oddsControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
-                  unitControl?.setValidators([Validators.required, Validators.pattern(/^\d+(\.\d{1,2})?$/)]);
-                  betsControl?.setValidators([]);
-                  oddsControl?.updateValueAndValidity();
-                  unitControl?.updateValueAndValidity();
-                  betsControl?.updateValueAndValidity();
-                }
               }
             }
           });
@@ -172,37 +146,18 @@ export class AddBetComponent {
   }
 
   onSubmit() {
-    if(this.isLive) {
-      for(const g of this.bets.controls) {
-        setTimeout(() => {
-          const result: Bet = {
-            date: this.submitForm.value.date!,
-            bet: parseFloat(g.value.bet!),
-            bookmaker: this.submitForm.value.bookmaker!,
-            result: this.submitForm.value.result!,
-            unit: parseFloat(g.value.unit!),
-            strategy_id: parseInt(this.submitForm.value.strategy_id!),
-            event: this.submitForm.value.event!,
-          };
-          
-          this.store.dispatch(ProfileActions.addBet({bet: result}));
-        }, 1500)
-      }
-    } else {
-      const result: Bet = {
-        date: this.submitForm.value.date!,
-        bet: parseFloat(this.submitForm.value.bet!),
-        bookmaker: this.submitForm.value.bookmaker!,
-        odds: parseFloat(this.submitForm.value.odds!),
-        result: this.submitForm.value.result!,
-        unit: parseFloat(this.submitForm.value.unit!),
-        strategy_id: parseInt(this.submitForm.value.strategy_id!),
-        event: this.submitForm.value.event!,
-      };
+    const result: Bet = {
+      date: this.submitForm.value.date!,
+      bet: parseFloat(this.submitForm.value.bet!),
+      odds: parseFloat(this.submitForm.value.odds!),
+      result: this.submitForm.value.result!,
+      unit: parseFloat(this.submitForm.value.unit!),
+      strategy_id: parseInt(this.submitForm.value.strategy_id!),
+      event: this.submitForm.value.event!,
+    };
 
-      this.store.dispatch(ProfileActions.addBet({bet: result}));
-    }
-
-    this.router.navigate(['/dashboard'], {queryParams: {strategy: this.submitForm.value.strategy_id!}});
+    this.store.dispatch(ProfileActions.addBet({bet: result}));
+    
+    this.router.navigateByUrl(`/strategy/${this.submitForm.value.strategy_id}`);
   }
 }

@@ -30,7 +30,7 @@
             </div>
           </div>
         </div>
-        <div class="mb-3 col-md-6">
+        <!-- <div class="mb-3 col-md-6">
           <label for="bookmaker" class="form-label"> Bookmaker </label>
           <input
             id="bookmaker"
@@ -52,23 +52,10 @@
               Il campo è obbligatorio
             </div>
           </div>
-        </div>
+        </div> -->
         <div class="mb-3 col-md-6">
           <label for="date" class="form-label">Event Date</label>
           <app-datetimepicker formControlName="date" name="date"></app-datetimepicker>
-          <!-- <div class="input-group">
-            <input
-              id="date"
-              class="form-control"
-              placeholder="yyyy-mm-dd"
-              name="date"
-              formControlName="date"
-              ngbDatepicker
-              #d="ngbDatepicker"
-              readonly
-            />
-            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
-          </div> -->
         </div>
         <div class="mb-3 col-md-6">
           <label for="event" class="form-label"> Evento </label>
@@ -93,21 +80,36 @@
             </div>
           </div>
         </div>
-        <!-- <div class="mb-3 col-md-6">
-          <label class="form-label"> Choose a date </label>
-          <div class="input-group">
+          <div class="mb-3 col-md-6">
+            <label class="form-label"> Odds </label>
             <input
+              id="odds"
+              type="number"
+              step="0.01"
+              formControlName="odds"
               class="form-control"
-              placeholder="yyyy-mm-dd"
-              name="dp"
-              formControlName="date"
-              ngbDatepicker
-              #d="ngbDatepicker"
             />
-            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+            <div
+              *ngIf="
+                submitForm.controls['odds'].invalid &&
+                (submitForm.controls['odds'].dirty ||
+                  submitForm.controls['odds'].touched)
+              "
+            >
+              <div
+                *ngIf="submitForm.controls['odds'].errors!['required']"
+                class="error-message"
+              >
+                Il campo è obbligatorio
+              </div>
+              <div
+                *ngIf="submitForm.controls['odds'].errors!['pattern']"
+                class="error-message"
+              >
+                Inserire un valore numerico
+              </div>
+            </div>
           </div>
-        </div> -->
-        <ng-container *ngIf="!isLive; else liveContainer">
         <div class="mb-3 col-md-6">
           <label class="form-label"> Unit </label>
           <input
@@ -148,65 +150,6 @@
             class="form-control"
           />
         </div>
-        <div class="mb-3 col-md-6">
-          <label class="form-label"> Odds </label>
-          <input
-            id="odds"
-            type="number"
-            step="0.01"
-            formControlName="odds"
-            class="form-control"
-          />
-          <div
-            *ngIf="
-              submitForm.controls['odds'].invalid &&
-              (submitForm.controls['odds'].dirty ||
-                submitForm.controls['odds'].touched)
-            "
-          >
-            <div
-              *ngIf="submitForm.controls['odds'].errors!['required']"
-              class="error-message"
-            >
-              Il campo è obbligatorio
-            </div>
-            <div
-              *ngIf="submitForm.controls['odds'].errors!['pattern']"
-              class="error-message"
-            >
-              Inserire un valore numerico
-            </div>
-          </div>
-        </div>
-      </ng-container>
-      <ng-template #liveContainer>
-        <div formArrayName="bets">
-          <div *ngFor="let betGroup of bets.controls; let i = index" [formGroupName]="i" class="row align-items-end">
-            <div class="mb-3 col-md-5">
-              <label for="unit-{{ i }}">Unit:</label>
-              <input [id]="'unit-' + i" type="number" step="1" formControlName="unit" class="form-control"/>
-              <div *ngIf="betGroup.get('unit')?.invalid && betGroup.get('unit')?.touched">
-                <p *ngIf="betGroup.get('unit')?.errors?.['required']">Unit is required.</p>
-                <p *ngIf="betGroup.get('unit')?.errors?.['pattern']">Unit must be a number with up to two decimal places.</p>
-              </div>
-            </div>
-            <div class="mb-3 col-md-5">
-              <label for="bet-{{ i }}">Bet:</label>
-              <input [id]="'bet-' + i" type="text" readonly formControlName="bet" class="form-control"/>
-            </div>
-            <div class="mb-3 col-md-2">
-              <button class="btn btn-primary btn-md" type="button" (click)="removeBet(i)">Remove</button>
-            </div>
-          </div>
-        </div>
-        <div class="w-100"></div>
-        <div class="mb-3 col-md-6">
-          <button
-            class="btn btn-primary btn-md" type="button" (click)="insertNewBet()">
-            Insert new bet
-          </button>
-        </div>
-      </ng-template>
         <div class="mb-3 col-md-12">
           <input type="hidden" id="result" formControlName="result"/>
         </div>

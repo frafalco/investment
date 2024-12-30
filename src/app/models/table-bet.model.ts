@@ -1,7 +1,7 @@
 export interface TableBet {
     id?: number;
     date?: string;
-    bookmaker: string;
+    bookmaker?: string;
     odds?: number;
     unit: number;
     bet: number;

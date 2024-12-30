@@ -62,7 +62,6 @@
     <tr>
       <th scope="col" >Date</th>
       <th scope="col">Event</th>
-      <th scope="col">Bookmaker</th>
       <th scope="col" *ngIf="!isLive">Odds</th>
       <th scope="col">Unit</th>
       <th scope="col">Bet</th>
@@ -78,7 +77,6 @@
       <td>
         {{ r.event }}
       </td>
-      <td>{{ r.bookmaker }}</td>
       <td *ngIf="!isLive">{{ r.odds | number }}</td>
       <td>{{ r.unit | number : "1.0-2" }}</td>
       <td>{{ r.bet | number : "1.0-2" }}</td>
@@ -137,6 +135,10 @@
     [collectionSize]="(total$ | async)!"
     [(page)]="dashboardTableService.page"
     [pageSize]="dashboardTableService.pageSize"
+    [maxSize]="10"
+    [rotate]="true"
+    [ellipses]="false"
+    [boundaryLinks]="true"
   >
   </ngb-pagination>
 

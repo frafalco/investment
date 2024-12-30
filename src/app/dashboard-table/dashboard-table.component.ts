@@ -100,41 +100,7 @@ export class DashboardTableComponent {
       if (s) {
         this.strategy = s;
         if (this.strategy) {
-          this.isLive = this.strategy.type === 'live';
-          if (this.isLive) {
-            const betRecord = this.strategy.bets.reduce((groups, bet) => {
-              const key = `${bet.event}-${bet.date}`;
-              if (!groups[key]) {
-                groups[key] = [];
-              }
-              groups[key].push(bet);
-              return groups;
-            }, {} as Record<string, Bet[]>);
-            const betsTable: TableBet[] = [];
-            Object.keys(betRecord).forEach((key) => {
-              const keySplitted = key.split('-');
-              betsTable.push({
-                date: keySplitted[1],
-                bookmaker: betRecord[key][0].bookmaker,
-                unit: 0,
-                bet: 0,
-                result: '',
-                strategy_id: s.id,
-                event: keySplitted[0],
-                sub_bets: betRecord[key].map((bet) => {
-                  return {
-                    unit: bet.unit,
-                    bet: bet.bet,
-                    result: bet.result,
-                    profit: bet.profit,
-                  };
-                }),
-              });
-            });
-            this.dashboardTableService.initializeBets(this.strategy.bets);
-          } else {
-            this.dashboardTableService.initializeBets(this.strategy.bets);
-          }
+          this.dashboardTableService.initializeBets(this.strategy.bets);
         }
       }
     });

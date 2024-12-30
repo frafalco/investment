@@ -64,9 +64,9 @@ function filterEvent(result: TableBet, term: string) {
 	return result.event.toLowerCase().includes(term.toLowerCase());
 }
 
-function filterBookmaker(result: TableBet, term: string) {
-	return result.bookmaker.toLowerCase().includes(term.toLowerCase());
-}
+// function filterBookmaker(result: TableBet, term: string) {
+// 	return result.bookmaker.toLowerCase().includes(term.toLowerCase());
+// }
 
 function filterDate(result: TableBet, term: string) {
   return result.date!.toLowerCase().includes(term.toLowerCase());
@@ -88,7 +88,7 @@ export class DashboardTableService {
   private _cachedBets: TableBet[] = [];
   private _state: State = {
     page: 1,
-    pageSize: 10,
+    pageSize: 30,
     event: '',
     bookmaker: '',
     date: null,
@@ -212,7 +212,7 @@ export class DashboardTableService {
     // 3. filter
     const dateFormatted = this.ngbDateParserFormatter.format(date);
     filteredBets = filteredBets.filter(
-      (r) => filterEvent(r, event) && filterBookmaker(r, bookmaker) && filterDate(r, dateFormatted) && filteResult(r, result)
+      (r) => filterEvent(r, event) && filterDate(r, dateFormatted) && filteResult(r, result)
     );
 
     const total = filteredBets.length;
