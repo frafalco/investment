@@ -70,7 +70,7 @@ export class DashboardGraphComponent {
     const datePipe: DatePipe = new DatePipe('en-US');
     let cumulated_profit: number = 0;
     const mappedBet = filteredBets.reduce((map: Map<number, number>, elem: Bet) => {
-      let formattedDate = datePipe.transform(elem.date!, 'YYYY-MM-dd')
+      let formattedDate = datePipe.transform(elem.date!, 'yyyy-MM-dd')
       // const map = acc as Map<number, number>;
       const time = new Date(formattedDate!).getTime();
       
