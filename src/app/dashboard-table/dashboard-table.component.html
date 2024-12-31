@@ -160,7 +160,7 @@
 	</div>
 	<div class="modal-body">
 		<form class="row g-8" [formGroup]="editBetForm">
-      <div class="mb-3 col-md-6">
+      <!-- <div class="mb-3 col-md-6">
         <label for="bookmaker" class="form-label"> Bookmaker </label>
         <input
           id="bookmaker"
@@ -182,7 +182,7 @@
             Il campo è obbligatorio
           </div>
         </div>
-      </div>
+      </div> -->
       <div class="mb-3 col-md-6">
         <label for="date" class="form-label">Event Date</label>
         <app-datetimepicker formControlName="date" name="date"></app-datetimepicker>
@@ -298,7 +298,8 @@
           </div>
         </div>
       </div>
-      <div class="mb-3 col-md-12">
+      <div class="mb-3 col-md-6">
+        <label class="form-label"> Result </label>
         <select id="result" formControlName="result" class="form-control">
           <option *ngFor="let option of resultOptions" [value]="option.value">
             {{ option.label }}

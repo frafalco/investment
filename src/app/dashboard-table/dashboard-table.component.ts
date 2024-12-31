@@ -70,7 +70,7 @@ export class DashboardTableComponent {
       strategy_id: new FormControl<number | null>(null, Validators.required),
       date: new FormControl<string | null>('', Validators.required),
       event: new FormControl<string>('', Validators.required),
-      bookmaker: new FormControl<string>('', Validators.required),
+      // bookmaker: new FormControl<string>('', Validators.required),
       odds: new FormControl<number | null>(null, [
         Validators.required,
         Validators.pattern(/^\d+(\.\d{1,2})?$/),
@@ -164,7 +164,6 @@ export class DashboardTableComponent {
     this.editBetForm.patchValue({
       id: bet.id,
       strategy_id: bet.strategy_id,
-      bookmaker: bet.bookmaker,
       date: bet.date,
       event: bet.event,
       unit: bet.unit,
