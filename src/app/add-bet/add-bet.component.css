@@ -4,3 +4,7 @@
     font-size: .875em;
     color: #dc3545;
 }
+.calculate-bet {
+    width: fit-content;
+    cursor: pointer;
+}

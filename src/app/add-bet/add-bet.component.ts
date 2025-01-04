@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, TemplateRef } from '@angular/core';
 import {
   FormArray,
   FormControl,
@@ -8,9 +8,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import {
-  Router,
-} from '@angular/router';
+import { Router } from '@angular/router';
 import { User } from '@supabase/supabase-js';
 import { Strategy } from '../models/strategy.model';
 import { Bet } from '../models/bet.model';
@@ -20,6 +18,7 @@ import { Observable } from 'rxjs';
 import { selectStrategiesAddBet } from '../store/profile.selector';
 import { DatetimepickerComponent } from '../datetimepicker/datetimepicker.component';
 import * as ProfileActions from '../store/profile.actions';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-add-bet',
@@ -28,8 +27,8 @@ import * as ProfileActions from '../store/profile.actions';
     CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    DatetimepickerComponent
-],
+    DatetimepickerComponent,
+  ],
   templateUrl: './add-bet.component.html',
   styleUrl: './add-bet.component.css',
 })
@@ -42,6 +41,11 @@ export class AddBetComponent {
   bankroll: number = 0;
   isLive: boolean = false;
 
+  potentialWin: number | undefined;
+  bettedUnits: number | undefined;
+  oddsCalc: number | undefined;
+  unitToBet: string | undefined;
+
   results: any[] = [
     { value: 'pending', label: 'Pending', disabled: false },
     { value: 'lost', label: 'Lost', disabled: true },
@@ -51,7 +55,11 @@ export class AddBetComponent {
 
   submitForm!: FormGroup;
 
-  constructor(private store: Store<AppState>, private router: Router) {
+  constructor(
+    private store: Store<AppState>,
+    private router: Router,
+    private modalService: NgbModal
+  ) {
     this.strategies$ = store.select(selectStrategiesAddBet);
   }
 
@@ -68,11 +76,11 @@ export class AddBetComponent {
         ]),
         unit: new FormControl('', [
           Validators.required,
-          Validators.pattern(/^\d+(\.\d{1,2})?$/),
+          Validators.pattern(/^\d+(\.\d{1,5})?$/),
         ]),
         bet: new FormControl(''),
         result: new FormControl('pending', Validators.required),
-        bets: new FormArray([])
+        bets: new FormArray([]),
       },
       { updateOn: 'change' }
     );
@@ -98,6 +106,9 @@ export class AddBetComponent {
 
     this.submitForm.get('unit')?.valueChanges.subscribe((value) => {
       this.onUnitChange(value);
+    });
+    this.submitForm.get('odds')?.valueChanges.subscribe((value) => {
+      this.oddsCalc = value;
     });
   }
 
@@ -156,8 +167,22 @@ export class AddBetComponent {
       event: this.submitForm.value.event!,
     };
 
-    this.store.dispatch(ProfileActions.addBet({bet: result}));
-    
+    this.store.dispatch(ProfileActions.addBet({ bet: result }));
+
     this.router.navigateByUrl(`/strategy/${this.submitForm.value.strategy_id}`);
+  }
+
+  open(content: TemplateRef<any>) {
+    this.modalService.open(content, {
+      ariaLabelledBy: 'modal-edit-bet',
+      backdrop: 'static',
+    });
+  }
+
+  calculateBet() {
+    if(this.potentialWin && this.bettedUnits && this.oddsCalc) {
+      this.unitToBet = ((this.potentialWin + this.bettedUnits) / this.oddsCalc).toFixed(5);
+      this.submitForm.patchValue({ unit: this.unitToBet });
+    }
   }
 }
