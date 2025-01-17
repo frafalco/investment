@@ -63,7 +63,7 @@ export class BacktestComponent {
   underPercentage: number = 0;
   sameMatchNumber: number = 0;
   unitValue: number = 0;
-  isHalfTime: boolean = false;
+  xPercentage: number = 0;
 
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
@@ -133,11 +133,7 @@ export class BacktestComponent {
       this.bets = [];
       this.progressions = [];
       this.totalProgressions = [];
-      let filterColumn = 'over25';
-      if(this.isHalfTime) {
-        filterColumn = 'over05pt';
-      }
-      const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber, filterColumn);
+      const matches = await this.supabase.selectDataMiningMatches(this.underPercentage, this.sameMatchNumber, this.xPercentage);
       if(matches.length > 0) {
         this.prorgessionResults = new Map<string, number>();
         this.cumulatedProfit = 0;
@@ -154,11 +150,6 @@ export class BacktestComponent {
         let propertyGoalHome = 'goals_home';
         let propertyGoalAway = 'goals_away';
         let odds = 3.07;
-        if(this.isHalfTime) {
-          propertyGoalHome = 'score_ht_home';
-          propertyGoalAway = 'score_ht_away';
-          odds = 2.1;
-        }
         const filteredMatches = matches.filter((m: any) => m[propertyGoalHome] !== null && m[propertyGoalAway] !== null);
         const matchesMap = new Map<string, DataMiningMatch[]>();
         filteredMatches.forEach(m => {
