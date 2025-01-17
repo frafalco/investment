@@ -1,0 +1,180 @@
+<div class="card">
+  <div class="card-body">
+    <h5 class="card-title text-center">Backtest Over05 HalfTime</h5>
+    <p class="card-text text-center">
+      Choose your criteria and perform the backtest.
+    </p>
+    <div class="row">
+      <div class="mb-3 col-sm-2">
+        <label for="progressionLength" class="form-label">Index</label>
+        <input
+          type="number"
+          id="index"
+          class="form-control"
+          [(ngModel)]="index"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="multiplier" class="form-label">Delta</label>
+        <input
+          type="number"
+          id="delta"
+          class="form-control"
+          [(ngModel)]="delta"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="unitValue" class="form-label">Diff</label>
+        <input
+          type="number"
+          id="diff"
+          class="form-control"
+          [(ngModel)]="diff"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="underPercentage" class="form-label">MGE</label>
+        <input type="number" id="mge" class="form-control" [(ngModel)]="mge" />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="sameMatchNumber" class="form-label">Home percentage</label>
+        <input
+          type="number"
+          id="homePercentage"
+          class="form-control"
+          [(ngModel)]="homePercentage"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="sameMatchNumber" class="form-label">Away percentage</label>
+        <input
+          type="number"
+          id="awayPercentage"
+          class="form-control"
+          [(ngModel)]="awayPercentage"
+        />
+      </div>
+    </div>
+    <div class="text-center mb-3">
+      <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        (click)="runBacktest()"
+      >
+        Run Backtest
+      </button>
+      <!-- <button
+        type="button"
+        class="btn btn-primary btn-lg"
+        (click)="manipulate()"
+      >
+        Manipulate
+      </button> -->
+    </div>
+    @if(bets.length > 0) {
+    <div class="row">
+      <div class="col-sm-4 mb-3 text-center">
+        <h3>
+          Bet won:
+          <span class="text-success">{{
+            betWon / totalBets | percent : "1.0-2"
+          }}</span
+          >({{ betWon }} of {{ totalBets }})
+        </h3>
+      </div>
+      <!-- <div class="col-sm-4 mb-3 text-center">
+                <h3>Second bet won: <span class="text-success">{{betWon2 / totalBets | percent: "1.0-2"}}</span>({{betWon2}} of {{totalBets}})</h3>
+            </div>
+            <div class="col-sm-4 mb-3 text-center">
+                <h3>Third bet won: <span class="text-success">{{betWon3 / totalBets | percent: "1.0-2"}}</span>({{betWon3}} of {{totalBets}})</h3>
+            </div> -->
+      <div class="col-sm-4 mb-3 text-center">
+        <h3>
+          Bets Lost:
+          <span class="text-danger">{{
+            betsLost / totalBets | percent : "1.0-2"
+          }}</span
+          >({{ betsLost }} of {{ totalBets }})
+        </h3>
+      </div>
+      <div class="col-sm-4 mb-3 text-center">
+        <h3>
+          No Bet: <span class="text-primary">{{ noBet }}</span>
+        </h3>
+      </div>
+      <div class="col-sm-4 mb-3 text-center">
+        <h3>
+          Profit
+          <span [ngClass]="cumulatedProfit > 0 ? 'text-success' : 'text-danger'"
+            >{{ cumulatedProfit | number : "1.0-2" }} units</span
+          >
+        </h3>
+      </div>
+      <div class="col-sm-4 mb-3 text-center">
+        <h3>
+          Max Drawdown:
+          <span class="text-danger">{{ maxDrawDown | number : "1.0-2" }} units</span>
+        </h3>
+      </div>
+      <div class="col-sm-4 mb-3 text-center">
+        <h3>
+          Relative Drawdown
+          <span class="text-danger"
+            >{{ relativeDrawDown | number : "1.0-2" }} units</span
+          >
+        </h3>
+      </div>
+    </div>
+    <apx-chart
+      [series]="series"
+      [chart]="chart"
+      [dataLabels]="dataLabels"
+      [markers]="markers"
+      [title]="title"
+      [fill]="fill"
+      [yaxis]="yaxis"
+      [xaxis]="xaxis"
+      [tooltip]="tooltip"
+      [autoUpdateSeries]="true"
+    ></apx-chart>
+    <table class="table table-striped">
+      <thead class="sticky-top">
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Event</th>
+          <th scope="col">Bet</th>
+          <th scope="col">RPT</th>
+          <th scope="col">First Goal</th>
+          <th scope="col">Result</th>
+          <th scope="col">Profit Unit</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(bet of bets; track bet.id) {
+        <tr>
+          <td scope="row">{{ bet.date | date : "dd/MM/yyyy HH:mm" }}</td>
+          <td>
+            {{ bet.event }}
+          </td>
+          <td>1</td>
+          <td>{{ bet.rpt }}</td>
+          <td>{{ bet.firstGoal }}</td>
+          <td>{{ bet.result }}</td>
+          <td
+            [ngClass]="
+              bet.result === 'won'
+                ? 'text-success'
+                : bet.result === 'lost'
+                ? 'text-danger'
+                : 'text-primary'
+            "
+          >
+            {{ bet.profit | number : "1.0-2" }}
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+    }
+  </div>
+</div>

@@ -184,7 +184,11 @@ export class BacktestComponent {
           const matchArray = matchesMap.get(key);
           matchArray!
           .sort((a, b) => {
-            if(a.over25 > b.over25) {
+            // if(a.over25 > b.over25) {
+            //   return 1;
+            // }
+            // return -1;
+            if(a.pareggio < b.pareggio) {
               return 1;
             }
             return -1;

@@ -18,6 +18,7 @@ import { Strategy } from '../models/strategy.model';
 import { SelectedStrategy } from '../models/selected-strategy.model';
 import { BetBT } from '../models/bet_bt.model';
 import { DataMiningMatch } from '../models/datamining_match';
+import { OverMatch } from '../models/over_match';
 
 @Injectable({
   providedIn: 'root',
@@ -351,7 +352,25 @@ export class SupabaseService implements OnDestroy {
   }
 
   async selectDataMiningMatches(underPercentage: number, sameMatchNumber: number, filterColumn: string) {
-    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatchNumber).lte(filterColumn, underPercentage).order('event_date', {ascending: true});
+    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatchNumber).lte(filterColumn, underPercentage).gte('pareggio', 30).order('event_date', {ascending: true});
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async selectOver05Matches(index: number, delta: number, diff: number, mge: number, homePercentage: number, awayPercentage: number) {
+    const {data, error} = await this.supabase.from('over_05')
+      .select<'*', OverMatch>('*')
+      .lte('index', index)
+      .lte('delta', delta / 100)
+      .lte('diff', diff / 100)
+      .gte('mge', mge)
+      .or(`percentage_ov05home.gte.${homePercentage / 100}, percentage_ov05away.gte.${awayPercentage / 100}`)
+      // .gte('percentage_ov05home', homePercentage / 100)
+      // .gte('percentage_ov05away', awayPercentage / 100)
+      .order('date', {ascending: true});
     if(error) {
       throw new Error(error.message);
     }
