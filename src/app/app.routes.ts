@@ -9,11 +9,13 @@ import { EditStrategyComponent } from './edit-strategy/edit-strategy.component';
 import { DashboardInfoComponent } from './dashboard-info/dashboard-info.component';
 import { BacktestComponent } from './backtest/backtest.component';
 import { BacktestOverComponent } from './backtest-over/backtest-over.component';
+import { AddBonusComponent } from './add-bonus/add-bonus.component';
 
 export const routes: Routes = [
     {path: '', pathMatch: 'full', component: HomeComponent},
     {path: 'dashboard', component: DashboardComponent},
     {path: 'add-bet', component: AddBetComponent},
+    {path: 'add-bonus', component: AddBonusComponent},
     {path: 'login', component: LoginComponent},
     {path: 'profile', component: ProfileComponent},
     {path: 'backtest', component: BacktestComponent},

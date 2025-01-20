@@ -19,6 +19,7 @@ import { SelectedStrategy } from '../models/selected-strategy.model';
 import { BetBT } from '../models/bet_bt.model';
 import { DataMiningMatch } from '../models/datamining_match';
 import { OverMatch } from '../models/over_match';
+import { Bonus } from '../models/bonus.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +38,6 @@ export class SupabaseService implements OnDestroy {
       environment.supabaseKey
     );
     this.restoreSession();
-    this.changesSubscription();
   }
 
   async restoreSession() {
@@ -56,7 +56,7 @@ export class SupabaseService implements OnDestroy {
     }
     const query = this.supabase
       .from('profiles')
-      .select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))')
+      .select<'*, strategies(*, bets(*), bonus(*))', Profile>('*, strategies(*, bets(*), bonus(*))')
       .eq('id', this.user_id)
       .single();
     return from(
@@ -80,7 +80,7 @@ export class SupabaseService implements OnDestroy {
     const query = this.supabase
       .from('profiles')
       .upsert(update)
-      .select<'*, strategies(*, bets(*))', Profile>('*, strategies(*, bets(*))')
+      .select<'*, strategies(*, bets(*), bonus(*))', Profile>('*, strategies(*, bets(*), bonus(*))')
       .single();
     return from(
       query.then(({ data, error }) => {
@@ -172,6 +172,33 @@ export class SupabaseService implements OnDestroy {
       query.then(({ data, error }) => {
         if (error) {
           throw new Error(error.message);
+        }
+        return data;
+      })
+    );
+  }
+
+  insertBonus(bonus: Bonus): Observable<Bonus> {
+    const query = this.supabase
+      .from('bonus')
+      .insert(bonus)
+      .select<'*', Bonus>()
+      .single();
+
+    return from(
+      query.then(async ({ data, error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        const { data: profit, error: error_1 } = await this.supabase.rpc(
+          'increment_profit',
+          {
+            increment_by: data.amount!,
+            strategy_id: data.strategy_id,
+          }
+        );
+        if (error_1) {
+          throw new Error(error_1.message);
         }
         return data;
       })
@@ -279,78 +306,6 @@ export class SupabaseService implements OnDestroy {
     );
   }
 
-  async insertStrategyBT(name: string) {
-    await this.supabase.from('strategiesBT').insert({ name });
-  }
-
-  async updateStrategyBTName(name: string, id: number) {
-    await this.supabase.from('strategiesBT').update({ name }).eq('id', id);
-  }
-
-  async selectStrategiesBT() {
-    const { data: strategies, error } = await this.supabase.from('strategiesBT').select('*, betsBT(*)');
-
-    if(error) {
-      throw new Error(error.message);
-    }
-
-    this.strategiesBT.next(strategies);
-  }
-
-  selectStrategyBTByID(id: number) {
-    const query = this.supabase.from('strategiesBT').select('*, betsBT(*)').eq('id', id).single();
-
-    return from(
-      query.then(({data, error}) => {
-        if(error) {
-          throw new Error(error.message);
-        }
-        const profit = data.betsBT.reduce((acc: number, elem: any) => acc + elem.profit, 0);
-        const totalWagered = data.betsBT.reduce((acc: number, elem: any) => acc + elem.bet, 0);
-        const strategy: Strategy = {
-          id: data.id,
-          name: data.name,
-          type: 'BT',
-          starting_bankroll: 1000,
-          profit: profit,
-          user_id: '',
-          bets: data.betsBT.map((b: any) => ({...b, bookmaker: 'Fixed'})),
-          total_wagered: totalWagered,
-          archived: false
-        }
-        return strategy;
-      })
-    )
-  }
-
-  async insertBetsBT(bets: {date: string, event: string, odds: number, bet: number, result: string, profit: number, strategy_id: number}[]) {
-    await this.supabase.from('betsBT').insert(bets);
-  }
-
-  changesSubscription() {
-    this.selectStrategiesBT();
-    this.strategiesBTSubscription = this.supabase
-      .channel('strategiesBT-all-channel')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'strategiesBT' },
-        (payload) => {
-          this.selectStrategiesBT();
-        }
-      )
-      .subscribe();
-    // this.betsBTSubscription = this.supabase
-    //     .channel('betsBT-all-channel')
-    //     .on(
-    //       'postgres_changes',
-    //       { event: '*', schema: 'public', table: 'betsBT' },
-    //       (payload) => {
-    //         this.selectStrategiesBT();
-    //       }
-    //     )
-    //     .subscribe();
-  }
-
   async selectDataMiningMatches(underPercentage: number, sameMatchNumber: number, xPercentage: number) {
     const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatchNumber).lte('over25', underPercentage).gte('pareggio', xPercentage).order('event_date', {ascending: true});
     if(error) {
@@ -365,7 +320,7 @@ export class SupabaseService implements OnDestroy {
       .select<'*', OverMatch>('*')
       .lte('index', index)
       .lte('delta', delta / 100)
-      .lte('diff', diff / 100)
+      .lte('diff', diff)
       .gte('mge', mge)
       .or(`percentage_ov05home.gte.${homePercentage / 100}, percentage_ov05away.gte.${awayPercentage / 100}`)
       // .gte('percentage_ov05home', homePercentage / 100)

@@ -1,4 +1,5 @@
 import { Bet } from "./bet.model";
+import { Bonus } from "./bonus.model";
 
 export interface Strategy {
     id: number;
@@ -8,6 +9,7 @@ export interface Strategy {
     profit: number;
     user_id: string;
     bets: Bet[];
+    bonus: Bonus[];
     total_wagered: number;
     archived: boolean;
 }

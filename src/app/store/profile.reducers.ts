@@ -114,6 +114,24 @@ export const profileReducer = createReducer(
     };
     return ({ loading: false, error: undefined, profile })
   }),
+  on(ProfileActions.addBonus, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
+  on(ProfileActions.addBonusSuccess, (state: ProfileState, { bonus }) => {
+    const strategies = (state.profile?.strategies.filter(s => s.id !== 0) ?? []).map(strategy => {
+      if(strategy.id === bonus.strategy_id) {
+        return {
+          ...strategy,
+          bonus: [...strategy.bonus, bonus]
+        }
+      }
+      return strategy;
+    });
+    const totalStrategy = getTotalStrategy(state.profile!, strategies);
+    const profile = {
+      ...state.profile!,
+      strategies: [totalStrategy, ...strategies]
+    };
+    return ({ loading: false, error: undefined, profile })
+  }),
   on(ProfileActions.deleteStrategy, (state: ProfileState) => ({ ...state, loading: true, error: undefined })),
   on(ProfileActions.deleteStrategySuccess, (state: ProfileState, { strategy }) => {
     const profile = {
@@ -191,6 +209,7 @@ const getTotalStrategy = (profile: Profile, strategies: Strategy[]): Strategy =>
     profit: 0,
     user_id: profile.id,
     bets: [],
+    bonus: [],
     total_wagered: 0,
     archived: false
   }
@@ -201,6 +220,7 @@ const getTotalStrategy = (profile: Profile, strategies: Strategy[]): Strategy =>
       totalStrategy.profit += s.profit;
       totalStrategy.total_wagered += s.total_wagered;
       totalStrategy.bets = [...totalStrategy.bets, ...s.bets]
+      totalStrategy.bonus = [...totalStrategy.bonus, ...s.bonus]
     }
   })
   return totalStrategy;

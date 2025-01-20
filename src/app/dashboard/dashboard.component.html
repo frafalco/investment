@@ -22,6 +22,7 @@
               ></button>
             </div>
           </div>
+          @if(s.type !== 'bonus') {
           <div
             class="card-body row text-center"
             [ngClass]="
@@ -63,6 +64,26 @@
               >Pending Bets {{ s.bets.filter(retrievePendingBets).length }}</small
             >
           </div>
+        } @else {
+          <div
+            class="card-body row text-center"
+            [ngClass]="
+              s.profit > 0
+                ? 'text-success'
+                : 'text-primary'
+            "
+          >
+            <div class="col-md-12">
+              <p>Total Amount</p>
+              <p>
+                ${{
+                  (s.profit)
+                    | number : "1.0-2"
+                }}
+              </p>
+            </div>
+          </div>
+        }
           <div class="card-footer bg-transparent text-center">
             <button class="btn btn-primary" [routerLink]="'/strategy/' + s.id">View Details</button>
           </div>

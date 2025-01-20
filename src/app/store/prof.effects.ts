@@ -123,6 +123,23 @@ export const addBet = createEffect(
   { functional: true }
 );
 
+export const addBonus = createEffect(
+  (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
+    return actions$.pipe(
+      ofType(ProfileActions.addBonus),
+      mergeMap(({ bonus }) =>
+        supabase.insertBonus(bonus).pipe(
+          map((newBonus) => ProfileActions.addBonusSuccess({bonus: newBonus})),
+          catchError((error) =>
+            of(ProfileActions.actionFailure({ error: error.message }))
+          )
+        )
+      )
+    );
+  },
+  { functional: true }
+);
+
 export const deleteStrategy = createEffect(
   (actions$ = inject(Actions), supabase = inject(SupabaseService)) => {
     return actions$.pipe(

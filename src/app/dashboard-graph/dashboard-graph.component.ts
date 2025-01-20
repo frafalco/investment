@@ -16,6 +16,7 @@ import { Observable } from 'rxjs';
 import { Profile } from '../models/profile.model';
 import { DatePipe } from '@angular/common';
 import { Strategy } from '../models/strategy.model';
+import { Bonus } from '../models/bonus.model';
 
 @Component({
   selector: 'app-dashboard-graph',
@@ -30,7 +31,7 @@ export class DashboardGraphComponent {
   @Input() showToolbar: boolean = true;
   @Input() showTitle: boolean = false;
 
-  bets: Bet[] = [];
+  bets: any[] = [];
   strategyName: string = '';
 
   public series!: ApexAxisChartSeries;
@@ -47,7 +48,8 @@ export class DashboardGraphComponent {
     this.strategy$.subscribe((strategy) => {
         if (strategy) {
           this.strategyName = strategy.name;
-          this.bets = [...strategy.bets].sort((a, b) => {
+          const bonus = [...strategy.bonus].map(b => ({date: b.date, profit: b.amount}));
+          this.bets = [...strategy.bets, ...bonus].sort((a, b) => {
             if ((a.date === null || a.date === undefined) && (b.date === null || b.date === undefined)) {
               return 0;
             }

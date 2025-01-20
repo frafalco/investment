@@ -1,58 +1,107 @@
-@if(strategy) {
-  <div class="row mb-3">
-    <div class="col-sm-2">
-      <div class="info-card">
-        <p>
-          Starting Bankroll <b>${{ strategy.starting_bankroll | number : "1.0-2" }}</b>
-        </p>
+@if(strategy) { 
+  @if(strategy.type !== 'bonus') {
+    <div class="row mb-3">
+      <div class="col-sm-2">
+        <div class="info-card">
+          <p>
+            Starting Bankroll
+            <b>${{ strategy.starting_bankroll | number : "1.0-2" }}</b>
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="info-card">
+          <p>
+            Bankroll
+            <b
+              >${{
+                strategy.starting_bankroll + strategy.profit | number : "1.0-2"
+              }}</b
+            >
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="info-card">
+          @if(strategy.type === 'total') {
+          <p>
+            Profit <b>${{ strategy.profit | number : "1.0-2" }}</b>
+          </p>
+          } @else {
+          <p>
+            Units Won
+            <b>{{
+              strategy.profit / (strategy.starting_bankroll / 100)
+                | number : "1.0-1"
+            }}</b>
+          </p>
+          }
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="info-card">
+          <p>
+            Average odds <b>{{ mediaQuota | number : "1.0-2" }}</b>
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="info-card">
+          <p>
+            ROI
+            <b>{{
+              strategy.profit / strategy.starting_bankroll | percent : "1.0-2"
+            }}</b>
+          </p>
+        </div>
+      </div>
+      <div class="col-sm-2">
+        <div class="info-card">
+          <p>
+            Winrate <b>{{ winRate | percent : "1.0-2" }}</b>
+          </p>
+        </div>
       </div>
     </div>
-    <div class="col-sm-2">
-      <div class="info-card">
-        <p>
-          Bankroll
-          <b>${{ strategy.starting_bankroll + strategy.profit | number : "1.0-2" }}</b>
-        </p>
+    <div class="card mb-3">
+      <div class="card-body">
+        <app-dashboard-graph
+          [strategy$]="strategy$"
+          [showTitle]="true"
+        ></app-dashboard-graph>
       </div>
     </div>
-    <div class="col-sm-2">
-      <div class="info-card">
-        @if(strategy.type === 'total') {
-          <p>Profit <b>${{ strategy.profit | number : "1.0-2" }}</b></p>
-        } @else {
-          <p>Units Won <b>{{ strategy.profit / (strategy.starting_bankroll / 100) | number : "1.0-1" }}</b></p>
+    <app-dashboard-table [strategy$]="strategy$"></app-dashboard-table>
+  } @else {
+    <div class="row mb-3">
+      <div class="col-sm-2">
+        <div class="info-card">
+          <p>
+            Total Amount
+            <b>${{ strategy.profit | number : "1.0-2" }}</b>
+          </p>
+        </div>
+      </div>
+    </div>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col" >Date</th>
+          <th scope="col">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (b of bonus; track b.id) {
+        <tr>
+          <td scope="row">{{ b.date | date:'dd/MM/yyyy' }}</td>
+          <td>
+            ${{ b.amount | number : "1.0-2"  }}
+          </td>
+        </tr>
+        } @empty {
+          <p>Non hai ancora inserito nessun bonus, vai alla pagina <a [routerLink]="'/add-bonus'">Add Bonus</a> per aggiungerne</p>
         }
-      </div>
-    </div>
-    <div class="col-sm-2">
-      <div class="info-card">
-        <p>
-            Average odds <b>{{ mediaQuota | number : "1.0-2" }}</b>    
-        </p>
-      </div>
-    </div>
-    <div class="col-sm-2">
-      <div class="info-card">
-        <p>
-          ROI
-          <b>{{
-            strategy.profit / strategy.starting_bankroll | percent : "1.0-2"
-          }}</b>
-        </p>
-      </div>
-    </div>
-    <div class="col-sm-2">
-      <div class="info-card">
-        <p>
-          Winrate <b>{{ winRate | percent : "1.0-2" }}</b>
-        </p>
-      </div>
-    </div>
-  </div>
-  <div class="card mb-3">
-    <div class="card-body">
-      <app-dashboard-graph [strategy$]="strategy$" [showTitle]="true"></app-dashboard-graph>
-    </div>
-  </div>
-  <app-dashboard-table [strategy$]="strategy$"></app-dashboard-table>
+      </tbody>
+    </table>
+  }
 }

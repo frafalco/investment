@@ -32,7 +32,12 @@ export const selectStrategies = createSelector(
 
 export const selectStrategiesAddBet = createSelector(
     selectProfileState,
-    (state) => state.profile?.strategies.filter(s => s.name !== 'Total') //TODO filtrare anche quelle chiuse
+    (state) => state.profile?.strategies.filter(s => s.name !== 'Total' && s.type !== 'bonus')
+);
+
+export const selectStrategiesAddBonus = createSelector(
+    selectProfileState,
+    (state) => state.profile?.strategies.filter(s => s.type === 'bonus')
 );
 
 export const selectStrategyFromId = (strategyId: number) => createSelector(

@@ -3,6 +3,7 @@ import { Profile } from '../models/profile.model';
 import { Bet } from '../models/bet.model';
 import { Strategy } from '../models/strategy.model';
 import { SelectedStrategy } from '../models/selected-strategy.model';
+import { Bonus } from '../models/bonus.model';
 
 export const loadProfile = createAction('[Profile] Load Profile');
 export const loadProfileSuccess = createAction('[Profile] Load Profile Success', props<{ profile: Profile }>());
@@ -24,6 +25,9 @@ export const upsertStrategySuccess = createAction('[Profile] Add Strategy Succes
 
 export const addBet = createAction('[Profile] Add Bet', props<{ bet: Bet }>());
 export const addBetSuccess = createAction('[Profile] Add Bet Success', props<{ bet: Bet }>());
+
+export const addBonus = createAction('[Profile] Add Bonus', props<{ bonus: Bonus }>());
+export const addBonusSuccess = createAction('[Profile] Add Bonus Success', props<{ bonus: Bonus }>());
 
 export const deleteStrategy = createAction('[Profile] Delete Strategy', props<{ strategy_id: number }>());
 export const deleteStrategySuccess = createAction('[Profile] Delete Strategy Success', props<{ strategy: Strategy }>());
