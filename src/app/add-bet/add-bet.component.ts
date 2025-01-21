@@ -180,8 +180,9 @@ export class AddBetComponent {
   }
 
   calculateBet() {
-    if(this.potentialWin && this.bettedUnits && this.oddsCalc) {
-      this.unitToBet = ((this.potentialWin + this.bettedUnits) / this.oddsCalc).toFixed(5);
+    if(this.potentialWin && this.oddsCalc) {
+      const bU = this.bettedUnits ?? 0;
+      this.unitToBet = ((this.potentialWin + bU) / (this.oddsCalc - 1)).toFixed(5);
       this.submitForm.patchValue({ unit: this.unitToBet });
     }
   }
