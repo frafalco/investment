@@ -315,6 +315,15 @@ export class SupabaseService implements OnDestroy {
     return data;
   }
 
+  async selectDataMiningMatchesOver25(underPercentage: number, sameMatchNumber: number, xPercentage: number) {
+    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatchNumber).lte('over25', underPercentage).gte('pareggio', xPercentage).order('event_date', {ascending: true});
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
   async selectOver05Matches(index: number, delta: number, diff: number, mge: number, homePercentage: number, awayPercentage: number) {
     const {data, error} = await this.supabase.from('over_05')
       .select<'*', OverMatch>('*')
