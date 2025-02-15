@@ -2,6 +2,7 @@ export interface DataMiningMatch {
     id: number;
     fixture_id: number;
     event_date: string;
+    real_date: string;
     homeTeam: string;
     awayTeam: string;
     tot_number: number;

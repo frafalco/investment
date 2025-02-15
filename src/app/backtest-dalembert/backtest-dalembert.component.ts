@@ -62,26 +62,25 @@ interface Score {
 }
 
 @Component({
-  selector: 'app-backtest',
+  selector: 'app-backtest-dalembert',
   standalone: true,
   imports: [CommonModule, FormsModule, NgApexchartsModule],
-  templateUrl: './backtest-over.component.html',
-  styleUrl: './backtest-over.component.css',
+  templateUrl: './backtest-dalembert.component.html',
+  styleUrl: './backtest-dalembert.component.css'
 })
-export class BacktestOverComponent {
-  over3matches: number = 0;
-  oddsOver25: number = 0;
-  oddsOver25Mixed: number = 0;
-  oddsOver3: number = 0;
-  unitValue: number = 0;
+export class BacktestDalembertComponent {
+  unitsForProgression: number = 0;
+  multiplier: number = 0;
   underPercentage: number = 0;
+  sameMatchNumber: number = 0;
+  unitValue: number = 0;
+  xPercentage: number = 0;
 
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
   relativeDrawDown: number = 0;
   totalBets: number = 0;
   betWon: number = 0;
-  betPushed: number = 0;
   lostProgressions = 0;
   bets: any[] = [];
   betsArray: any[][] = [];
@@ -90,8 +89,8 @@ export class BacktestOverComponent {
   progressions: Bet[][] = [];
   totalProgressions: any[] = [];
   matches: DataMiningMatch[] = [];
-  mappedBet: Map<number, DataMiningMatch[]> = new Map<
-    number,
+  mappedBet: Map<String, DataMiningMatch[]> = new Map<
+  String,
     DataMiningMatch[]
   >();
   shuffleIndex: number = 0;
@@ -107,7 +106,6 @@ export class BacktestOverComponent {
   public tooltip!: ApexTooltip;
 
   constructor(
-    private httpClient: HttpClient,
     private supabase: SupabaseService
   ) {}
 
@@ -128,15 +126,52 @@ export class BacktestOverComponent {
       this.progressions = [];
       this.totalProgressions = [];
       this.betsArray = [];
-      this.matches = await this.supabase.selectDataMiningMatchesOver25(
+      this.matches = await this.supabase.selectDataMiningMatches(
         this.underPercentage,
+        this.sameMatchNumber,
+        this.xPercentage
       );
       if (this.matches.length > 0) {
-        this.betsStatistics = [];     
-        this.doBTLogic(this.matches, 'Under 2.5', 1);
-        this.doBTLogic(this.matches, 'Under 2', 2);
-        this.doBTLogic(this.matches, 'Mixed', 3);
-        this.initChartData();
+        this.betsStatistics = [];
+        this.mappedBet = this.matches.reduce(
+          (map: Map<String, DataMiningMatch[]>, elem: DataMiningMatch) => {
+            const datePipe1: DatePipe = new DatePipe('en-US');
+            let formattedDate = datePipe1.transform(elem.event_date!, 'YYYY-MM-dd');
+            if(formattedDate != null) {
+              const array = map.get(formattedDate) ?? [];
+              array.push(elem);
+              map.set(formattedDate, array);
+            }
+
+            return map;
+          },
+          new Map<String, DataMiningMatch[]>()
+        );
+        const keys = Array.from(this.mappedBet.keys());
+        const mappedMatches: DataMiningMatch[] = [];
+        let firstDay = new Date('2020-01-01');
+        const datePipe: DatePipe = new DatePipe('en-US');
+        keys.forEach((k) => {
+          firstDay = new Date(firstDay.setDate(firstDay.getDate() + 1));
+          mappedMatches.push(
+            ...this.mappedBet.get(k)!.map((m) => {
+              const currentDate = new Date(m.event_date);
+              const hours = currentDate.getHours();
+              const minutes = currentDate.getMinutes();
+              firstDay.setHours(hours);
+              firstDay.setMinutes(minutes);
+              return {
+                ...m,
+                real_date: m.event_date,
+                event_date: datePipe.transform(
+                  firstDay,
+                  "yyyy-MM-dd'T'HH:mm:ss"
+                )!,
+              };
+            })
+          );
+        });
+        this.doBTLogic(mappedMatches, 'Original');
       }
     } catch (error: any) {
       console.error(error.message);
@@ -145,78 +180,107 @@ export class BacktestOverComponent {
 
   shuffleAndAdd() {
     for (let i = 0; i < 10; i++) {
-      const shuffledMatches = this.shuffleArray(this.matches);
+      const shuffledKeys = this.shuffleArray(Array.from(this.mappedBet.keys()));
+      const shuffledMatches: DataMiningMatch[] = [];
+      let firstDay = new Date('2020-01-01');
+      const datePipe: DatePipe = new DatePipe('en-US');
+      shuffledKeys.forEach((k) => {
+        firstDay = new Date(firstDay.setDate(firstDay.getDate() + 1));
+        shuffledMatches.push(
+          ...this.mappedBet.get(k)!.map((m) => {
+            const currentDate = new Date(m.event_date);
+            const hours = currentDate.getHours();
+            const minutes = currentDate.getMinutes();
+            firstDay.setHours(hours);
+            firstDay.setMinutes(minutes);
+            return {
+              ...m,
+              real_date: m.event_date,
+              event_date: datePipe.transform(
+                firstDay,
+                "yyyy-MM-dd'T'HH:mm:ss"
+              )!,
+            };
+          })
+        );
+      });
+      //"2023-05-02T17:00:00"
       this.shuffleIndex++;
-      this.doBTLogic(shuffledMatches, 'Mixed ' + this.shuffleIndex, 3);
+      this.doBTLogic(shuffledMatches, '' + this.shuffleIndex);
     }
-    this.initChartData();
   }
 
-  //type: 1 under25, 2 under2, 3 mixed
-  doBTLogic(matches: DataMiningMatch[], pIndex: string, type: number) {
+  doBTLogic(matches: DataMiningMatch[], pIndex: string) {
     this.prorgessionResults = new Map<string, number>();
     this.bets = [];
     this.cumulatedProfit = 0;
     this.maxDrawDown = 0;
     this.relativeDrawDown = 0;
-    let over3wons = 0;
+    const BreakException = {};
+    let indexID = 0;
+    let currentProgressionStep = 1;
     let currentUnit;
     let cumulatedProfitUnit = 0;
     let betWon = 0;
     let lostProgressions = 0;
-    let pushBet = 0;
     let currentDrawDown = 0;
     let propertyGoalHome = 'goals_home';
     let propertyGoalAway = 'goals_away';
+    let odds = 3.2;
+    let packNumber = 0;
+    let previousBetTime = 0;
+    let currentProgressionProfit = 0;
+    let currentPackProfit = 0;
+    let packMaxBet = 0;
     const filteredMatches = matches.filter(
       (m: any) => m[propertyGoalHome] !== null && m[propertyGoalAway] !== null
     );
+    const matchesMap = new Map<string, DataMiningMatch[]>();
+    filteredMatches.forEach((m) => {
+      if(new Date(m.event_date).getTime() - previousBetTime >= 7200000) {
+        packNumber++;
+      }
+      previousBetTime = new Date(m.event_date).getTime();
 
-    
-
-    filteredMatches
+      let array = matchesMap.get(`Pacchetto ${packNumber}`);
+      if (array) {
+        array.push(m);
+        matchesMap.set(`Pacchetto ${packNumber}`, array);
+      } else {
+        matchesMap.set(`Pacchetto ${packNumber}`, [m]);
+      }
+    });
+    const keys = Array.from(matchesMap.keys());
+    keys.forEach((key) => {
+      const matchArray = matchesMap.get(key);
+      let packBet = 0;
+      matchArray!
         .forEach((m: any, index, array) => {
-          currentUnit = 1;
+          currentUnit = Math.pow(this.multiplier, currentProgressionStep - 1);
           const currentBet = currentUnit * this.unitValue;
-
-          let odds = this.oddsOver25;
-          if(type === 2) {
-            odds = this.oddsOver3;
-          } else if(type === 3) {
-            if(index % this.over3matches) {
-              odds = this.oddsOver25Mixed;
-            } else {
-              odds = this.oddsOver3;
-            }
-          }
-          let minimunGoal = 2;
-          if(type === 2 || (type === 3 && !(index % this.over3matches))) {
-            minimunGoal = 3;
-          }
-          const isUnder = parseInt(m[propertyGoalHome]) + parseInt(m[propertyGoalAway]) > minimunGoal;
-          let isPush = false;
-          if(type === 2 || (type === 3 && !(index % this.over3matches))) {
-            isPush = parseInt(m[propertyGoalHome]) + parseInt(m[propertyGoalAway]) === 3;
-          }
-          const profit = isUnder ? currentBet * odds - currentBet : isPush ? 0 : -currentBet;
-          const profitUnit = isUnder
+          packBet += currentBet;
+          const isDraw = m[propertyGoalHome] === m[propertyGoalAway];
+          const profit = isDraw ? currentBet * odds - currentBet : -currentBet;
+          const profitUnit = isDraw
             ? currentUnit * odds - currentUnit
-            : isPush ? 0 : -currentUnit;
+            : -currentUnit;
+          currentPackProfit += profitUnit;
           this.cumulatedProfit += profit;
           if (this.cumulatedProfit < this.maxDrawDown) {
             this.maxDrawDown = this.cumulatedProfit;
           }
           cumulatedProfitUnit += profitUnit;
           const bet: any = {
-            id: index,
-            date: index,
+            id: indexID++,
+            date: m.event_date,
+            pack: key,
             bookmaker: 'pippo',
             odds: odds,
             unit: currentUnit,
             bet: currentBet,
-            result: isUnder ? 'won' : isPush ? 'push' : 'lost',
+            result: isDraw ? 'won' : 'lost',
             strategy_id: 999,
-            event: `${m.homeTeam}-${m.awayTeam}`,
+            event: `${m.homeTeam}-${m.awayTeam} [${currentProgressionStep}]`,
             matchResult: `${m[propertyGoalHome]}-${m[propertyGoalAway]}`,
             profitUnit: profitUnit,
             profit: profit,
@@ -229,22 +293,32 @@ export class BacktestOverComponent {
               this.relativeDrawDown = currentDrawDown;
             }
           }
-          if (isUnder) {
+          if (isDraw) {
             currentDrawDown = 0;
             betWon++;
-            if(type === 3 && !(index % this.over3matches)) {
-              over3wons++;
-            }
-          } else if(isPush) {
-            pushBet++;
-          } else  {
-            lostProgressions++;
           }
           this.bets.push(bet);
+        });
+        //todo
+        currentProgressionProfit += currentPackProfit;
+        if (currentPackProfit > 0) {
+          if(currentProgressionProfit >= this.unitsForProgression) {
+            currentProgressionProfit = 0;
+            currentProgressionStep = 1;
+          } else {
+            currentProgressionStep = (currentProgressionStep - 1) || 1;
+          }
+        } else {
+          currentProgressionStep++;
+        }
+        currentPackProfit = 0;
+        if(packBet > packMaxBet) {
+          packMaxBet = packBet;
+        }
+        packBet = 0;
     });
     this.totalBets = this.bets.length;
     this.betWon = betWon;
-    this.betPushed = pushBet;
     this.lostProgressions = lostProgressions;
     this.prorgessionResults = new Map(
       [...this.prorgessionResults.entries()].sort()
@@ -252,16 +326,16 @@ export class BacktestOverComponent {
     this.betsArray.push(this.bets);
     this.betsStatistics.push({
       index: pIndex,
-      name: `${pIndex}`,
+      name: `Progression ${pIndex}`,
       totalBets: this.totalBets,
       betsWon: betWon,
-      betPushed: pushBet,
+      lostProgressions: lostProgressions,
       cumulatedProfit: this.cumulatedProfit,
       maxDrawDown: this.maxDrawDown,
       relativeDrawDown: this.relativeDrawDown,
-      over3wons: over3wons,
-      type: type
+      packMaxBet: packMaxBet,
     });
+    this.initChartData();
   }
 
   initChartData(): void {
@@ -282,7 +356,7 @@ export class BacktestOverComponent {
       const mappedBet = bets.reduce((map: Map<number, number>, elem: Bet) => {
         // let formattedDate = datePipe.transform(elem.date!, 'YYYY-MM-dd')
         // const map = acc as Map<number, number>;
-        const time = new Date().getTime() + (60 * 60 * 1000 * elem.id!);
+        const time = new Date(elem.date!).getTime();
 
         cumulated_profit += elem.profit!;
         map.set(time, cumulated_profit);

@@ -11,6 +11,7 @@ import { BacktestComponent } from './backtest/backtest.component';
 import { BacktestOverComponent } from './backtest-over/backtest-over.component';
 import { AddBonusComponent } from './add-bonus/add-bonus.component';
 import { BacktestUnderComponent } from './backtest-under/backtest-under.component';
+import { BacktestDalembertComponent } from './backtest-dalembert/backtest-dalembert.component';
 
 export const routes: Routes = [
     {path: '', pathMatch: 'full', component: HomeComponent},
@@ -20,6 +21,7 @@ export const routes: Routes = [
     {path: 'login', component: LoginComponent},
     {path: 'profile', component: ProfileComponent},
     {path: 'backtest', component: BacktestComponent},
+    {path: 'backtest-dalembert', component: BacktestDalembertComponent},
     {path: 'backtest-over', component: BacktestOverComponent},
     {path: 'backtest-under', component: BacktestUnderComponent},
     {path: 'edit-strategy/:id', component: EditStrategyComponent},

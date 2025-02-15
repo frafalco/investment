@@ -6,23 +6,41 @@
     </p>
     <div class="row">
       <div class="mb-3 col-sm-2">
-        <label for="progressionLength" class="form-label"
-          >Progression Length</label
+        <label for="under2matches" class="form-label"
+          >Under 2 matches</label
         >
         <input
           type="number"
-          id="progressionLength"
+          id="under2matches"
           class="form-control"
-          [(ngModel)]="progressionLength"
+          [(ngModel)]="under2matches"
         />
       </div>
       <div class="mb-3 col-sm-2">
-        <label for="multiplier" class="form-label">Multiplier</label>
+        <label for="oddsUnder25" class="form-label">Odds Under 2.5 Only</label>
         <input
           type="number"
-          id="multiplier"
+          id="oddsUnder25"
           class="form-control"
-          [(ngModel)]="multiplier"
+          [(ngModel)]="oddsUnder25"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="oddsUnder25Mixed" class="form-label">Odds Under 2.5 Mixed</label>
+        <input
+          type="number"
+          id="oddsUnder25Mixed"
+          class="form-control"
+          [(ngModel)]="oddsUnder25Mixed"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="oddsUnder2" class="form-label">Odds Under 2</label>
+        <input
+          type="number"
+          id="oddsUnder2"
+          class="form-control"
+          [(ngModel)]="oddsUnder2"
         />
       </div>
       <div class="mb-3 col-sm-2">
@@ -43,28 +61,6 @@
           id="underPercentage"
           class="form-control"
           [(ngModel)]="underPercentage"
-        />
-      </div>
-      <div class="mb-3 col-sm-2">
-        <label for="sameMatchNumber" class="form-label"
-          >Same Match Number</label
-        >
-        <input
-          type="number"
-          id="sameMatchNumber"
-          class="form-control"
-          [(ngModel)]="sameMatchNumber"
-        />
-      </div>
-      <div class="mb-3 col-sm-2">
-        <label for="sameMatchNumber" class="form-label"
-          >X percentage</label
-        >
-        <input
-          type="number"
-          id="xPercentage"
-          class="form-control"
-          [(ngModel)]="xPercentage"
         />
       </div>
     </div>
@@ -92,10 +88,14 @@
             <p>{{betsFor.name}}</p>
           </div>
           <div class="col-sm-2 mb-3 text-center">
-              <p>Won: <span class="text-success">{{betsFor.betsWon / betsFor.totalBets | percent: "1.0-2"}}</span>({{betsFor.betsWon}} of {{betsFor.totalBets}})</p>
+              <p>Won: <span class="text-success">{{betsFor.betsWon / (betsFor.totalBets - betsFor.betPushed) | percent: "1.0-2"}}</span>({{betsFor.betsWon}} of {{betsFor.totalBets - betsFor.betPushed}})</p>
+              @if(betsFor.type === 3) {
+                <p>Under 2.5 won <span class="text-success">{{betsFor.betsWon - betsFor.under2wons}}</span></p>
+                <p>Under 2 won <span class="text-success">{{betsFor.under2wons}}</span></p>
+              }
           </div>
           <div class="col-sm-2 mb-3 text-center">
-              <p>Progressions Lost <span class="text-danger">{{betsFor.lostProgressions}}</span></p>
+              <p>Bet Pushed <span class="text-primary">{{betsFor.betPushed}}</span>({{betsFor.betPushed / betsFor.totalBets | percent: "1.0-2"}})</p>
           </div>
           <div class="col-sm-2 mb-3 text-center">
               <p>Profit <span [ngClass]="betsFor.cumulatedProfit > 0 ? 'text-success' : 'text-danger'">${{betsFor.cumulatedProfit | number: "1.0-2"}}</span></p>
@@ -106,6 +106,7 @@
           <div class="col-sm-2 mb-3 text-center">
               <p>Relative Drawdown <span class="text-danger">${{betsFor.relativeDrawDown | number: "1.0-2"}}</span></p>
           </div>
+          
           <!-- <div class="d-flex mb-3 text-center justify-content-around">
               @for(entry of prorgessionResults.entries(); track entry[0]) {
                   <h3>{{entry[0]}}: {{entry[1]}}</h3>
