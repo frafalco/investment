@@ -6,6 +6,19 @@
     </p>
     <div class="row">
       <div class="mb-3 col-sm-2">
+        <label for="table" class="form-label"
+          >Table</label
+        >
+        <select
+          id="table"
+          class="form-select"
+          [(ngModel)]="table"
+        >
+        <option value="old">Old</option>
+        <option value="new">New</option>
+      </select>
+      </div>
+      <div class="mb-3 col-sm-2">
         <label for="over3matches" class="form-label"
           >Over 3 matches</label
         >
@@ -52,7 +65,7 @@
           [(ngModel)]="unitValue"
         />
       </div>
-      <div class="mb-3 col-sm-2">
+      <div class="mb-3 col-sm-2 offset-sm-4">
         <label for="underPercentage" class="form-label"
           >Minimum Over2.5 Percentage</label
         >
@@ -61,6 +74,17 @@
           id="underPercentage"
           class="form-control"
           [(ngModel)]="underPercentage"
+        />
+      </div>
+      <div class="mb-3 col-sm-2">
+        <label for="sameMatch" class="form-label"
+          >Same Match</label
+        >
+        <input
+          type="number"
+          id="sameMatch"
+          class="form-control"
+          [(ngModel)]="sameMatch"
         />
       </div>
     </div>

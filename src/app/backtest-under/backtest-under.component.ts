@@ -69,12 +69,14 @@ interface Score {
   styleUrl: './backtest-under.component.css',
 })
 export class BacktestUnderComponent {
+  table: string = "old";
   under2matches: number = 0;
   oddsUnder25: number = 0;
   oddsUnder25Mixed: number = 0;
   oddsUnder2: number = 0;
   unitValue: number = 0;
   underPercentage: number = 0;
+  sameMatch: number = 0;
 
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
@@ -128,9 +130,43 @@ export class BacktestUnderComponent {
       this.progressions = [];
       this.totalProgressions = [];
       this.betsArray = [];
-      this.matches = await this.supabase.selectDataMiningMatchesUnder25(
-        this.underPercentage,
-      );
+      if(this.table === 'old') {
+        this.matches = await this.supabase.selectDataMiningMatchesUnder25(
+          this.underPercentage,
+          this.sameMatch
+        );
+      } else {
+        const newMatches = await this.supabase.selectNewDataMiningMatchesUnder25(
+          this.underPercentage / 100,
+          this.sameMatch
+        );
+        this.matches = newMatches.map(m => {
+          return {
+            id: m.id,
+            fixture_id: 0,
+            event_date: `${m.date}T${m.hour}`,
+            real_date: `${m.date}T${m.hour}`,
+            homeTeam: '',
+            awayTeam: '',
+            tot_number: m.same_match,
+            uno: 0,
+            pareggio: 0,
+            due: 0,
+            gol: 0,
+            over15: 0,
+            over25: m.ov25_perc,
+            under35: 0,
+            over05pt: 0,
+            golospite: 0,
+            risultati: null,
+            goals_home: m.home_goals,
+            goals_away: m.away_goals,
+            score_ht_home: null,
+            score_ht_away: null,
+            canceled: false,
+          };
+        })
+      }
       if (this.matches.length > 0) {
         this.betsStatistics = [];     
         this.doBTLogic(this.matches, 'Under 2.5', 1);

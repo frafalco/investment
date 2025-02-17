@@ -20,6 +20,7 @@ import { BetBT } from '../models/bet_bt.model';
 import { DataMiningMatch } from '../models/datamining_match';
 import { OverMatch } from '../models/over_match';
 import { Bonus } from '../models/bonus.model';
+import { NewDataMiningMatch } from '../models/new_datamining_match';
 
 @Injectable({
   providedIn: 'root',
@@ -315,8 +316,8 @@ export class SupabaseService implements OnDestroy {
     return data;
   }
 
-  async selectDataMiningMatchesUnder25(underPercentage: number) {
-    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').lte('over25', underPercentage).order('event_date', {ascending: true});
+  async selectDataMiningMatchesUnder25(underPercentage: number, sameMatch: number) {
+    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatch).lte('over25', underPercentage).order('event_date', {ascending: true});
     if(error) {
       throw new Error(error.message);
     }
@@ -324,8 +325,26 @@ export class SupabaseService implements OnDestroy {
     return data;
   }
 
-  async selectDataMiningMatchesOver25(underPercentage: number) {
-    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('over25', underPercentage).order('event_date', {ascending: true});
+  async selectNewDataMiningMatchesUnder25(underPercentage: number, sameMatch: number) {
+    const {data, error} = await this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*').gte('same_match', sameMatch).lte('ov25_perc', underPercentage).order('date', {ascending: true}).order('hour', {ascending: true});
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async selectDataMiningMatchesOver25(underPercentage: number, sameMatch: number) {
+    const {data, error} = await this.supabase.from('data_mining').select<'*', DataMiningMatch>('*').gte('tot_number', sameMatch).gte('over25', underPercentage).order('event_date', {ascending: true});
+    if(error) {
+      throw new Error(error.message);
+    }
+
+    return data;
+  }
+
+  async selectNewDataMiningMatchesOver25(underPercentage: number, sameMatch: number) {
+    const {data, error} = await this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*').gte('ov25_perc', underPercentage).gte('same_match', sameMatch).order('date', {ascending: true}).order('hour', {ascending: true});
     if(error) {
       throw new Error(error.message);
     }

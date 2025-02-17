@@ -15,7 +15,7 @@ export interface DataMiningMatch {
     under35: number;
     over05pt: number;
     golospite: number;
-    risultati: Map<string, number>;
+    risultati: Map<string, number> | null;
     goals_home: number | null;
     goals_away: number | null;
     score_ht_home: number | null;
