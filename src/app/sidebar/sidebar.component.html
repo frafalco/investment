@@ -1,4 +1,4 @@
-<div
+<!-- <div
   class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100"
   style="width: 280px"
 >
@@ -60,4 +60,186 @@
       }
     </div>
   </div>
+</div> -->
+
+<!-- <nav class="navbar navbar-expand-lg navbar-light mb-3 text-white bg-dark h-100 navbar-custom">
+	<div class="container-fluid container-custom">
+
+		<button class="navbar-toggler text-white border-white" type="button" (click)="isMenuCollapsed = !isMenuCollapsed">&#9776;</button>
+
+		<div [ngbCollapse]="isMenuCollapsed" class="collapse navbar-collapse">
+			<div
+    ngbNav
+    #nav="ngbNav"
+    class="nav-pills flex-column"
+    orientation="vertical"
+    [activeId]="activeItem"
+  >
+    <ng-container ngbNavItem="/">
+      <button ngbNavLink [routerLink]="'/'">Home</button>
+    </ng-container>
+    <ng-container ngbNavItem="/profile">
+      <button ngbNavLink [routerLink]="'/profile'">Profile</button>
+    </ng-container>
+    <ng-container ngbNavItem="/dashboard">
+      <button ngbNavLink [routerLink]="'/dashboard'">Dashboard</button>
+    </ng-container>
+    <ng-container ngbNavItem="/add-bet">
+      <button ngbNavLink [routerLink]="'/add-bet'">Add Bet</button>
+    </ng-container>
+    <ng-container ngbNavItem="/add-bonus">
+      <button ngbNavLink [routerLink]="'/add-bonus'">Add Bonus</button>
+    </ng-container>
+    <ng-container ngbNavItem="/backtest">
+      <button ngbNavLink [routerLink]="'/backtest'">Backtest</button>
+    </ng-container>
+    <ng-container ngbNavItem="/backtest-over">
+      <button ngbNavLink [routerLink]="'/backtest-over'">Backtest Over</button>
+    </ng-container>
+    <ng-container ngbNavItem="/backtest-under">
+      <button ngbNavLink [routerLink]="'/backtest-under'">Backtest Under</button>
+    </ng-container>
+  </div>
+		</div>
+	</div>
+</nav> -->
+
+<!-- Pulsante per aprire la sidebar su mobile -->
+ <div class="bg-dark h-100 d-md-none">
+  <button
+  class="btn btn-small m-2 text-white"
+  type="button"
+  (click)="openSidebar(sidebar)"
+>
+  <i class="bi bi-list"></i> Menu
+</button>
+ </div>
+
+<!-- Sidebar versione desktop -->
+<div
+  class="sidebar d-none d-md-flex flex-column flex-shrink-0 p-3 text-white bg-dark h-100 justify-content-between"
+>
+  <div>
+    <a
+      [routerLink]="'/'"
+      class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none"
+    >
+      <span class="fs-4">Investments App</span>
+    </a>
+    <hr />
+  </div>
+  <div
+    ngbNav
+    #nav="ngbNav"
+    class="nav-pills flex-column"
+    orientation="vertical"
+    [activeId]="activeItem"
+  >
+    <ng-container ngbNavItem="/">
+      <button ngbNavLink [routerLink]="'/'">Home</button>
+    </ng-container>
+    <ng-container ngbNavItem="/profile">
+      <button ngbNavLink [routerLink]="'/profile'">Profile</button>
+    </ng-container>
+    <ng-container ngbNavItem="/dashboard">
+      <button ngbNavLink [routerLink]="'/dashboard'">Dashboard</button>
+    </ng-container>
+    <ng-container ngbNavItem="/add-bet">
+      <button ngbNavLink [routerLink]="'/add-bet'">Add Bet</button>
+    </ng-container>
+    <ng-container ngbNavItem="/add-bonus">
+      <button ngbNavLink [routerLink]="'/add-bonus'">Add Bonus</button>
+    </ng-container>
+    <ng-container ngbNavItem="/backtest">
+      <button ngbNavLink [routerLink]="'/backtest'">Backtest</button>
+    </ng-container>
+    <ng-container ngbNavItem="/backtest-over">
+      <button ngbNavLink [routerLink]="'/backtest-over'">Backtest Over</button>
+    </ng-container>
+    <ng-container ngbNavItem="/backtest-under">
+      <button ngbNavLink [routerLink]="'/backtest-under'">Backtest Under</button>
+    </ng-container>
+  </div>
+  <div>
+    <hr />
+    <div ngbDropdown class="d-inline-block text-center">
+      <button
+        class="btn btn-link text-decoration-none text-white"
+        id="dropdownUser1"
+        ngbDropdownToggle
+      >
+        <i class="bi bi-person-circle me-2"></i>
+        <strong>{{ (username$ | async) || 'Anonymous' }}</strong>
+      </button>
+      <div ngbDropdownMenu aria-labelledby="dropdownUser1">
+        @if (username$ | async) {
+        <button ngbDropdownItem (click)="signOut()">Sign out</button>
+        } @else {
+          <button ngbDropdownItem [routerLink]="'/login'">Sign In</button>
+        }
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- Sidebar offcanvas per mobile -->
+<ng-template #sidebar let-offcanvas>
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">Investments App</h5>
+      <button type="button" class="btn-close btn-close-white" (click)="offcanvas.dismiss()"></button>
+    </div>
+    <div class="offcanvas-body">
+      <div
+        ngbNav
+        #nav="ngbNav"
+        class="nav-pills flex-column"
+        orientation="vertical"
+        [activeId]="activeItem"
+      >
+        <ng-container ngbNavItem="/">
+          <button ngbNavLink [routerLink]="'/'">Home</button>
+        </ng-container>
+        <ng-container ngbNavItem="/profile">
+          <button ngbNavLink [routerLink]="'/profile'">Profile</button>
+        </ng-container>
+        <ng-container ngbNavItem="/dashboard">
+          <button ngbNavLink [routerLink]="'/dashboard'">Dashboard</button>
+        </ng-container>
+        <ng-container ngbNavItem="/add-bet">
+          <button ngbNavLink [routerLink]="'/add-bet'">Add Bet</button>
+        </ng-container>
+        <ng-container ngbNavItem="/add-bonus">
+          <button ngbNavLink [routerLink]="'/add-bonus'">Add Bonus</button>
+        </ng-container>
+        <ng-container ngbNavItem="/backtest">
+          <button ngbNavLink [routerLink]="'/backtest'">Backtest</button>
+        </ng-container>
+        <ng-container ngbNavItem="/backtest-over">
+          <button ngbNavLink [routerLink]="'/backtest-over'">Backtest Over</button>
+        </ng-container>
+        <ng-container ngbNavItem="/backtest-under">
+          <button ngbNavLink [routerLink]="'/backtest-under'">Backtest Under</button>
+        </ng-container>
+      </div>
+      <div>
+        <hr />
+        <div ngbDropdown class="d-inline-block text-center">
+          <button
+            class="btn btn-link text-decoration-none text-white"
+            id="dropdownUser1"
+            ngbDropdownToggle
+          >
+            <i class="bi bi-person-circle me-2"></i>
+            <strong>{{ (username$ | async) || 'Anonymous' }}</strong>
+          </button>
+          <div ngbDropdownMenu aria-labelledby="dropdownUser1">
+            @if (username$ | async) {
+            <button ngbDropdownItem (click)="signOut()">Sign out</button>
+            } @else {
+              <button ngbDropdownItem [routerLink]="'/login'">Sign In</button>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+</ng-template>
