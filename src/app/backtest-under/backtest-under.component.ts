@@ -19,6 +19,7 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { DataMiningMatch } from '../models/datamining_match';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 interface FixturesResponse {
   results: number;
@@ -64,11 +65,13 @@ interface Score {
 @Component({
   selector: 'app-backtest',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgApexchartsModule],
+  imports: [CommonModule, FormsModule, NgApexchartsModule, NgbNavModule],
   templateUrl: './backtest-under.component.html',
   styleUrl: './backtest-under.component.css',
 })
 export class BacktestUnderComponent {
+  active = 0;
+
   table: string = "old";
   under2matches: number = 0;
   oddsUnder25: number = 0;
@@ -87,6 +90,7 @@ export class BacktestUnderComponent {
   lostProgressions = 0;
   bets: any[] = [];
   betsArray: any[][] = [];
+  betsTableArray: any[] = [];
   betsStatistics: any[] = [];
   prorgessionResults = new Map<string, number>();
   progressions: Bet[][] = [];
@@ -130,6 +134,7 @@ export class BacktestUnderComponent {
       this.progressions = [];
       this.totalProgressions = [];
       this.betsArray = [];
+      this.betsTableArray = [];
       if(this.table === 'old') {
         this.matches = await this.supabase.selectDataMiningMatchesUnder25(
           this.underPercentage,
@@ -146,8 +151,8 @@ export class BacktestUnderComponent {
             fixture_id: 0,
             event_date: `${m.date}T${m.hour}`,
             real_date: `${m.date}T${m.hour}`,
-            homeTeam: '',
-            awayTeam: '',
+            homeTeam: m.match.split(' - ')[0],
+            awayTeam: m.match.split(' - ')[1],
             tot_number: m.same_match,
             uno: 0,
             pareggio: 0,
@@ -258,6 +263,7 @@ export class BacktestUnderComponent {
             profit: profit,
             cumulatedProfit: this.cumulatedProfit,
             cumulatedProfitUnit: cumulatedProfitUnit,
+            real_date: m.real_date,
           };
           if (profit < 0) {
             currentDrawDown += profit;
@@ -286,6 +292,10 @@ export class BacktestUnderComponent {
       [...this.prorgessionResults.entries()].sort()
     );
     this.betsArray.push(this.bets);
+    this.betsTableArray.push({
+      name: pIndex,
+      bets: this.bets
+    });
     this.betsStatistics.push({
       index: pIndex,
       name: `${pIndex}`,
