@@ -6,6 +6,20 @@
     </p>
     <div class="row">
       <div class="mb-3 col-sm-2">
+        <label for="table" class="form-label"
+          >Table</label
+        >
+        <select
+          id="table"
+          class="form-select"
+          [(ngModel)]="table"
+        >
+        <option value="old">Old</option>
+        <option value="old-updated">Old Updated</option>
+        <option value="new">New</option>
+      </select>
+      </div>
+      <div class="mb-3 col-sm-2">
         <label for="progressionLength" class="form-label"
           >Progression Length</label
         >
@@ -125,7 +139,7 @@
   [tooltip]="tooltip"
   [autoUpdateSeries]="true"
 ></apx-chart>
-    <!-- <table class="table table-striped">
+    <table class="table table-striped">
       <thead class="sticky-top">
         <tr>
           <th scope="col">Date</th>
@@ -145,7 +159,7 @@
       <tbody>
         @for(bet of bets; track bet.id) {
             <tr>
-                <td scope="row">{{ bet.date | date:'dd/MM/yyyy HH:mm' }}</td>
+                <td scope="row">{{ bet.real_date | date:'dd/MM/yyyy HH:mm' }}</td>
                 <td>
                   {{ bet.event }}
                 </td>
@@ -172,7 +186,7 @@
               </tr>
         }
       </tbody>
-    </table> -->
+    </table>
     
   </div>
 </div>
