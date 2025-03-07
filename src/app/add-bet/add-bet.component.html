@@ -175,18 +175,14 @@
 		<button type="button" class="btn-close" aria-label="Close" (click)="modal.close()"></button>
 	</div>
 	<div class="modal-body">
-		<div class="row g-8">
+		<div class="row g-8 align-items-end">
       <div class="mb-3 col-md-6">
         <label for="potentialWin" class="form-label">How many units would you like to win?</label>
         <input id="potentialWin" type="number" class="form-control" [(ngModel)]="potentialWin" (ngModelChange)="calculateBet()">
       </div>
       <div class="mb-3 col-md-6">
-        <label for="bettedUnits" class="form-label">How many units have you already bet?</label>
-        <input id="bettedUnits" type="number" class="form-control" [(ngModel)]="bettedUnits" (ngModelChange)="calculateBet()">
-      </div>
-      <div class="mb-3 col-md-6">
         <label for="oddsCalc" class="form-label">Odds</label>
-        <input id="oddsCalc" disabled type="number" step="0.01" class="form-control" [(ngModel)]="oddsCalc" (ngModelChange)="calculateBet()">
+        <input id="oddsCalc" type="number" step="0.01" class="form-control" [(ngModel)]="oddsCalc" (ngModelChange)="calculateBet()">
       </div>
       <div class="mb-3 col-md-6">
         <label for="unitToBet" class="form-label">Unit to bet</label>

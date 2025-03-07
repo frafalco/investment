@@ -42,7 +42,6 @@ export class AddBetComponent {
   isLive: boolean = false;
 
   potentialWin: number | undefined;
-  bettedUnits: number | undefined;
   oddsCalc: number | undefined;
   unitToBet: string | undefined;
 
@@ -181,9 +180,8 @@ export class AddBetComponent {
 
   calculateBet() {
     if(this.potentialWin && this.oddsCalc) {
-      const bU = this.bettedUnits ?? 0;
-      this.unitToBet = ((this.potentialWin + bU) / (this.oddsCalc - 1)).toFixed(5);
-      this.submitForm.patchValue({ unit: this.unitToBet });
+      this.unitToBet = ((this.potentialWin) / (this.oddsCalc - 1)).toFixed(5);
+      this.submitForm.patchValue({ unit: this.unitToBet, odds: this.oddsCalc });
     }
   }
 }
