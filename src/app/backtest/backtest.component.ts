@@ -184,7 +184,8 @@ export class BacktestComponent {
         const newMatches = await this.supabase.selectNewDataMiningMatches(
           this.underPercentage / 100,
           this.sameMatchNumber,
-          this.xPercentage / 100
+          this.xPercentage / 100,
+          -999
         );
         this.matches = newMatches.map(m => {
           return {
