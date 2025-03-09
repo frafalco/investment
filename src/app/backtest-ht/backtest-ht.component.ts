@@ -74,6 +74,7 @@ export class BacktestHtComponent {
   sameMatchNumber: number = 0;
   unitValue: number = 0;
   xPercentage: number = 0;
+  diff: number = 0;
 
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
@@ -135,7 +136,8 @@ export class BacktestHtComponent {
         const newMatches = await this.supabase.selectNewDataMiningMatches(
           this.underPercentage / 100,
           this.sameMatchNumber,
-          this.xPercentage / 100
+          this.xPercentage / 100,
+          this.diff
         );
         this.matches = newMatches.map(m => {
           return {

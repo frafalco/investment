@@ -325,13 +325,25 @@ export class SupabaseService implements OnDestroy {
     return data;
   }
 
-  async selectNewDataMiningMatches(underPercentage: number, sameMatchNumber: number, xPercentage: number) {
-    const {data, error} = await this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*').gte('same_match', sameMatchNumber).lte('ov25_perc', underPercentage).gte('draw_perc', xPercentage).order('date', {ascending: true}).order('hour', {ascending: true});
+  async selectNewDataMiningMatches(underPercentage: number, sameMatchNumber: number, xPercentage: number, diff: number) {
+    const {data, error} = await this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*').gte('same_match', sameMatchNumber).lte('ov25_perc', underPercentage).gte('draw_perc', xPercentage).gte('diff', diff).order('date', {ascending: true}).order('hour', {ascending: true});
     if(error) {
       throw new Error(error.message);
     }
 
     return data;
+  }
+
+  selectNewDataMiningAllMatches(): Observable<NewDataMiningMatch[]> {
+    const query = this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*').order('date', {ascending: true}).order('hour', {ascending: true});
+    return from(
+      query.then(({ data, error }) => {
+        if (error) {
+          throw new Error(error.message);
+        }
+        return data;
+      })
+    );
   }
 
   async selectDataMiningMatchesUnder25(underPercentage: number, sameMatch: number) {
