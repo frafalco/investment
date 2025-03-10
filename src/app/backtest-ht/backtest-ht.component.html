@@ -5,7 +5,7 @@
         Choose your criteria and perform the backtest.
       </p>
       <div class="row">
-        <div class="mb-3 col-sm-2">
+        <!-- <div class="mb-3 col-sm-2">
           <label for="table" class="form-label"
             >Table</label
           >
@@ -18,7 +18,7 @@
           <option value="old-updated">Old Updated</option>
           <option value="new">New</option>
         </select>
-        </div>
+        </div> -->
         <div class="mb-3 col-sm-2">
           <label for="unitValue" class="form-label">Unit Value</label>
           <input
@@ -63,13 +63,79 @@
         </div>
         <div class="mb-3 col-sm-2">
           <label for="sameMatchNumber" class="form-label"
-            >Diff (only for 'New' table)</label
+            >Diff</label
           >
           <input
             type="number"
             id="diff"
             class="form-control"
             [(ngModel)]="diff"
+          />
+        </div>
+        <div class="mb-3 col-sm-2">
+          <label for="sameMatchNumber" class="form-label"
+            >MGE</label
+          >
+          <input
+            type="number"
+            id="mge"
+            class="form-control"
+            [(ngModel)]="mge"
+          />
+        </div>
+        <div class="mb-3 col-sm-2">
+          <label for="sameMatchNumber" class="form-label"
+            >Over2.5 odds</label
+          >
+          <input
+            type="number"
+            id="ov25odds"
+            class="form-control"
+            [(ngModel)]="ov25odds"
+          />
+        </div>
+        <div class="mb-3 col-sm-2">
+          <label for="sameMatchNumber" class="form-label"
+            >Under3.5 odds</label
+          >
+          <input
+            type="number"
+            id="un35odds"
+            class="form-control"
+            [(ngModel)]="un35odds"
+          />
+        </div>
+        <div class="mb-3 col-sm-2">
+          <label for="sameMatchNumber" class="form-label"
+            >Indice Chris</label
+          >
+          <input
+            type="number"
+            id="ic"
+            class="form-control"
+            [(ngModel)]="ic"
+          />
+        </div>
+        <div class="mb-3 col-sm-2">
+          <label for="sameMatchNumber" class="form-label"
+            >IGBC</label
+          >
+          <input
+            type="number"
+            id="igbc"
+            class="form-control"
+            [(ngModel)]="igbc"
+          />
+        </div>
+        <div class="mb-3 col-sm-2">
+          <label for="sameMatchNumber" class="form-label"
+            >IGBO</label
+          >
+          <input
+            type="number"
+            id="igbo"
+            class="form-control"
+            [(ngModel)]="igbo"
           />
         </div>
       </div>

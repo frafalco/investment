@@ -185,7 +185,13 @@ export class BacktestComponent {
           this.underPercentage / 100,
           this.sameMatchNumber,
           this.xPercentage / 100,
-          -999
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
         );
         this.matches = newMatches.map(m => {
           return {

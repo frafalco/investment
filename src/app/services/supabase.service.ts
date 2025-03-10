@@ -325,8 +325,39 @@ export class SupabaseService implements OnDestroy {
     return data;
   }
 
-  async selectNewDataMiningMatches(underPercentage: number, sameMatchNumber: number, xPercentage: number, diff: number) {
-    const {data, error} = await this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*').gte('same_match', sameMatchNumber).lte('ov25_perc', underPercentage).gte('draw_perc', xPercentage).gte('diff', diff).order('date', {ascending: true}).order('hour', {ascending: true});
+  async selectNewDataMiningMatches(underPercentage: number | null, sameMatchNumber: number | null, xPercentage: number | null, diff: number | null, mge: number | null, ov25odds: number | null, un35odds: number | null, ic: number | null, igbc: number | null, igbo: number | null) {
+    let query = this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*');
+    if(sameMatchNumber !== null) {
+      query = query.gte('same_match', sameMatchNumber);
+    }
+    if(underPercentage !== null) {
+      query = query.lte('ov25_perc', underPercentage / 100);
+    }
+    if(xPercentage !== null) {
+      query = query.gte('draw_perc', xPercentage / 100);
+    }
+    if(diff !== null) {
+      query = query.gte('diff', diff);
+    }
+    if(mge !== null) {
+      query = query.lte('mge', mge);
+    }
+    if(ov25odds !== null) {
+      query = query.gte('ov25_odds', ov25odds);
+    }
+    if(un35odds !== null) {
+      query = query.lte('un35_odds', un35odds);
+    }
+    if(ic !== null) {
+      query = query.gte('ic', ic);
+    }
+    if(igbc !== null) {
+      query = query.lte('igbc', igbc);
+    }
+    if(igbo !== null) {
+      query = query.lte('igbo', igbo);
+    }
+    const {data, error} = await query.order('date', {ascending: true}).order('hour', {ascending: true});
     if(error) {
       throw new Error(error.message);
     }

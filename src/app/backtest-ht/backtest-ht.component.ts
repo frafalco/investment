@@ -69,12 +69,18 @@ interface Score {
   styleUrl: './backtest-ht.component.css',
 })
 export class BacktestHtComponent {
-  table: string = "old";
-  underPercentage: number = 0;
-  sameMatchNumber: number = 0;
-  unitValue: number = 0;
-  xPercentage: number = 0;
-  diff: number = 0;
+  table: string = "new";
+  unitValue: number = 1;
+  underPercentage: number | null = null;
+  sameMatchNumber: number | null = null;
+  xPercentage: number | null = null;
+  diff: number | null = null;
+  mge: number | null = null;
+  ov25odds: number | null = null;
+  un35odds: number | null = null;
+  ic: number | null = null;
+  igbc: number | null = null;
+  igbo: number | null = null;
 
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
@@ -117,27 +123,34 @@ export class BacktestHtComponent {
 
   async runBacktest() {
     try {
+      console.log(this.mge)
       this.shuffleIndex = 0;
       this.bets = [];
       this.betsArray = [];
       if(this.table === 'old') {
-        this.matches = await this.supabase.selectDataMiningMatches(
-          this.underPercentage,
-          this.sameMatchNumber,
-          this.xPercentage
-        );
+        // this.matches = await this.supabase.selectDataMiningMatches(
+        //   this.underPercentage,
+        //   this.sameMatchNumber,
+        //   this.xPercentage
+        // );
       } else if(this.table === 'old-updated') {
-        this.matches = await this.supabase.selectDataMiningUpdatedMatches(
-          this.underPercentage,
-          this.sameMatchNumber,
-          this.xPercentage
-        );
+        // this.matches = await this.supabase.selectDataMiningUpdatedMatches(
+        //   this.underPercentage,
+        //   this.sameMatchNumber,
+        //   this.xPercentage
+        // );
       } else {
         const newMatches = await this.supabase.selectNewDataMiningMatches(
-          this.underPercentage / 100,
+          this.underPercentage,
           this.sameMatchNumber,
-          this.xPercentage / 100,
-          this.diff
+          this.xPercentage,
+          this.diff,
+          this.mge,
+          this.ov25odds,
+          this.un35odds,
+          this.ic,
+          this.igbc,
+          this.igbo
         );
         this.matches = newMatches.map(m => {
           return {
