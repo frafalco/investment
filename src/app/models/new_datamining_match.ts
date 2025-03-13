@@ -1,6 +1,6 @@
 export interface NewDataMiningMatch {
     id: number;
-    date: number;
+    date: string;
     hour: string;
     match: string;
     result: string;

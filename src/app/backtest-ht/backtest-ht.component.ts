@@ -109,7 +109,13 @@ export class BacktestHtComponent {
 
   constructor(
     private supabase: SupabaseService
-  ) {}
+  ) {
+    supabase.selectNewDataMiningAllMatches().subscribe(data => {
+      console.log(data);
+      const newData = data.map(({home_goals, away_goals, home_goalsht, away_goalsht, result, halftime_result, ...keepAttrs}) => keepAttrs)
+      console.log(JSON.stringify(newData));
+    });
+  }
 
   shuffleArray(array: any[]) {
     for (let i = array.length - 1; i > 0; i--) {

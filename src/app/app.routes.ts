@@ -13,6 +13,7 @@ import { AddBonusComponent } from './add-bonus/add-bonus.component';
 import { BacktestUnderComponent } from './backtest-under/backtest-under.component';
 import { BacktestDalembertComponent } from './backtest-dalembert/backtest-dalembert.component';
 import { BacktestHtComponent } from './backtest-ht/backtest-ht.component';
+import { JsonUtilityComponent } from './json-utility/json-utility.component';
 
 export const routes: Routes = [
     {path: '', pathMatch: 'full', component: HomeComponent},
@@ -28,5 +29,6 @@ export const routes: Routes = [
     {path: 'backtest-under', component: BacktestUnderComponent},
     {path: 'edit-strategy/:id', component: EditStrategyComponent},
     {path: 'strategy/:id', component: DashboardInfoComponent},
+    {path: 'json', component: JsonUtilityComponent},
     {path: '**', redirectTo: '/'}
 ];
