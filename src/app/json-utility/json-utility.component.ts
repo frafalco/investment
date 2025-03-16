@@ -46,6 +46,14 @@ export class JsonUtilityComponent {
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
+      // const dataFiltered = data.filter(elem => {
+      //   const diff = elem.igbc - elem.igbo;
+      //   // return elem.draw_perc >= 0.29 && diff < 30 && diff > -30 && elem.diff >= -0.3;
+      //   return elem.draw_perc >= 0.26 && (elem.diff != null && elem.diff >= -0.3) && diff < 45 && diff > -45;
+      // })
+      // console.log(dataFiltered);
+      // const xMatches = dataFiltered.filter(elem => elem.home_goalsht === elem.away_goalsht);
+      // console.log(xMatches)
 
       this.store.dispatch(ProfileActions.removeLoader());
     });

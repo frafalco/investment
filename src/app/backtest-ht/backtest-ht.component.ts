@@ -19,6 +19,7 @@ import {
   NgApexchartsModule,
 } from 'ng-apexcharts';
 import { DataMiningMatch } from '../models/datamining_match';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 
 interface FixturesResponse {
   results: number;
@@ -64,12 +65,16 @@ interface Score {
 @Component({
   selector: 'app-backtest',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgApexchartsModule],
+  imports: [CommonModule, FormsModule, NgApexchartsModule, NgbNavModule],
   templateUrl: './backtest-ht.component.html',
   styleUrl: './backtest-ht.component.css',
 })
 export class BacktestHtComponent {
+  active = 0;
+
   table: string = "new";
+  kelly: number = 1.5;
+  dalambert: number = 2;
   unitValue: number = 1;
   underPercentage: number | null = null;
   sameMatchNumber: number | null = null;
@@ -82,12 +87,9 @@ export class BacktestHtComponent {
   igbc: number | null = null;
   igbo: number | null = null;
 
-  cumulatedProfit: number = 0;
-  maxDrawDown: number = 0;
-  relativeDrawDown: number = 0;
   totalBets: number = 0;
   betWon: number = 0;
-  bets: any[] = [];
+  betsTableArray: any[] = [];
   betsArray: any[][] = [];
   betsStatistics: any[] = [];
   matches: DataMiningMatch[] = [];
@@ -131,8 +133,8 @@ export class BacktestHtComponent {
     try {
       console.log(this.mge)
       this.shuffleIndex = 0;
-      this.bets = [];
       this.betsArray = [];
+      this.betsTableArray = [];
       if(this.table === 'old') {
         // this.matches = await this.supabase.selectDataMiningMatches(
         //   this.underPercentage,
@@ -259,35 +261,43 @@ export class BacktestHtComponent {
     }
   }
 
-  doBTLogic(matches: DataMiningMatch[], pIndex: string) {
-    this.bets = [];
-    this.cumulatedProfit = 0;
-    this.maxDrawDown = 0;
-    this.relativeDrawDown = 0;
-    const BreakException = {};
-    let indexID = 0;
-    let currentUnit;
-    let cumulatedProfitUnit = 0;
-    let betWon = 0;
-    let lostProgressions = 0;
+  doKellyLogic(matches: DataMiningMatch[], pIndex: string) {
+    const bets: any[] = [];
+    let currentBankroll = 100;
+    let cumulatedProfit = 0;
+    let shortfall = 0;
+    let relativeDrawDown = 0;
     let currentDrawDown = 0;
-    let odds = 2;
+    let cumulatedProfitUnit = 0;
+    let packNumber = 0;
+    let previousBetTime = 0;
+    const odds = 2;
+    let indexID = 0;
+    let betWon = 0;
+    
     const filteredMatches = matches.filter(
       (m: any) => m['score_ht_home'] !== null && m['score_ht_away'] !== null
     );
+
     const matchesMap = new Map<string, DataMiningMatch[]>();
     filteredMatches.forEach((m) => {
-      let array = matchesMap.get(m.event_date);
+      if(new Date(m.event_date).getTime() - previousBetTime >= 3600000) {
+        packNumber++;
+      }
+      previousBetTime = new Date(m.event_date).getTime();
+      let array = matchesMap.get(`Pacchetto ${packNumber}`);
       if (array) {
         array.push(m);
-        matchesMap.set(m.event_date, array);
+        matchesMap.set(`Pacchetto ${packNumber}`, array);
       } else {
-        matchesMap.set(m.event_date, [m]);
+        matchesMap.set(`Pacchetto ${packNumber}`, [m]);
       }
     });
+
     const keys = Array.from(matchesMap.keys());
     keys.forEach((key) => {
       const matchArray = matchesMap.get(key);
+      let packProfit = 0;
       matchArray!
         .sort((a, b) => {
           if (a.pareggio < b.pareggio) {
@@ -296,20 +306,22 @@ export class BacktestHtComponent {
           return -1;
         })
         .forEach((m: any, index, array) => {
-          currentUnit = 1;
+          const currentUnit = currentBankroll * this.kelly * 0.01;
           const currentBet = currentUnit * this.unitValue;
           const isDraw = m['score_ht_home'] === m['score_ht_away'];
           const profit = isDraw ? currentBet * odds - currentBet : -currentBet;
           const profitUnit = isDraw
             ? currentUnit * odds - currentUnit
             : -currentUnit;
-          this.cumulatedProfit += profit;
-          if (this.cumulatedProfit < this.maxDrawDown) {
-            this.maxDrawDown = this.cumulatedProfit;
+          cumulatedProfit += profit;
+          if (cumulatedProfit < shortfall) {
+            shortfall = cumulatedProfit;
           }
           cumulatedProfitUnit += profitUnit;
+          packProfit += profitUnit;
           const bet: any = {
             id: indexID++,
+            pack: key,
             date: m.event_date,
             real_date: m.real_date,
             bookmaker: 'pippo',
@@ -322,35 +334,267 @@ export class BacktestHtComponent {
             matchResult: `${m['score_ht_home']}-${m['score_ht_away']}`,
             profitUnit: profitUnit,
             profit: profit,
-            cumulatedProfit: this.cumulatedProfit,
+            cumulatedProfit: cumulatedProfit,
             cumulatedProfitUnit: cumulatedProfitUnit,
           };
           if (profit < 0) {
             currentDrawDown += profit;
-            if (currentDrawDown < this.relativeDrawDown) {
-              this.relativeDrawDown = currentDrawDown;
+            if (currentDrawDown < relativeDrawDown) {
+              relativeDrawDown = currentDrawDown;
             }
           }
           if (isDraw) {
             currentDrawDown = 0;
             betWon++;
           }
-          this.bets.push(bet);
+          bets.push(bet);
         });
+        currentBankroll += packProfit;
     });
-    this.totalBets = this.bets.length;
+    this.totalBets = bets.length;
     this.betWon = betWon;
-    this.betsArray.push(this.bets);
+    this.betsArray.push(bets);
+    this.betsTableArray.push({
+      name: pIndex,
+      bets: bets
+    });
     this.betsStatistics.push({
       index: pIndex,
       name: `Progression ${pIndex}`,
       totalBets: this.totalBets,
       betsWon: betWon,
-      lostProgressions: lostProgressions,
-      cumulatedProfit: this.cumulatedProfit,
-      maxDrawDown: this.maxDrawDown,
-      relativeDrawDown: this.relativeDrawDown,
+      lostProgressions: '',
+      cumulatedProfit: cumulatedProfit,
+      maxDrawDown: shortfall,
+      relativeDrawDown: relativeDrawDown,
     });
+  }
+
+  doDalambertLogic(matches: DataMiningMatch[], pIndex: string) {
+    const bets: any[] = [];
+    let cumulatedProfit = 0;
+    let shortfall = 0;
+    let relativeDrawDown = 0;
+    let currentDrawDown = 0;
+    let cumulatedProfitUnit = 0;
+    let packNumber = 0;
+    let previousBetTime = 0;
+    const odds = 2;
+    let indexID = 0;
+    let betWon = 0;
+    let currentProgressionStep = 1;
+    let currentProgressionProfit = 0;
+    let currentPackProfit = 0;
+    let packMaxBet = 0;
+    
+    const filteredMatches = matches.filter(
+      (m: any) => m['score_ht_home'] !== null && m['score_ht_away'] !== null
+    );
+
+    const matchesMap = new Map<string, DataMiningMatch[]>();
+    filteredMatches.forEach((m) => {
+      if(new Date(m.event_date).getTime() - previousBetTime >= 3600000) {
+        packNumber++;
+      }
+      previousBetTime = new Date(m.event_date).getTime();
+      let array = matchesMap.get(`Pacchetto ${packNumber}`);
+      if (array) {
+        array.push(m);
+        matchesMap.set(`Pacchetto ${packNumber}`, array);
+      } else {
+        matchesMap.set(`Pacchetto ${packNumber}`, [m]);
+      }
+    });
+
+    const keys = Array.from(matchesMap.keys());
+    keys.forEach((key) => {
+      const matchArray = matchesMap.get(key);
+      let packBet = 0;
+      matchArray!
+        .sort((a, b) => {
+          if (a.pareggio < b.pareggio) {
+            return 1;
+          }
+          return -1;
+        })
+        .forEach((m: any, index, array) => {
+          const currentUnit = Math.pow(this.dalambert, currentProgressionStep - 1);
+          const currentBet = currentUnit * this.unitValue;
+          packBet += currentBet;
+          const isDraw = m['score_ht_home'] === m['score_ht_away'];
+          const profit = isDraw ? currentBet * odds - currentBet : -currentBet;
+          const profitUnit = isDraw
+            ? currentUnit * odds - currentUnit
+            : -currentUnit;
+          currentPackProfit += profitUnit;
+          cumulatedProfit += profit;
+          if (cumulatedProfit < shortfall) {
+            shortfall = cumulatedProfit;
+          }
+          cumulatedProfitUnit += profitUnit;
+          const bet: any = {
+            id: indexID++,
+            pack: `${key}-Level ${currentProgressionStep}`,
+            date: m.event_date,
+            real_date: m.real_date,
+            bookmaker: 'pippo',
+            odds: odds,
+            unit: currentUnit,
+            bet: currentBet,
+            result: isDraw ? 'won' : 'lost',
+            strategy_id: 999,
+            event: `${m.homeTeam}-${m.awayTeam}`,
+            matchResult: `${m['score_ht_home']}-${m['score_ht_away']}`,
+            profitUnit: profitUnit,
+            profit: profit,
+            cumulatedProfit: cumulatedProfit,
+            cumulatedProfitUnit: cumulatedProfitUnit,
+          };
+          if (profit < 0) {
+            currentDrawDown += profit;
+            if (currentDrawDown < relativeDrawDown) {
+              relativeDrawDown = currentDrawDown;
+            }
+          }
+          if (isDraw) {
+            currentDrawDown = 0;
+            betWon++;
+          }
+          bets.push(bet);
+        });
+        currentProgressionProfit += currentPackProfit;
+        if (currentPackProfit > 0) {
+          if(currentProgressionProfit >= 5) {
+            currentProgressionProfit = 0;
+            currentProgressionStep = 1;
+          } else {
+            if(currentProgressionStep - 1 === 0) {
+              currentProgressionProfit = 0;
+            }
+            currentProgressionStep = (currentProgressionStep - 1) || 1;
+          }
+        } else {
+          currentProgressionStep++;
+        }
+        currentPackProfit = 0;
+        if(packBet > packMaxBet) {
+          packMaxBet = packBet;
+        }
+        packBet = 0;
+    });
+    this.totalBets = bets.length;
+    this.betWon = betWon;
+    this.betsArray.push(bets);
+    this.betsTableArray.push({
+      name: pIndex,
+      bets: bets
+    });
+    this.betsStatistics.push({
+      index: pIndex,
+      name: `Progression ${pIndex}`,
+      totalBets: this.totalBets,
+      betsWon: betWon,
+      lostProgressions: '',
+      cumulatedProfit: cumulatedProfit,
+      maxDrawDown: shortfall,
+      relativeDrawDown: relativeDrawDown,
+    });
+  }
+
+  doBTLogic(matches: DataMiningMatch[], pIndex: string) {
+    // const bets: any[] = [];
+    // let cumulatedProfit = 0;
+    // let maxDrawDown = 0;
+    // let relativeDrawDown = 0;
+    // const BreakException = {};
+    // let indexID = 0;
+    // let currentUnit;
+    // let cumulatedProfitUnit = 0;
+    // let betWon = 0;
+    // let lostProgressions = 0;
+    // let currentDrawDown = 0;
+    // let odds = 2;
+    // const filteredMatches = matches.filter(
+    //   (m: any) => m['score_ht_home'] !== null && m['score_ht_away'] !== null
+    // );
+    // const matchesMap = new Map<string, DataMiningMatch[]>();
+    // filteredMatches.forEach((m) => {
+    //   let array = matchesMap.get(m.event_date);
+    //   if (array) {
+    //     array.push(m);
+    //     matchesMap.set(m.event_date, array);
+    //   } else {
+    //     matchesMap.set(m.event_date, [m]);
+    //   }
+    // });
+    // const keys = Array.from(matchesMap.keys());
+    // keys.forEach((key) => {
+    //   const matchArray = matchesMap.get(key);
+    //   matchArray!
+    //     .sort((a, b) => {
+    //       if (a.pareggio < b.pareggio) {
+    //         return 1;
+    //       }
+    //       return -1;
+    //     })
+    //     .forEach((m: any, index, array) => {
+    //       currentUnit = 1;
+    //       const currentBet = currentUnit * this.unitValue;
+    //       const isDraw = m['score_ht_home'] === m['score_ht_away'];
+    //       const profit = isDraw ? currentBet * odds - currentBet : -currentBet;
+    //       const profitUnit = isDraw
+    //         ? currentUnit * odds - currentUnit
+    //         : -currentUnit;
+    //       cumulatedProfit += profit;
+    //       if (cumulatedProfit < maxDrawDown) {
+    //         maxDrawDown = cumulatedProfit;
+    //       }
+    //       cumulatedProfitUnit += profitUnit;
+    //       const bet: any = {
+    //         id: indexID++,
+    //         date: m.event_date,
+    //         real_date: m.real_date,
+    //         bookmaker: 'pippo',
+    //         odds: odds,
+    //         unit: currentUnit,
+    //         bet: currentBet,
+    //         result: isDraw ? 'won' : 'lost',
+    //         strategy_id: 999,
+    //         event: `${m.homeTeam}-${m.awayTeam}`,
+    //         matchResult: `${m['score_ht_home']}-${m['score_ht_away']}`,
+    //         profitUnit: profitUnit,
+    //         profit: profit,
+    //         cumulatedProfit: cumulatedProfit,
+    //         cumulatedProfitUnit: cumulatedProfitUnit,
+    //       };
+    //       if (profit < 0) {
+    //         currentDrawDown += profit;
+    //         if (currentDrawDown < relativeDrawDown) {
+    //           relativeDrawDown = currentDrawDown;
+    //         }
+    //       }
+    //       if (isDraw) {
+    //         currentDrawDown = 0;
+    //         betWon++;
+    //       }
+    //       bets.push(bet);
+    //     });
+    // });
+    // this.totalBets = bets.length;
+    // this.betWon = betWon;
+    // this.betsArray.push(bets);
+    // this.betsStatistics.push({
+    //   index: pIndex,
+    //   name: `Progression ${pIndex}`,
+    //   totalBets: this.totalBets,
+    //   betsWon: betWon,
+    //   lostProgressions: lostProgressions,
+    //   cumulatedProfit: cumulatedProfit,
+    //   maxDrawDown: maxDrawDown,
+    //   relativeDrawDown: relativeDrawDown,
+    // });
+    this.doKellyLogic(matches, `Kelly ${pIndex}`);
+    // this.doDalambertLogic(matches, `Dalambert ${pIndex}`);
     this.initChartData();
   }
 

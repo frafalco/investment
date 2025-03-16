@@ -20,6 +20,7 @@ export interface NewDataMiningMatch {
     ov25_perc: number;
     un35_perc: number;
     ov05ht_perc: number;
+    ic: number;
     rc: number;
     ro: number;
     igbc: number;

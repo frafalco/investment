@@ -5,6 +5,26 @@
         Choose your criteria and perform the backtest.
       </p>
       <div class="row">
+        <div class="mb-3 col-sm-2">
+          <label for="kelly" class="form-label">Kelly Bet %</label>
+          <input
+            type="number"
+            id="kelly"
+            class="form-control"
+            [(ngModel)]="kelly"
+          />
+        </div>
+        <div class="mb-3 col-sm-2 offset-sm-2">
+          <label for="dalambert" class="form-label">Dalambert step</label>
+          <input
+            type="number"
+            id="dalambert"
+            class="form-control"
+            [(ngModel)]="dalambert"
+          />
+        </div>
+      </div>
+      <div class="row">
         <!-- <div class="mb-3 col-sm-2">
           <label for="table" class="form-label"
             >Table</label
@@ -196,54 +216,70 @@
     [tooltip]="tooltip"
     [autoUpdateSeries]="true"
   ></apx-chart>
-      <table class="table table-striped">
-        <thead class="sticky-top">
-          <tr>
-            <th scope="col">Date</th>
-            <th scope="col">Event</th>
-            <th scope="col">Match Result</th>
-            <th scope="col">Bookmaker</th>
-            <th scope="col">Odds</th>
-            <th scope="col">Unit</th>
-            <th scope="col">Bet</th>
-            <th scope="col">Result</th>
-            <th scope="col">Profit Unit</th>
-            <th scope="col">Profit</th>
-            <th scope="col">Cumulated Profit</th>
-            <th scope="col">Cumulated Profit Unit</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for(bet of bets; track bet.id) {
+      
+  <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+    @for(tableBets of betsTableArray; track tableBets.name; let idx = $index) {
+      <li [ngbNavItem]="idx">
+        <button ngbNavLink>{{tableBets.name}}</button>
+        <ng-template ngbNavContent>
+          <table class="table table-striped">
+            <thead class="sticky-top">
               <tr>
-                  <td scope="row">{{ bet.real_date | date:'dd/MM/yyyy HH:mm' }}</td>
-                  <td>
-                    {{ bet.event }}
-                  </td>
-                  <td>
-                    {{ bet.matchResult }}
-                  </td>
-                  <td>{{ bet.bookmaker }}</td>
-                  <td>{{ bet.odds | number }}</td>
-                  <td>{{ bet.unit | number : "1.0-2" }}</td>
-                  <td>{{ bet.bet | number : "1.0-2" }}</td>
-                  <td>{{bet.result}}</td>
-                  <td  [ngClass]="bet.result === 'won' ? 'text-success' : 'text-danger'">
-                    {{ bet.profitUnit | number : "1.0-2"}}
-                  </td>
-                  <td  [ngClass]="bet.result === 'won' ? 'text-success' : 'text-danger'">
-                    {{ bet.profit | number : "1.0-2"}}
-                  </td>
-                  <td  [ngClass]="bet.cumulatedProfit > 0 ? 'text-success' : 'text-danger'">
-                    {{ bet.cumulatedProfit | number : "1.0-2"}}
-                  </td>
-                  <td  [ngClass]="bet.cumulatedProfitUnit > 0 ? 'text-success' : 'text-danger'">
-                    {{ bet.cumulatedProfitUnit | number : "1.0-2"}}
-                  </td>
-                </tr>
-          }
-        </tbody>
-      </table>
+                <th scope="col">Date</th>
+                <th scope="col">Event</th>
+                <th scope="col">Pack</th>
+                <th scope="col">Match Result</th>
+                <th scope="col">Bookmaker</th>
+                <th scope="col">Odds</th>
+                <th scope="col">Unit</th>
+                <th scope="col">Bet</th>
+                <th scope="col">Result</th>
+                <th scope="col">Profit Unit</th>
+                <th scope="col">Profit</th>
+                <th scope="col">Cumulated Profit</th>
+                <th scope="col">Cumulated Profit Unit</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for(bet of tableBets.bets; track bet.id) {
+                  <tr>
+                      <td scope="row">{{ bet.real_date | date:'dd/MM/yyyy HH:mm' }}</td>
+                      <td>
+                        {{ bet.event }}
+                      </td>
+                      <td>
+                        {{ bet.pack }}
+                      </td>
+                      <td>
+                        {{ bet.matchResult }}
+                      </td>
+                      <td>{{ bet.bookmaker }}</td>
+                      <td>{{ bet.odds | number }}</td>
+                      <td>{{ bet.unit | number : "1.0-2" }}</td>
+                      <td>{{ bet.bet | number : "1.0-2" }}</td>
+                      <td>{{bet.result}}</td>
+                      <td  [ngClass]="bet.result === 'won' ? 'text-success' : 'text-danger'">
+                        {{ bet.profitUnit | number : "1.0-2"}}
+                      </td>
+                      <td  [ngClass]="bet.result === 'won' ? 'text-success' : 'text-danger'">
+                        {{ bet.profit | number : "1.0-2"}}
+                      </td>
+                      <td  [ngClass]="bet.cumulatedProfit > 0 ? 'text-success' : 'text-danger'">
+                        {{ bet.cumulatedProfit | number : "1.0-2"}}
+                      </td>
+                      <td  [ngClass]="bet.cumulatedProfitUnit > 0 ? 'text-success' : 'text-danger'">
+                        {{ bet.cumulatedProfitUnit | number : "1.0-2"}}
+                      </td>
+                    </tr>
+              }
+            </tbody>
+          </table>
+        </ng-template>
+      </li>
+    }
+  </ul>
+  
+  <div [ngbNavOutlet]="nav" class="mt-2"></div>
       
     </div>
   </div>
