@@ -325,37 +325,46 @@ export class SupabaseService implements OnDestroy {
     return data;
   }
 
-  async selectNewDataMiningMatches(underPercentage: number | null, sameMatchNumber: number | null, xPercentage: number | null, diff: number | null, mge: number | null, ov25odds: number | null, un35odds: number | null, ic: number | null, igbc: number | null, igbo: number | null) {
+  async selectNewDataMiningMatches(underPercentage: number | null, sameMatchNumber: number | null, xPercentage: number | null, diff: number | null, mge: number | null, ov05htperc: number | null, ov05htodds: number | null, ov25odds: number | null, un35perc: number | null, un35odds: number | null, ic: number | null, igbc: number | null, igbo: number | null) {
     let query = this.supabase.from('datamining_new').select<'*', NewDataMiningMatch>('*');
     if(sameMatchNumber !== null) {
-      query = query.gte('same_match', sameMatchNumber);
+      query = query.not('same_match', 'is', null).gte('same_match', sameMatchNumber);
     }
     if(underPercentage !== null) {
-      query = query.lte('ov25_perc', underPercentage / 100);
+      query = query.not('ov25_perc', 'is', null).lte('ov25_perc', underPercentage / 100);
     }
     if(xPercentage !== null) {
-      query = query.gte('draw_perc', xPercentage / 100);
+      query = query.not('draw_perc', 'is', null).gte('draw_perc', xPercentage / 100);
     }
     if(diff !== null) {
-      query = query.gte('diff', diff);
+      query = query.not('diff', 'is', null).gte('diff', diff);
     }
     if(mge !== null) {
-      query = query.lte('mge', mge);
+      query = query.not('mge', 'is', null).lte('mge', mge);
+    }
+    if(ov05htperc !== null) {
+      query = query.not('ov05ht_perc', 'is', null).gte('ov05ht_perc', ov05htperc);
+    }
+    if(ov05htodds !== null) {
+      query = query.not('ov05ht_odds', 'is', null).gte('ov05ht_odds', ov05htodds);
     }
     if(ov25odds !== null) {
-      query = query.gte('ov25_odds', ov25odds);
+      query = query.not('ov25_odds', 'is', null).gte('ov25_odds', ov25odds);
+    }
+    if(un35perc !== null) {
+      query = query.not('un35_perc', 'is', null).lte('un35_perc', un35perc);
     }
     if(un35odds !== null) {
-      query = query.lte('un35_odds', un35odds);
+      query = query.not('un35_odds', 'is', null).lte('un35_odds', un35odds);
     }
     if(ic !== null) {
-      query = query.gte('ic', ic);
+      query = query.not('ic', 'is', null).gte('ic', ic);
     }
     if(igbc !== null) {
-      query = query.lte('igbc', igbc);
+      query = query.not('igbc', 'is', null).lte('igbc', igbc);
     }
     if(igbo !== null) {
-      query = query.lte('igbo', igbo);
+      query = query.not('igbo', 'is', null).lte('igbo', igbo);
     }
     const {data, error} = await query.order('date', {ascending: true}).order('hour', {ascending: true});
     if(error) {

@@ -192,6 +192,9 @@ export class BacktestComponent {
           null,
           null,
           null,
+          null,
+          null,
+          null,
         );
         this.matches = newMatches.map(m => {
           return {

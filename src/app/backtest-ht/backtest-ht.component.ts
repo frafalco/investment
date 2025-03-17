@@ -81,7 +81,10 @@ export class BacktestHtComponent {
   xPercentage: number | null = null;
   diff: number | null = null;
   mge: number | null = null;
+  ov05htperc: number | null = null;
+  ov05htodds: number | null = null;
   ov25odds: number | null = null;
+  un35perc: number | null = null;
   un35odds: number | null = null;
   ic: number | null = null;
   igbc: number | null = null;
@@ -154,7 +157,10 @@ export class BacktestHtComponent {
           this.xPercentage,
           this.diff,
           this.mge,
+          this.ov05htperc,
+          this.ov05htodds,
           this.ov25odds,
+          this.un35perc,
           this.un35odds,
           this.ic,
           this.igbc,
