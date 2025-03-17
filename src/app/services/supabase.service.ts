@@ -343,7 +343,7 @@ export class SupabaseService implements OnDestroy {
       query = query.not('mge', 'is', null).lte('mge', mge);
     }
     if(ov05htperc !== null) {
-      query = query.not('ov05ht_perc', 'is', null).gte('ov05ht_perc', ov05htperc);
+      query = query.not('ov05ht_perc', 'is', null).gte('ov05ht_perc', ov05htperc / 100);
     }
     if(ov05htodds !== null) {
       query = query.not('ov05ht_odds', 'is', null).gte('ov05ht_odds', ov05htodds);
@@ -352,7 +352,7 @@ export class SupabaseService implements OnDestroy {
       query = query.not('ov25_odds', 'is', null).gte('ov25_odds', ov25odds);
     }
     if(un35perc !== null) {
-      query = query.not('un35_perc', 'is', null).lte('un35_perc', un35perc);
+      query = query.not('un35_perc', 'is', null).lte('un35_perc', un35perc / 100);
     }
     if(un35odds !== null) {
       query = query.not('un35_odds', 'is', null).lte('un35_odds', un35odds);
