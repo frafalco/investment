@@ -1,0 +1,4 @@
+<div class="mb-3 col-sm-2">
+  <label for="sameMatchNumber" class="form-label">{{label}}</label>
+  <input type="number" class="form-control" [value]="value" (input)="setValue($event)" (blur)="onTouched()"/>
+</div>

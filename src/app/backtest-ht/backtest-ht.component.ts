@@ -21,6 +21,7 @@ import {
 import { DataMiningMatch } from '../models/datamining_match';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataMiningNewMatch } from '../models/datamining_new_match';
+import { FilterComponent } from '../filter/filter.component';
 
 
 interface Parlay {
@@ -47,7 +48,7 @@ interface ParlayMatch {
 @Component({
   selector: 'app-backtest',
   standalone: true,
-  imports: [CommonModule, FormsModule, NgApexchartsModule, NgbNavModule],
+  imports: [CommonModule, FormsModule, NgApexchartsModule, NgbNavModule, FilterComponent],
   templateUrl: './backtest-ht.component.html',
   styleUrl: './backtest-ht.component.css',
 })
@@ -77,8 +78,16 @@ export class BacktestHtComponent {
   cumulatedProfit: number = 0;
   maxDrawDown: number = 0;
   relativeDrawDown: number = 0;
+  maxLostSequence: number = 0;
 
   parlays: Parlay[] = [];
+
+  filters: {label: string, key: string}[] = [
+    {label: 'Same Match Number', key: 'sameMatchNumber'}
+  ];
+  filterModel: any = {
+    sameMatchNumber: 0,
+  };
 
   public series!: ApexAxisChartSeries;
   public chart!: ApexChart;
@@ -143,6 +152,7 @@ export class BacktestHtComponent {
     let cumulatedProfitUnit = 0;
     let betWon = 0;
     let currentDrawDown = 0;
+    let currentLostSequence = 0;
     const matchesMap = new Map<string, DataMiningNewMatch[]>();
     matches.forEach((m) => {
       let array = matchesMap.get(m.date);
@@ -192,8 +202,8 @@ export class BacktestHtComponent {
       });
     })
     this.parlays.forEach((parlay) => {
-      const profit = parlay.result ? bet * parlay.odds : -bet;
-      const profitUnit = parlay.result ? unit * parlay.odds : -unit;
+      const profit = parlay.result ? (bet * parlay.odds) - bet : -bet;
+      const profitUnit = parlay.result ? (unit * parlay.odds) - unit : -unit;
       cumulatedProfit += profit;
       if (cumulatedProfit < maxDrawDown) {
         maxDrawDown = cumulatedProfit;
@@ -205,6 +215,12 @@ export class BacktestHtComponent {
       parlay.cumulatedProfitUnit = cumulatedProfitUnit;
       if(parlay.result) {
         betWon++;
+        currentLostSequence = 0;
+      } else {
+        currentLostSequence++;
+      }
+      if(currentLostSequence > this.maxLostSequence) {
+        this.maxLostSequence = currentLostSequence;
       }
       if (profit < 0) {
         currentDrawDown += profit;

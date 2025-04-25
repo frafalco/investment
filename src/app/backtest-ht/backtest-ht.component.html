@@ -93,7 +93,7 @@
         </div>
         <div class="mb-3 col-sm-2">
           <label for="underPercentage" class="form-label"
-            >Max Over2.5 Percentage</label
+            >Over2.5 Percentage</label
           >
           <input
             type="number"
@@ -157,6 +157,9 @@
             [(ngModel)]="igbo"
           />
         </div>
+        <!-- @for (filter of filters; track filter.key) {
+          <app-filter [label]="filter.label" [(ngModel)]="filterModel[filter.key]"></app-filter>
+        } -->
       </div>
       <div class="mb-3 d-flex justify-content-center gap-4">
         <button
@@ -178,7 +181,10 @@
             <p>Max Drawdown: <span class="text-danger">${{maxDrawDown | number: "1.0-2"}}</span></p>
         </div>
         <div class="col-sm-2 mb-3 text-center">
-            <p>Relative Drawdown <span class="text-danger">${{relativeDrawDown | number: "1.0-2"}}</span></p>
+            <p>Relative Drawdown: <span class="text-danger">${{relativeDrawDown | number: "1.0-2"}}</span></p>
+        </div>
+        <div class="col-sm-2 mb-3 text-center">
+            <p>Max Lost Sequence: <span class="text-danger">{{maxLostSequence | number: "1.0-2"}}</span></p>
         </div>
         <!-- <div class="d-flex mb-3 text-center justify-content-around">
             @for(entry of prorgessionResults.entries(); track entry[0]) {

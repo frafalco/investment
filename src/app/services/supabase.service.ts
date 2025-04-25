@@ -382,19 +382,19 @@ export class SupabaseService implements OnDestroy {
       query = query.not('same_match', 'is', null).gte('same_match', sameMatchNumber);
     }
     if(underPercentage !== null) {
-      query = query.not('ov25_perc', 'is', null).lte('ov25_perc', underPercentage / 100);
+      query = query.not('ov25_perc', 'is', null).gte('ov25_perc', underPercentage / 100);
     }
     if(xPercentage !== null) {
       query = query.not('draw_perc', 'is', null).gte('draw_perc', xPercentage / 100);
     }
     if(diff !== null) {
-      query = query.not('diff', 'is', null).gte('diff', diff);
+      query = query.not('diff', 'is', null).lte('diff', diff);
     }
     if(mge !== null) {
-      query = query.not('mge', 'is', null).lte('mge', mge);
+      query = query.not('mge', 'is', null).gte('mge', mge);
     }
     if(ov05htperc !== null) {
-      query = query.not('ov05ht_perc', 'is', null).lte('ov05ht_perc', ov05htperc / 100);
+      query = query.not('ov05ht_perc', 'is', null).gte('ov05ht_perc', ov05htperc / 100);
     }
     if(ov05htodds !== null) {
       query = query.not('ov05ht_odds', 'is', null).gte('ov05ht_odds', ov05htodds);
@@ -403,19 +403,19 @@ export class SupabaseService implements OnDestroy {
       query = query.not('ov25_odds', 'is', null).gte('ov25_odds', ov25odds);
     }
     if(un35perc !== null) {
-      query = query.not('un35_perc', 'is', null).gte('un35_perc', un35perc / 100);
+      query = query.not('un35_perc', 'is', null).lte('un35_perc', un35perc / 100);
     }
     if(un35odds !== null) {
       query = query.not('un35_odds', 'is', null).lte('un35_odds', un35odds);
     }
     if(ic !== null) {
-      query = query.not('ic', 'is', null).gte('ic', ic);
+      query = query.not('ic', 'is', null).lte('ic', ic);
     }
     if(igbc !== null) {
-      query = query.not('igbc', 'is', null).lte('igbc', igbc);
+      query = query.not('igbc', 'is', null).gte('igbc', igbc);
     }
     if(igbo !== null) {
-      query = query.not('igbo', 'is', null).lte('igbo', igbo);
+      query = query.not('igbo', 'is', null).gte('igbo', igbo);
     }
     const {data, error} = await query.order('date', {ascending: true}).order('hour', {ascending: true});
     if(error) {
