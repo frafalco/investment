@@ -7,6 +7,6 @@
         </select>
     </div>
     <div class="col">
-        <input type="number" class="form-control" [value]="value.value" (input)="setValue($event)" (blur)="onTouched()"/>
+        <input type="number" class="form-control" [(ngModel)]="value.value" (blur)="onTouched()"/>
     </div>
 </div>

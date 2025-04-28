@@ -19,7 +19,7 @@ export class FilterComponent {
 
   @Input() label: string = '';
 
-  value: any = {
+  value: {type: string, value: number | null} = {
     type: 'gte',
     value: null
   };
@@ -27,9 +27,9 @@ export class FilterComponent {
   onChange = (value: any) => {};
   onTouched = () => {};
 
-  writeValue(value: any): void {
-    if (value) {
-      this.value = value;
+  writeValue(obj: any): void {
+    if (obj) {
+      this.value = obj;
     }
   }
 
@@ -46,8 +46,9 @@ export class FilterComponent {
     this.onChange(this.value);
   }
 
-  setValue(event: any) {
-    this.value.value = event.target.value;
-    this.onChange(this.value);
-  }
+  // setValue(event: any) {
+  //   this.value.value = event.target.value;
+  //   console.log(this.value.value);
+  //   this.onChange(this.value);
+  // }
 }
