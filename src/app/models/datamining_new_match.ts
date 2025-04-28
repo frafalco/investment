@@ -11,6 +11,7 @@ export interface DataMiningNewMatch {
     same_match: number;
     home_perc: number;
     draw_perc: number;
+    draw_odds: number;
     away_perc: number;
     mge: number;
     diff: number;

@@ -2,10 +2,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { SupabaseService } from '../services/supabase.service';
-import { Strategy } from '../models/strategy.model';
-import { Bet } from '../models/bet.model';
-import { HttpClient } from '@angular/common/http';
-import { lastValueFrom, min } from 'rxjs';
 import {
   ApexAxisChartSeries,
   ApexChart,
@@ -18,32 +14,11 @@ import {
   ApexYAxis,
   NgApexchartsModule,
 } from 'ng-apexcharts';
-import { DataMiningMatch } from '../models/datamining_match';
 import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { DataMiningNewMatch } from '../models/datamining_new_match';
 import { FilterComponent } from '../filter/filter.component';
+import { BTResponse, BtUtils, Parlay, ParlayMatch } from '../utils/bt-utils';
 
-
-interface Parlay {
-  id: number;
-  date: string;
-  odds: number;
-  result: boolean;
-  matches: ParlayMatch[];
-  unit: number;
-  bet: number;
-  profitUnit: number;
-  profit: number;
-  cumulatedProfit: number;
-  cumulatedProfitUnit: number;
-}
-
-interface ParlayMatch {
-  odds: number;
-  result: string;
-  match: string;
-  date: string;
-}
 
 @Component({
   selector: 'app-backtest',
@@ -53,40 +28,49 @@ interface ParlayMatch {
   styleUrl: './backtest-ht.component.css',
 })
 export class BacktestHtComponent {
-  active = 0;
-
-  table: string = "new";
-  kelly: number = 1.5;
-  dalambert: number = 2;
   unitValue: number = 1;
-  underPercentage: number | null = null;
-  sameMatchNumber: number | null = null;
-  xPercentage: number | null = null;
-  diff: number | null = null;
-  mge: number | null = null;
-  ov05htperc: number | null = null;
-  ov05htodds: number | null = null;
-  ov25odds: number | null = null;
-  un35perc: number | null = null;
-  un35odds: number | null = null;
-  ic: number | null = null;
-  igbc: number | null = null;
-  igbo: number | null = null;
+  btType: string = 'xft';
 
-  totalBets: number = 0;
-  betWon: number = 0;
-  cumulatedProfit: number = 0;
-  maxDrawDown: number = 0;
-  relativeDrawDown: number = 0;
-  maxLostSequence: number = 0;
-
-  parlays: Parlay[] = [];
+  btResponse: BTResponse = {
+    parlays: [],
+    totalBets: 0,
+    betWon: 0,
+    cumulatedProfit: 0,
+    maxDrawDown: 0,
+    relativeDrawDown: 0,
+    maxLostSequence: 0
+  };
 
   filters: {label: string, key: string}[] = [
-    {label: 'Same Match Number', key: 'sameMatchNumber'}
+    {label: 'Same Match Number', key: 'same_match'},
+    {label: 'X percentage', key: 'draw_perc'},
+    {label: 'Diff', key: 'diff'},
+    {label: 'MGE', key: 'mge'},
+    {label: 'Indice Chris', key: 'ic'},
+    {label: 'Over0.5 HT %', key: 'ov05ht_perc'},
+    {label: 'Over0.5 HT odds', key: 'ov05ht_odds'},
+    {label: 'Over2.5 Percentage', key: 'ov25_perc'},
+    {label: 'Over2.5 odds', key: 'ov25_odds'},
+    {label: 'Under3.5 %', key: 'un35_perc'},
+    {label: 'Under3.5 odds', key: 'un35_odds'},
+    {label: 'IGBC', key: 'igbc'},
+    {label: 'IGBO', key: 'igbo'},
   ];
   filterModel: any = {
-    sameMatchNumber: 0,
+    same_match: {type: 'gte', value: null},
+    draw_perc: {type: 'gte', value: null},
+    diff: {type: 'gte', value: null},
+    mge: {type: 'gte', value: null},
+    ic: {type: 'gte', value: null},
+    ov05ht_perc: {type: 'gte', value: null},
+    ov05ht_odds: {type: 'gte', value: null},
+    ov25Percentage: {type: 'gte', value: null},
+    ov25_perc: {type: 'gte', value: null},
+    ov25_odds: {type: 'gte', value: null},
+    un35_perc: {type: 'gte', value: null},
+    un35_odds: {type: 'gte', value: null},
+    igbc: {type: 'gte', value: null},
+    igbo: {type: 'gte', value: null},
   };
 
   public series!: ApexAxisChartSeries;
@@ -106,22 +90,9 @@ export class BacktestHtComponent {
   async runBacktest() {
     try {
       const matches = await this.supabase.selectDataMiningNewMatches(
-        this.underPercentage,
-        this.sameMatchNumber,
-        this.xPercentage,
-        this.diff,
-        this.mge,
-        this.ov05htperc,
-        this.ov05htodds,
-        this.ov25odds,
-        this.un35perc,
-        this.un35odds,
-        this.ic,
-        this.igbc,
-        this.igbo
+        this.filterModel
       );
       if (matches.length > 0) {
-        this.parlays = [];
         this.doBTLogic(matches);
       }
     } catch (error: any) {
@@ -129,120 +100,22 @@ export class BacktestHtComponent {
     }
   }
 
-  chunkWithNoSingleLast(matches: DataMiningNewMatch[], size = 3) {
-    const result = [];
-    for (let i = 0; i < matches.length; i += size) {
-      result.push(matches.slice(i, i + size));
-    }
-  
-    if (result.length > 1 && result[result.length - 1].length === 1) {
-      const last = result.pop();
-      result[result.length - 1].push(...last!);
-    }
-  
-    return result;
-  }
-
   doBTLogic(matches: DataMiningNewMatch[]) {
-    let cumulatedProfit = 0;
-    let maxDrawDown = 0;
-    let relativeDrawDown = 0;
-    const unit = 1;
-    const bet = unit * this.unitValue;
-    let cumulatedProfitUnit = 0;
-    let betWon = 0;
-    let currentDrawDown = 0;
-    let currentLostSequence = 0;
-    const matchesMap = new Map<string, DataMiningNewMatch[]>();
-    matches.forEach((m) => {
-      let array = matchesMap.get(m.date);
-      if (array) {
-        array.push(m);
-        matchesMap.set(m.date, array);
-      } else {
-        matchesMap.set(m.date, [m]);
-      }
-    });
-    const keys = Array.from(matchesMap.keys());
-    let id = 1;
-    keys.forEach((key) => {
-      const matchArray = matchesMap.get(key);
-      const chunks = this.chunkWithNoSingleLast(matchArray!, 3);
-      chunks.forEach((chunk) => {
-        let result = true;
-        let odds = 1;
-        const parlayMatches: ParlayMatch[] = [];
-        chunk.forEach((match) => {
-          const m: ParlayMatch = {
-            odds: match.ov05ht_odds,
-            match: match.match,
-            result: match.halftime_result,
-            date: `${match.date}T${match.hour}`
-          }
-          odds = odds * match.ov05ht_odds;
-          const matchResult = match.home_goalsht + match.away_goalsht > 0;
-          result = result && matchResult;
-          parlayMatches.push(m);
-        });
-        const parlay: Parlay = {
-          id,
-          date: key,
-          odds,
-          result,
-          matches: parlayMatches,
-          unit: 1,
-          bet: this.unitValue,
-          profitUnit: 0,
-          profit: 0,
-          cumulatedProfit: 0,
-          cumulatedProfitUnit: 0
-        }
-        id++;
-        this.parlays.push(parlay);
-      });
-    })
-    this.parlays.forEach((parlay) => {
-      const profit = parlay.result ? (bet * parlay.odds) - bet : -bet;
-      const profitUnit = parlay.result ? (unit * parlay.odds) - unit : -unit;
-      cumulatedProfit += profit;
-      if (cumulatedProfit < maxDrawDown) {
-        maxDrawDown = cumulatedProfit;
-      }
-      cumulatedProfitUnit += profitUnit;
-      parlay.profit = profit;
-      parlay.profitUnit = profitUnit;
-      parlay.cumulatedProfit = cumulatedProfit;
-      parlay.cumulatedProfitUnit = cumulatedProfitUnit;
-      if(parlay.result) {
-        betWon++;
-        currentLostSequence = 0;
-      } else {
-        currentLostSequence++;
-      }
-      if(currentLostSequence > this.maxLostSequence) {
-        this.maxLostSequence = currentLostSequence;
-      }
-      if (profit < 0) {
-        currentDrawDown += profit;
-        if (currentDrawDown < relativeDrawDown) {
-          relativeDrawDown = currentDrawDown;
-        }
-      }
-    })
-    this.totalBets = this.parlays.length;
-    this.betWon = betWon;
-    this.cumulatedProfit = cumulatedProfit;
-    this.maxDrawDown = maxDrawDown;
-    this.relativeDrawDown = relativeDrawDown;
+    if(this.btType === 'xft') {
+      this.btResponse = BtUtils.xftLogic(matches, this.unitValue);
+    } else if(this.btType === 'xht') {
+      this.btResponse = BtUtils.xhtLogic(matches, this.unitValue);
+    } else if(this.btType === 'ov05') {
+      this.btResponse = BtUtils.ov05htLogic(matches, this.unitValue);
+    }
     this.initChartData();
   }
 
   initChartData(): void {
     let series: ApexAxisChartSeries | { name: string; data: any[][] }[] = [];
-    const datePipe: DatePipe = new DatePipe('en-US');
     const dates = [];
     let cumulated_profit: number = 0;
-    const mappedBet = this.parlays.reduce((map: Map<number, number>, elem: Parlay) => {
+    const mappedBet = this.btResponse.parlays.reduce((map: Map<number, number>, elem: Parlay) => {
       const time = new Date(elem.date!).getTime();
 
       cumulated_profit += elem.profit!;

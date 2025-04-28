@@ -1,4 +1,12 @@
-<div class="mb-3 col-sm-2">
-  <label for="sameMatchNumber" class="form-label">{{label}}</label>
-  <input type="number" class="form-control" [value]="value" (input)="setValue($event)" (blur)="onTouched()"/>
+<label class="form-label">{{label}}</label>
+<div class="row">
+    <div class="col">
+        <select class="form-select" [value]="value.type" (change)="setType($event)">
+            <option value="gte">GTE</option>
+            <option value="lte">LTE</option>
+        </select>
+    </div>
+    <div class="col">
+        <input type="number" class="form-control" [value]="value.value" (input)="setValue($event)" (blur)="onTouched()"/>
+    </div>
 </div>

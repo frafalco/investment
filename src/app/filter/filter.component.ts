@@ -17,16 +17,20 @@ import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class FilterComponent {
 
-  @Input()
-  label!: string;
-  
-  value: any;
+  @Input() label: string = '';
+
+  value: any = {
+    type: 'gte',
+    value: null
+  };
 
   onChange = (value: any) => {};
   onTouched = () => {};
 
   writeValue(value: any): void {
-    this.value = value;
+    if (value) {
+      this.value = value;
+    }
   }
 
   registerOnChange(fn: any): void {
@@ -37,8 +41,13 @@ export class FilterComponent {
     this.onTouched = fn;
   }
 
+  setType(event: any) {
+    this.value.type = event.target.value;
+    this.onChange(this.value);
+  }
+
   setValue(event: any) {
-    this.value = event.target.value;
+    this.value.value = event.target.value;
     this.onChange(this.value);
   }
 }
