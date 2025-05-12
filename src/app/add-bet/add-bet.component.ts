@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, TemplateRef } from '@angular/core';
 import {
   FormArray,
@@ -63,10 +63,11 @@ export class AddBetComponent {
   }
 
   ngOnInit() {
+    var datePipe = new DatePipe("en-US");
     this.submitForm = new FormGroup(
       {
         strategy_id: new FormControl('', Validators.required),
-        date: new FormControl('', Validators.required),
+        date: new FormControl(datePipe.transform(new Date(), 'dd/MM/yyyy'), Validators.required),
         event: new FormControl('', Validators.required),
         // bookmaker: new FormControl('', Validators.required),
         odds: new FormControl('', [
