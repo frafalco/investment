@@ -72,7 +72,6 @@ export class DatetimepickerComponent implements ControlValueAccessor, OnInit, Af
       if (newModel) {
           this.datetime = Object.assign(this.datetime, DateTimeModel.fromLocalString(newModel));
           this.dateString = newModel;
-          this.setDateStringModel();
       } else {
           this.datetime = new DateTimeModel();
       }
@@ -80,6 +79,7 @@ export class DatetimepickerComponent implements ControlValueAccessor, OnInit, Af
 
   registerOnChange(fn: any): void {
       this.onChange = fn;
+      this.setDateStringModel();
   }
 
   registerOnTouched(fn: any): void {

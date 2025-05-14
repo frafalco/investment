@@ -19,6 +19,7 @@ import { selectStrategiesAddBet } from '../store/profile.selector';
 import { DatetimepickerComponent } from '../datetimepicker/datetimepicker.component';
 import * as ProfileActions from '../store/profile.actions';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { DateTimeModel } from '../datetimepicker/date-time.model';
 
 @Component({
   selector: 'app-add-bet',
@@ -109,6 +110,9 @@ export class AddBetComponent {
     });
     this.submitForm.get('odds')?.valueChanges.subscribe((value) => {
       this.oddsCalc = value;
+    });
+    this.submitForm.get('date')?.valueChanges.subscribe((value) => {
+      console.log(value);
     });
   }
 
