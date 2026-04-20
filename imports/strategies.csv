@@ -1,0 +1,45 @@
+id,created_at,starting_bankroll,profit,user_id,name,type,archived
+10,2024-10-25 07:38:06.026305+00,10000,1197,076c32cc-4392-4138-a443-e38ea06653d7,Bygos - 2024,default,false
+14,2024-10-30 19:57:02.609136+00,5000,-161.1,4ecbf21b-def2-4010-aa43-825cac5dde2b,Nano Prime,default,true
+20,2024-11-06 12:08:33.01376+00,2000,0,076c32cc-4392-4138-a443-e38ea06653d7,Test 2,default,true
+25,2024-11-14 08:13:00.676029+00,2500,828,4ecbf21b-def2-4010-aa43-825cac5dde2b,Lloyd ETS - NHL,default,true
+26,2024-11-14 08:13:14.703194+00,250,600.4975,4ecbf21b-def2-4010-aa43-825cac5dde2b,Imre Progression Draw,default,true
+31,2024-11-16 11:18:44.464987+00,2000,46.41,4ecbf21b-def2-4010-aa43-825cac5dde2b,progression Draw Football,default,true
+33,2024-11-18 15:53:22.153453+00,100,14.9947,bc7abde8-b27a-411e-be9a-6e869b03e55b,Half Time X,default,false
+34,2024-11-23 18:45:37.607822+00,20000,-952.75,4ecbf21b-def2-4010-aa43-825cac5dde2b,Live Betting,default,true
+35,2024-11-23 22:34:58.366425+00,1000,19.5,4ecbf21b-def2-4010-aa43-825cac5dde2b,Lloyd Underdogs - NHL,default,true
+36,2024-11-28 10:06:36.185335+00,4567,0,076c32cc-4392-4138-a443-e38ea06653d7,new strategy,default,true
+37,2024-11-28 14:14:06.984813+00,250,1721.04280297767,4ecbf21b-def2-4010-aa43-825cac5dde2b,"Imre Progression Draw ",default,true
+40,2024-11-29 22:15:31.984281+00,1500,200.15,4ecbf21b-def2-4010-aa43-825cac5dde2b,NHL Underdogs,default,true
+41,2024-11-29 22:15:43.260638+00,1500,380.1,4ecbf21b-def2-4010-aa43-825cac5dde2b,NHL Favorites,default,true
+42,2024-12-03 18:12:39.005318+00,5000,963.3,4ecbf21b-def2-4010-aa43-825cac5dde2b,Sport Chaos & other,default,true
+45,2024-12-08 20:17:00.596698+00,3000,-42.9,4ecbf21b-def2-4010-aa43-825cac5dde2b,NBA Trend,default,true
+46,2024-12-09 00:55:57.85588+00,2500,-745.255,4ecbf21b-def2-4010-aa43-825cac5dde2b,Live Ov 1.5 Progression,default,true
+47,2024-12-11 06:34:03.561579+00,5000,-370.555,4ecbf21b-def2-4010-aa43-825cac5dde2b,Draw Football data mining,default,true
+48,2024-12-12 20:12:28.775722+00,200,-5.18,bc7abde8-b27a-411e-be9a-6e869b03e55b,Ov 0.5 Live,default,false
+49,2024-12-13 18:31:22.805991+00,100,-17.939,bc7abde8-b27a-411e-be9a-6e869b03e55b,Full Time X,default,false
+51,2025-01-01 00:44:06.770109+00,3000,-470.1,4ecbf21b-def2-4010-aa43-825cac5dde2b,NBA Progression,default,true
+52,2025-01-01 00:47:35.219847+00,3000,104.1303,4ecbf21b-def2-4010-aa43-825cac5dde2b,Rafu Progression 0.5,default,true
+53,2025-01-01 21:28:21.62955+00,1000,180.4,4ecbf21b-def2-4010-aa43-825cac5dde2b,Underdogs 39,default,true
+56,2025-01-18 13:43:53.506738+00,10000,-1991.65,4ecbf21b-def2-4010-aa43-825cac5dde2b,Juha trend,default,true
+57,2025-01-18 18:15:33.662677+00,1000,69.7,4ecbf21b-def2-4010-aa43-825cac5dde2b,NHL ETS Lloyd,default,true
+59,2025-01-19 08:58:27.987735+00,100,6.7,bc7abde8-b27a-411e-be9a-6e869b03e55b,Alex X Diff,default,false
+61,2025-02-10 15:29:12.563327+00,5000,-656.5,4ecbf21b-def2-4010-aa43-825cac5dde2b,Under 2.5 Data Mining,default,true
+62,2025-02-10 17:03:52.502891+00,100,-17.31,bc7abde8-b27a-411e-be9a-6e869b03e55b,Under (OV25 36.5),default,false
+63,2025-02-10 17:04:49.024105+00,100,-6.93,bc7abde8-b27a-411e-be9a-6e869b03e55b,Over (OV25 71),default,false
+64,2025-02-13 11:24:07.204978+00,200,-194.784,bc7abde8-b27a-411e-be9a-6e869b03e55b,Dalambert,default,false
+65,2025-02-14 16:42:30.135266+00,5000,-2509.475,4ecbf21b-def2-4010-aa43-825cac5dde2b,Over 1.5 Grid,default,true
+66,2025-02-14 19:49:17.743573+00,20000,797,4ecbf21b-def2-4010-aa43-825cac5dde2b,Live Betting,default,true
+67,2025-02-14 21:18:34.067475+00,5000,-458,4ecbf21b-def2-4010-aa43-825cac5dde2b,Under 2.5 Data Mining,default,true
+75,2025-03-05 19:52:14.55251+00,1000,48.6,4ecbf21b-def2-4010-aa43-825cac5dde2b,Ritardi e delta,default,true
+77,2025-03-12 18:23:29.144828+00,100,0,4ecbf21b-def2-4010-aa43-825cac5dde2b,Predictive Model paper Kelly,default,true
+81,2025-04-03 20:12:46.416604+00,5000,-909.5,13e5609a-60be-470c-8349-e153018dedef,Sport Chaos,default,false
+84,2025-04-13 20:09:51.825726+00,3000,-47.4,13e5609a-60be-470c-8349-e153018dedef,MLB underdogs,default,false
+85,2025-04-13 20:10:11.25402+00,1000,24.3,13e5609a-60be-470c-8349-e153018dedef,MLB spread,default,false
+88,2025-04-26 12:44:29.47671+00,5000,197.5,4ecbf21b-def2-4010-aa43-825cac5dde2b,"Alex ",default,true
+97,2025-06-16 10:04:20.533929+00,100,23.0313,5b7d5dd6-4542-4e6a-a1dc-0aa1fffbe874,"WTA ATP ",default,false
+98,2025-06-22 14:34:41.513344+00,10000,-130,4ecbf21b-def2-4010-aa43-825cac5dde2b,Live 0.5 HT,default,true
+100,2025-06-22 14:40:18.784722+00,10000,282,4ecbf21b-def2-4010-aa43-825cac5dde2b,Live 1.5 2H,default,true
+101,2025-06-23 15:10:36.625724+00,10000,-448.265910819239,4ecbf21b-def2-4010-aa43-825cac5dde2b,Tennis Wta live,default,false
+104,2025-06-28 17:04:31.328613+00,10000,-39.5,4ecbf21b-def2-4010-aa43-825cac5dde2b,Other,default,false
+108,2025-07-02 11:24:27.623313+00,500,23.8,4ecbf21b-def2-4010-aa43-825cac5dde2b,ATP Points test,default,false

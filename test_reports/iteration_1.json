@@ -1,0 +1,49 @@
+{
+  "summary": "Full backend + frontend smoke/integration tests for BetsTracker (FastAPI + MongoDB + React). Created pytest suite covering auth, strategies, bets, bonuses, export, authorization and WebSocket broadcast. All 24 backend tests passed. Executed end-to-end Playwright flow (login with migrated user -> home KPIs -> strategy detail -> add-bet -> strategies -> profile); all pages render, Live Sync indicator is green, no JS page errors.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "CORS middleware", "issue": "allow_origins=['*'] with allow_credentials=False works for Bearer header flow, but server also reads access_token cookie in get_current_user; cookie auth is effectively unreachable cross-origin because no cookies are ever Set-Cookie'd on /api/auth/login or /api/auth/register. Login response returns token only. Either document Bearer-only, or set httpOnly cookie + switch CORS to explicit origin + allow_credentials=True."},
+      {"endpoint": "POST /api/auth/change-password", "issue": "No minimum-length / complexity validation on new_password; a 1-char password is accepted."},
+      {"endpoint": "PUT /api/strategies/{id}", "issue": "Does not preserve created_at (not mutated since body.model_dump() only has name/bankroll/type/archived, so created_at untouched — OK). No issue, just noted."},
+      {"endpoint": "/api/ws", "issue": "WebSocket has no ping/pong or keepalive; client-side reconnect exists but server relies on client sending text. Harmless but fragile under idle networks."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "AddBet form", "issues": ["Data e ora uses browser-default datetime-local picker instead of a styled component; acceptable per product decision (no shadcn) but inconsistent with the rest of the dark-mode UI."]},
+      {"screen": "Login left panel", "issues": ["Hardcoded vanity stats '2.758 Bet storicizzate / 44 Strategie' don't match the actual migrated dataset for the primary user (shows 3 strategies, 101 bets). Cosmetic only."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/backend_test.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "Optional: decide on cookie vs Bearer auth consistently. Current flow works via Bearer only — remove the cookie read in get_current_user OR implement Set-Cookie on login + proper CORS.",
+    "Optional: add minimum password length validation on register and change-password endpoints.",
+    "Optional: update seed-data marketing counters on Login page or make them dynamic.",
+    "No blocking issues — app is ready for user acceptance testing."
+  ],
+  "critical_code_review_comments": [
+    "server.py get_current_user reads cookie `access_token` but nothing ever writes it — misleading. Either remove cookie path or add Set-Cookie on login.",
+    "CORS `allow_origins=['*']` with `allow_credentials=False` is fine for Bearer tokens but incompatible with cookie auth.",
+    "No rate limiting / brute-force lockout on /api/auth/login (playbook recommends 5-attempt lockout).",
+    "compute_profit treats unknown result strings silently as 0 profit (same as pending/void). Could add validation on `result` field (Literal['pending','won','lost','void']).",
+    "WebSocket lacks server-side heartbeat; long-idle connections may silently drop without broadcast delivery.",
+    "server.py is ~460 lines and monolithic — OK for now, but splitting routers (auth/strategies/bets/bonuses) would improve maintainability if scope grows."
+  ],
+  "updated_files": [
+    "/app/backend/tests/backend_test.py (created)",
+    "/app/backend/tests/__init__.py (created empty)"
+  ],
+  "success_rate": {"backend": "100% (24/24)", "frontend": "100% critical flows (login, home KPIs, strategy detail, add-bet, strategies list, profile all load; Live Sync WebSocket connected)"},
+  "test_credentials": "Primary: giulio.mantioni@hotmail.it / giulio.mantioni@hotmail.it (works). Migrated user shows 3 strategies / 101 bets (test_credentials.md states 1 strategy — doc drift, not a bug).",
+  "seed_data_creation": "Ephemeral test users created during test runs via /api/auth/register with TEST_ prefixed resources; created resources are deleted within their tests. Primary user data untouched.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Backend test suite at /app/backend/tests/backend_test.py (pytest + websockets). Run with: pytest /app/backend/tests/backend_test.py -v --junitxml=/app/test_reports/pytest/pytest_results.xml. Uses REACT_APP_BACKEND_URL. Covers 24 test cases including WebSocket broadcast verification. Frontend data-testids: login-email-input, login-password-input, login-submit-btn, kpi-balance/pnl/roi/yield/winrate/bets, toggle-archived, go-strategies, strategy-card-{id}, home-add-bet. All critical UI flows verified; only cosmetic and minor hardening items remain.",
+  "rca of the issue": "No critical issues found. Auth, CRUD, profit computation, cascade delete, export, and WebSocket broadcast all function per spec."
+}
