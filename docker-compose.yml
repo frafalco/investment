@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: betstracker-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - betstracker
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: betstracker-backend
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: "mongodb://mongo:27017"
+      DB_NAME: "betstracker_db"
+      JWT_SECRET: "${JWT_SECRET:-change-me-with-a-64-char-random-hex-string-1234567890abcdef}"
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./backend:/app
+      - ./imports:/imports:ro
+    networks:
+      - betstracker
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        REACT_APP_BACKEND_URL: "http://localhost:8001"
+    container_name: betstracker-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+    networks:
+      - betstracker
+
+volumes:
+  mongo_data:
+
+networks:
+  betstracker:
+    driver: bridge

@@ -1,27 +1,113 @@
-# AppInvestmentNew 
+# BetsTracker — Local Setup
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.2.6
+App full-stack per il tracking delle scommesse sportive. Stack: React + FastAPI + MongoDB con sync real-time via WebSocket.
 
-## Development server
+---
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Avvio rapido con Docker Compose (consigliato)
 
-## Code scaffolding
+**Requisiti:** Docker Desktop (o Docker Engine) ≥ 20.10 con Compose V2.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+```bash
+# 1. (opzionale) personalizza il JWT secret
+cp .env.example .env
+# apri .env e sostituisci JWT_SECRET
 
-## Build
+# 2. build + up (al primo avvio ci mette 2-3 minuti)
+docker compose up -d --build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+# 3. (opzionale, una volta sola) seed dei dati migrati da Supabase
+docker compose exec backend python seed.py
+```
 
-## Running unit tests
+**Servizi attivi:**
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8001/api/health
+- MongoDB: mongodb://localhost:27017
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+**Login test dopo il seed:** `giulio.mantioni@hotmail.it` / `giulio.mantioni@hotmail.it`
 
-## Running end-to-end tests
+**Comandi utili:**
+```bash
+docker compose logs -f backend        # guarda log backend in tempo reale
+docker compose logs -f frontend       # log frontend
+docker compose restart backend        # riavvia solo backend
+docker compose down                   # ferma tutto (dati Mongo preservati)
+docker compose down -v                # ferma e CANCELLA il database
+docker compose up -d --build          # rebuild dopo modifiche al codice
+```
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+---
 
-## Further help
+## Avvio manuale senza Docker
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### Prerequisiti
+- Node.js 18+ e yarn
+- Python 3.11+
+- MongoDB locale o MongoDB Atlas
+
+### Backend
+```bash
+cd backend
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+# crea backend/.env:
+cat > .env <<EOF
+MONGO_URL=mongodb://localhost:27017
+DB_NAME=betstracker_db
+JWT_SECRET=$(python -c "import secrets; print(secrets.token_hex(32))")
+EOF
+
+# (opzionale) seed dati migrati
+python seed.py
+
+# avvia
+uvicorn server:app --reload --port 8001
+```
+
+### Frontend
+```bash
+cd frontend
+yarn install
+
+# crea frontend/.env:
+echo "REACT_APP_BACKEND_URL=http://localhost:8001" > .env
+
+yarn start
+```
+
+---
+
+## Struttura
+
+```
+/
+├── docker-compose.yml     # orchestrazione Mongo + backend + frontend
+├── .env.example           # template env per compose
+├── backend/
+│   ├── Dockerfile         # image FastAPI
+│   ├── server.py          # REST + WebSocket
+│   ├── seed.py            # import CSV → Mongo
+│   └── requirements.txt
+├── frontend/
+│   ├── Dockerfile         # multi-stage: build React + serve via nginx
+│   ├── nginx.conf         # SPA routing + gzip
+│   └── src/               # React app
+├── imports/               # CSV Supabase (profiles, strategies, bets)
+└── memory/                # PRD + credentials
+```
+
+---
+
+## Feature highlights
+
+- Auth JWT + bcrypt
+- Strategie (default/bonus, archivia/ripristina)
+- Bet con auto-calcolo profit (won/lost/pending/void)
+- Bonus per strategie tipo "bonus"
+- Grafico P&L cumulativo/giornaliero/settimanale/mensile
+- KPI: ROI, yield, win rate, quota media, max drawdown, max losing streak
+- Sync real-time multi-device via WebSocket `/api/ws`
+- Export JSON + CSV dal profilo
+- Dark mode "Performance Pro" con Chivo + IBM Plex
