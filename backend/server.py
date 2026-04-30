@@ -473,6 +473,15 @@ class NHLBacktestReq(BaseModel):
     max_consecutive_losses: int = 8  # 0 or negative = unlimited
 
 
+class NHLBacktestGridReq(BaseModel):
+    season: str
+    start_date: str
+    teams: List[str]
+    initial_stake: float = 1.0
+    starting_bankroll: float = 1000.0
+    caps: List[int]  # e.g. [6, 8, 10, 12]
+
+
 @app.get("/api/nhl/seasons")
 async def nhl_seasons(user=Depends(get_current_user)):
     seasons = await db.nhl_games.distinct("season")
@@ -696,6 +705,88 @@ async def nhl_backtest(body: NHLBacktestReq, user=Depends(get_current_user)):
                 "max_stake": round(total_max_stake, 2),
             },
         },
+    }
+
+
+@app.post("/api/backtest/nhl/grid")
+async def nhl_backtest_grid(body: NHLBacktestGridReq, user=Depends(get_current_user)):
+    """Run the same NHL martingale backtest across multiple cap values for comparison."""
+    if not body.teams:
+        raise HTTPException(status_code=400, detail="Seleziona almeno una squadra")
+    if len(body.teams) > 4:
+        raise HTTPException(status_code=400, detail="Massimo 4 squadre")
+    if not body.caps or len(body.caps) == 0:
+        raise HTTPException(status_code=400, detail="Seleziona almeno un cap")
+    if len(body.caps) > 10:
+        raise HTTPException(status_code=400, detail="Massimo 10 cap per grid search")
+
+    # fetch games once (shared across all caps)
+    cursor = db.nhl_games.find({
+        "season": body.season,
+        "date_str": {"$gte": body.start_date},
+        "$or": [{"home_team": {"$in": body.teams}}, {"away_team": {"$in": body.teams}}],
+    }).sort("date", 1)
+    all_games = [g async for g in cursor]
+
+    # precompute per-team games (avoid filtering in each iteration)
+    team_games_map = {t: [g for g in all_games if g["home_team"] == t or g["away_team"] == t] for t in body.teams}
+
+    rows = []
+    best_roi = None
+    for cap in body.caps:
+        results = [
+            _run_team_backtest(team_games_map[t], t, body.initial_stake, int(cap))
+            for t in body.teams
+        ]
+        # aggregate series (for sparkline)
+        agg_map = {}
+        for r in results:
+            for b in r["bets"]:
+                agg_map[b["date"]] = agg_map.get(b["date"], 0.0) + b["profit"]
+        dates_sorted = sorted(agg_map.keys())
+        cum = 0.0
+        series = []
+        for d in dates_sorted:
+            cum += agg_map[d]
+            series.append({"date": d, "cumulative": round(cum, 2)})
+
+        total_profit = sum(r["stats"]["total_profit"] for r in results)
+        total_bets = sum(r["stats"]["total_bets"] for r in results)
+        total_staked = sum(r["stats"]["total_staked"] for r in results)
+        total_wins = sum(r["stats"]["wins"] for r in results)
+        total_busts = sum(r["stats"]["busts"] for r in results)
+        total_max_stake = max((r["stats"]["max_stake"] for r in results), default=0)
+        total_max_dd = min((r["stats"]["max_drawdown"] for r in results), default=0)
+        total_max_streak = max((r["stats"]["max_losing_streak"] for r in results), default=0)
+
+        row = {
+            "cap": int(cap),
+            "total_bets": total_bets,
+            "wins": total_wins,
+            "losses": total_bets - total_wins,
+            "win_rate": total_wins / total_bets if total_bets else 0,
+            "total_profit": round(total_profit, 2),
+            "total_staked": round(total_staked, 2),
+            "yield_pct": (total_profit / total_staked) if total_staked else 0,
+            "roi": total_profit / body.starting_bankroll if body.starting_bankroll else 0,
+            "final_bankroll": round(body.starting_bankroll + total_profit, 2),
+            "max_stake": round(total_max_stake, 2),
+            "max_drawdown": round(total_max_dd, 2),
+            "max_losing_streak": total_max_streak,
+            "busts": total_busts,
+            "series": series,
+        }
+        rows.append(row)
+        if best_roi is None or row["roi"] > best_roi:
+            best_roi = row["roi"]
+
+    # flag the best config
+    for r in rows:
+        r["is_best_roi"] = (r["roi"] == best_roi)
+
+    return {
+        "params": body.model_dump(),
+        "rows": rows,
     }
 
 

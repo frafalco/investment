@@ -47,6 +47,10 @@ App Angular + Supabase esistente per tracciare scommesse sportive con strategie 
   - Logica: favorita (ML minore) → bet AH -1.5 (win = reg-win ≥2), sfavorita → bet ML (win = final win)
   - Progressione martingale: stake×2 dopo loss, reset a 1 dopo win, cap configurabile (bust+reset)
   - UI completa con form, filtro squadre, KPI aggregati, grafico P&L, per-team cards con sparkline e tabella bet dettagliata
+- [x] **NHL Backtest — Grid Search** (2026-04):
+  - Endpoint `/api/backtest/nhl/grid` che esegue il backtest su max 10 cap diversi in un unico run
+  - UI con toggle "Singolo / Grid Search"; tabella comparativa con cap, sparkline, ROI, P&L, yield, WR, max stake, max DD, max streak, busts
+  - Evidenzia sweet spot (cap con miglior ROI) con stella + messaggio esplicativo
 
 ## Backlog / Future
 - **P1**: altri sport nel backtest (NBA, NFL con mercati specifici)

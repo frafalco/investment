@@ -2,10 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../lib/api";
 import { Card, Button, Input, Label, Select, Badge } from "../components/ui";
-import { ProfitChart } from "../components/Charts";
+import { ProfitChart, Sparkline } from "../components/Charts";
 import { fmtMoney, fmtPct, fmtDate } from "../lib/utils";
 import {
   Flask, Play, ArrowLeft, CheckCircle, XCircle, Warning, Trophy, Target, MagnifyingGlass,
+  Table, Star,
 } from "@phosphor-icons/react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,6 +23,9 @@ export default function NHLBacktest() {
   const [maxCap, setMaxCap] = useState(8);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
+  const [gridResult, setGridResult] = useState(null);
+  const [mode, setMode] = useState("single"); // 'single' | 'grid'
+  const [gridCaps, setGridCaps] = useState("5,6,7,8,10,12");
   const [teamFilter, setTeamFilter] = useState("");
 
   useEffect(() => { api.get("/nhl/seasons").then(({ data }) => { setSeasons(data); if (data.length && !season) setSeason(data[0]); }).catch(() => {}); }, []);
@@ -52,17 +56,34 @@ export default function NHLBacktest() {
     if (!startDate) return toast.error("Inserisci la data di partenza");
     setLoading(true);
     setResult(null);
+    setGridResult(null);
     try {
-      const { data } = await api.post("/backtest/nhl", {
-        season,
-        start_date: startDate,
-        teams: selected,
-        initial_stake: parseFloat(initialStake),
-        starting_bankroll: parseFloat(bankroll),
-        max_consecutive_losses: parseInt(maxCap) || 0,
-      });
-      setResult(data);
-      toast.success("Backtest completato");
+      if (mode === "single") {
+        const { data } = await api.post("/backtest/nhl", {
+          season,
+          start_date: startDate,
+          teams: selected,
+          initial_stake: parseFloat(initialStake),
+          starting_bankroll: parseFloat(bankroll),
+          max_consecutive_losses: parseInt(maxCap) || 0,
+        });
+        setResult(data);
+        toast.success("Backtest completato");
+      } else {
+        const caps = gridCaps.split(",").map((x) => parseInt(x.trim())).filter((x) => !isNaN(x) && x >= 0);
+        if (caps.length === 0) return toast.error("Inserisci almeno un cap valido (es. 5,6,7,8,10,12)");
+        if (caps.length > 10) return toast.error("Max 10 valori di cap");
+        const { data } = await api.post("/backtest/nhl/grid", {
+          season,
+          start_date: startDate,
+          teams: selected,
+          initial_stake: parseFloat(initialStake),
+          starting_bankroll: parseFloat(bankroll),
+          caps,
+        });
+        setGridResult(data);
+        toast.success(`Grid search completata (${caps.length} config)`);
+      }
     } catch (e) {
       const d = e?.response?.data?.detail;
       toast.error(typeof d === "string" ? d : "Errore backtest");
@@ -92,6 +113,31 @@ export default function NHLBacktest() {
         </div>
       </div>
 
+      {/* MODE TOGGLE */}
+      <div className="flex items-center gap-2">
+        <div className="inline-flex bg-surface border border-border rounded p-0.5">
+          <button
+            onClick={() => setMode("single")}
+            data-testid="bt-mode-single"
+            className={`px-4 h-9 text-xs font-heading font-semibold tracking-tight rounded inline-flex items-center gap-1.5 ${mode === "single" ? "bg-primary text-white" : "text-soft hover:text-white"}`}
+          >
+            <Play size={12} weight="fill" /> Singolo
+          </button>
+          <button
+            onClick={() => setMode("grid")}
+            data-testid="bt-mode-grid"
+            className={`px-4 h-9 text-xs font-heading font-semibold tracking-tight rounded inline-flex items-center gap-1.5 ${mode === "grid" ? "bg-primary text-white" : "text-soft hover:text-white"}`}
+          >
+            <Table size={12} weight="bold" /> Grid Search
+          </button>
+        </div>
+        <div className="text-xs text-muted font-body">
+          {mode === "single"
+            ? "Un singolo run con cap fisso."
+            : "Confronta più cap in parallelo per trovare il sweet spot."}
+        </div>
+      </div>
+
       {/* FORM */}
       <Card className="p-5 md:p-6">
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
@@ -115,9 +161,15 @@ export default function NHLBacktest() {
             <Input type="number" value={bankroll} onChange={(e) => setBankroll(e.target.value)} data-testid="bt-bankroll" />
           </div>
           <div>
-            <Label>Cap perdite consecutive</Label>
-            <Input type="number" min="0" value={maxCap} onChange={(e) => setMaxCap(e.target.value)} data-testid="bt-cap" />
-            <div className="text-[10px] text-muted mt-1 font-body">0 = illimitato. Max stake = 2^(cap-1)</div>
+            <Label>{mode === "single" ? "Cap perdite consecutive" : "Cap da testare (virgola)"}</Label>
+            {mode === "single" ? (
+              <Input type="number" min="0" value={maxCap} onChange={(e) => setMaxCap(e.target.value)} data-testid="bt-cap" />
+            ) : (
+              <Input value={gridCaps} onChange={(e) => setGridCaps(e.target.value)} placeholder="5,6,7,8,10,12" data-testid="bt-grid-caps" />
+            )}
+            <div className="text-[10px] text-muted mt-1 font-body">
+              {mode === "single" ? "0 = illimitato. Max stake = 2^(cap-1)" : "Max 10 valori. Es: 5,6,7,8,10,12"}
+            </div>
           </div>
         </div>
 
@@ -167,8 +219,96 @@ export default function NHLBacktest() {
 
       <AnimatePresence>
         {result && <Results result={result} key={JSON.stringify(result.params)} />}
+        {gridResult && <GridResults result={gridResult} key={"grid-" + JSON.stringify(gridResult.params)} />}
       </AnimatePresence>
     </div>
+  );
+}
+
+function GridResults({ result }) {
+  const { rows, params } = result;
+  const best = rows.find((r) => r.is_best_roi) || rows[0];
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="space-y-6"
+    >
+      <div>
+        <div className="text-[11px] uppercase tracking-[0.25em] text-muted font-heading font-semibold flex items-center gap-1.5">
+          <Table size={12} /> Grid Search — {rows.length} configurazioni
+        </div>
+        <h2 className="font-heading text-2xl font-bold text-white mt-1">
+          Comparativa cap · <span className="text-soft font-normal text-base">sweet spot: </span>
+          <span className="text-success">cap {best.cap}</span>
+        </h2>
+      </div>
+
+      <Card>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-[10px] uppercase tracking-[0.15em] text-muted font-heading">
+                <th className="text-left px-4 py-3 font-semibold">Cap</th>
+                <th className="text-left px-3 py-3 font-semibold w-[220px]">Andamento</th>
+                <th className="text-right px-3 py-3 font-semibold">ROI</th>
+                <th className="text-right px-3 py-3 font-semibold">P&L</th>
+                <th className="text-right px-3 py-3 font-semibold">Yield</th>
+                <th className="text-right px-3 py-3 font-semibold">Win Rate</th>
+                <th className="text-right px-3 py-3 font-semibold">Bet</th>
+                <th className="text-right px-3 py-3 font-semibold">Max Stake</th>
+                <th className="text-right px-3 py-3 font-semibold">Max DD</th>
+                <th className="text-right px-3 py-3 font-semibold">Max Streak</th>
+                <th className="text-right px-4 py-3 font-semibold">Busts</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr
+                  key={r.cap}
+                  data-testid={`grid-row-${r.cap}`}
+                  className={`border-t border-border ${r.is_best_roi ? "bg-primary/10" : i % 2 ? "bg-bg/30" : ""}`}
+                >
+                  <td className="px-4 py-3 font-heading font-bold text-white flex items-center gap-1.5">
+                    {r.is_best_roi && <Star size={14} weight="fill" className="text-primary" />}
+                    <span className="number">{r.cap}</span>
+                  </td>
+                  <td className="px-3 py-3 w-[220px]">
+                    <div className="h-[42px]"><Sparkline data={r.series} height={42} positive={r.total_profit >= 0} /></div>
+                  </td>
+                  <td className="px-3 py-3 text-right number font-semibold" style={{ color: r.roi >= 0 ? "#00FF88" : "#FF3B30" }}>
+                    {fmtPct(r.roi)}
+                  </td>
+                  <td className="px-3 py-3 text-right number font-semibold" style={{ color: r.total_profit >= 0 ? "#00FF88" : "#FF3B30" }}>
+                    {fmtMoney(r.total_profit)}
+                  </td>
+                  <td className="px-3 py-3 text-right number" style={{ color: r.yield_pct >= 0 ? "#00FF88" : "#FF3B30" }}>
+                    {fmtPct(r.yield_pct)}
+                  </td>
+                  <td className="px-3 py-3 text-right number">{fmtPct(r.win_rate, 1)}</td>
+                  <td className="px-3 py-3 text-right number text-soft">{r.total_bets}</td>
+                  <td className="px-3 py-3 text-right number">{fmtMoney(r.max_stake, 0)}</td>
+                  <td className="px-3 py-3 text-right number text-danger">{fmtMoney(r.max_drawdown, 0)}</td>
+                  <td className="px-3 py-3 text-right number text-soft">{r.max_losing_streak}</td>
+                  <td className="px-4 py-3 text-right">
+                    {r.busts > 0 ? (
+                      <Badge variant="danger">{r.busts}</Badge>
+                    ) : (
+                      <span className="text-muted font-body text-xs">0</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <div className="text-[11px] text-muted font-body">
+        <Star size={10} weight="fill" className="inline text-primary mr-1" />
+        cap evidenziato = miglior ROI. Nota: ROI identico tra cap consecutivi significa che nessuna progressione è mai arrivata al cap più basso (=redondante).
+      </div>
+    </motion.div>
   );
 }
 
