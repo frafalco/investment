@@ -26,7 +26,7 @@ App Angular + Supabase esistente per tracciare scommesse sportive con strategie 
 9. Import dati da Supabase (già eseguito)
 10. Export JSON + CSV dal profilo
 
-## What's Been Implemented (2026-01-XX)
+## What's Been Implemented (2026-01-XX / 2026-04-XX)
 - [x] Rewrite completo: da Angular+Supabase → React+FastAPI+MongoDB
 - [x] Migrazione dati: 6 utenti, 44 strategie, 2758 bet (password temp = email)
 - [x] Login/register/logout/change-password/update-profile
@@ -40,9 +40,17 @@ App Angular + Supabase esistente per tracciare scommesse sportive con strategie 
 - [x] Header: logo, nav, indicatore Live Sync animato, username, logout
 - [x] WebSocket bidirezionale con auto-reconnect e ping keepalive client-side
 - [x] Design dark "Performance Pro" con grid background, motion, typography custom
+- [x] **Docker Compose setup** (Mongo + backend + frontend nginx) + README aggiornato
+- [x] **NHL Backtest Martingale** (2026-04):
+  - Seed 6560 partite NHL su 5 stagioni (2021-22 → 2025-26) da CSV con quote ML + AH -1.5
+  - Endpoints `/api/nhl/seasons`, `/api/nhl/teams`, `/api/nhl/season-range`, `/api/backtest/nhl`
+  - Logica: favorita (ML minore) → bet AH -1.5 (win = reg-win ≥2), sfavorita → bet ML (win = final win)
+  - Progressione martingale: stake×2 dopo loss, reset a 1 dopo win, cap configurabile (bust+reset)
+  - UI completa con form, filtro squadre, KPI aggregati, grafico P&L, per-team cards con sparkline e tabella bet dettagliata
 
 ## Backlog / Future
-- **P1**: moduli backtest (HT, Over, Under, D'Alembert) — rimandati come da accordo
+- **P1**: altri sport nel backtest (NBA, NFL con mercati specifici)
+- **P2**: salvataggio backtest nelle strategie dell'utente (per confronto nel tempo)
 - **P2**: rate-limiting brute-force su login (5 tentativi → 15min lockout)
 - **P2**: reset password via email
 - **P2**: datetime picker stilizzato custom (sostituire browser default)
@@ -50,6 +58,7 @@ App Angular + Supabase esistente per tracciare scommesse sportive con strategie 
 - **P3**: charts confronto multi-strategia overlay in home
 - **P3**: PWA / install prompt per uso mobile nativo
 - **P3**: notifiche push su cambio risultato da altro dispositivo
+- **P3**: backtest export PDF/Excel con report completo
 
 ## Test Results (iteration_1)
 - Backend: 24/24 pytest passati (auth, strategies, bets, bonuses, export, WebSocket)
