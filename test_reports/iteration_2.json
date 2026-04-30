@@ -1,0 +1,44 @@
+{
+  "summary": "Full backend + frontend testing of NHL Backtest Martingale module on BetsTracker. Created /app/backend/tests/test_nhl_backtest.py (13 pytest cases) - ALL PASS. Frontend Playwright flow verified: login → /backtest → seasons populate desc → season change updates teams (32) + range + start_date → filter → toggle 4 teams (5th disabled) → run backtest → KPIs/per-team cards/sparkline/tables render → 'Mostra tutte' expands. Reference run (Boston/Colorado/Edmonton/NYR, 2023-2024 from 2023-10-10, cap=8) reproduced exactly: P&L €353.70 / 328 bets / 45.4% WR / 0 bust / max stake €128.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/backtest/nhl", "issue": "max_consecutive_losses validation accepts values < 0; treated as 'unlimited' implicitly. Behavior is documented in code comment ('0 or negative = unlimited') but no Pydantic ge=0 constraint. Cosmetic."},
+      {"endpoint": "GET /api/nhl/season-range", "issue": "Returns {min:null,max:null} (200) for unknown season instead of 404. Fine for current frontend usage."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": [
+      {"screen": "/backtest form", "issues": ["Stagione uses native browser <select> styled minimally (consistent with the rest of the app's lightweight UI components, not shadcn). Acceptable."]},
+      {"screen": "/backtest start_date input", "issues": ["Uses browser-default date picker (input type=date). Same convention as AddBet form noted in iteration_1. Acceptable per product decision."]}
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_nhl_backtest.py",
+    "/app/test_reports/pytest/nhl_backtest_results.xml"
+  ],
+  "action_items": [
+    "Optional: add Pydantic constraint `max_consecutive_losses: int = Field(default=8, ge=0)` to NHLBacktestReq for input hardening.",
+    "Optional: when changing season on the form, briefly disable the 'Esegui backtest' button while teams/season-range API calls are in-flight to prevent users from running a backtest with stale start_date (UI race window <1s). Not observed under normal use.",
+    "No blocking issues. Feature is production-ready."
+  ],
+  "critical_code_review_comments": [
+    "server.py _run_team_backtest is well-structured but ~130 lines inline; could be extracted to /app/backend/services/nhl_backtest.py if the module grows.",
+    "server.py is now ~700 lines; reaching the recommended split threshold. Consider splitting into routers (auth, strategies, bets, bonuses, nhl) when next feature is added.",
+    "/api/backtest/nhl loads ALL games for the selected teams in memory (max ~328 docs for 4 teams/season -> negligible). Fine for current scope; if expanded to many teams or seasons, paginate or aggregate in MongoDB.",
+    "Frontend NHLBacktest.js: useEffect on [season] resets selected teams but does not abort an in-flight Promise.all from a previous season change (potential stale write). Low impact given fast network; consider AbortController or a sequence ID guard if users rapidly change seasons.",
+    "Profit/win rules confirmed in code AND verified by tests: favorite -> AH-1.5 win iff !is_draw_regulation && score_diff>=2; underdog -> ML win iff team_score>opp_score; martingale double on loss, reset on win, bust on cap with progression reset. All consistent with spec."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_nhl_backtest.py (created, 13 tests)"
+  ],
+  "success_rate": {"backend": "100% (13/13 NHL backtest + 24/24 from iteration_1)", "frontend": "100% critical flows for /backtest"},
+  "test_credentials": "giulio.mantioni@hotmail.it / giulio.mantioni@hotmail.it (works)",
+  "seed_data_creation": "None. NHL games seeded by main agent (6560 games / 5 seasons). No data created/modified during testing.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "NHL backtest tests live at /app/backend/tests/test_nhl_backtest.py — run with `pytest backend/tests/test_nhl_backtest.py -v`. Reference verified output: 4 teams/2023-2024/2023-10-10/cap=8 -> aggregate.total_profit=353.70, total_bets=328, win_rate≈0.454, total_busts=0. Frontend data-testids: bt-season, bt-start-date, bt-stake, bt-bankroll, bt-cap, bt-filter-teams, bt-team-{Team-Name-with-dashes}, bt-run-btn, bt-kpi-{pnl|final|roi|yield|wr|bets|staked|bust}. Cap=2 produces busts (validated). Note: /api/nhl/* and /api/backtest/nhl all require Bearer auth (verified 401 without token).",
+  "rca of the issue": "No critical issues. Initial frontend test had a timing race (1500ms wait too short between season select and start_date update) — fixed by polling wait_for_function on the start_date value; functionally the UI updates correctly."
+}

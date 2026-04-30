@@ -8,6 +8,7 @@ import Strategies from "./pages/Strategies";
 import StrategyDetail from "./pages/StrategyDetail";
 import AddBet from "./pages/AddBet";
 import Profile from "./pages/Profile";
+import NHLBacktest from "./pages/NHLBacktest";
 
 function Protected({ children }) {
   const { user } = useAuth();
@@ -40,6 +41,7 @@ export default function App() {
       <Route path="/strategies" element={<Protected><Shell><Strategies /></Shell></Protected>} />
       <Route path="/strategy/:id" element={<Protected><Shell><StrategyDetail /></Shell></Protected>} />
       <Route path="/add-bet" element={<Protected><Shell><AddBet /></Shell></Protected>} />
+      <Route path="/backtest" element={<Protected><Shell><NHLBacktest /></Shell></Protected>} />
       <Route path="/profile" element={<Protected><Shell><Profile /></Shell></Protected>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

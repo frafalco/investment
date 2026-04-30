@@ -459,3 +459,244 @@ async def export_all(user=Depends(get_current_user)):
 @app.get("/api/health")
 async def health():
     return {"status": "ok"}
+
+
+# ============================================================================
+# NHL BACKTEST
+# ============================================================================
+class NHLBacktestReq(BaseModel):
+    season: str
+    start_date: str  # ISO YYYY-MM-DD
+    teams: List[str]  # up to 4
+    initial_stake: float = 1.0
+    starting_bankroll: float = 1000.0
+    max_consecutive_losses: int = 8  # 0 or negative = unlimited
+
+
+@app.get("/api/nhl/seasons")
+async def nhl_seasons(user=Depends(get_current_user)):
+    seasons = await db.nhl_games.distinct("season")
+    return sorted(seasons, reverse=True)
+
+
+@app.get("/api/nhl/teams")
+async def nhl_teams(season: str, user=Depends(get_current_user)):
+    pipeline = [
+        {"$match": {"season": season}},
+        {"$project": {"teams": ["$home_team", "$away_team"]}},
+        {"$unwind": "$teams"},
+        {"$group": {"_id": "$teams"}},
+        {"$sort": {"_id": 1}},
+    ]
+    teams = [d["_id"] async for d in db.nhl_games.aggregate(pipeline)]
+    return teams
+
+
+@app.get("/api/nhl/season-range")
+async def nhl_season_range(season: str, user=Depends(get_current_user)):
+    """Min and max date of games for the given season."""
+    pipeline = [
+        {"$match": {"season": season}},
+        {"$group": {"_id": None, "min": {"$min": "$date_str"}, "max": {"$max": "$date_str"}}},
+    ]
+    async for d in db.nhl_games.aggregate(pipeline):
+        return {"min": d["min"], "max": d["max"]}
+    return {"min": None, "max": None}
+
+
+def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecutive_losses: int):
+    """Run martingale backtest for a single team.
+
+    Rules:
+    - Favorite = team's moneyline odds < opponent moneyline odds → bet on their -1.5 AH.
+      Win = is_draw_regulation is False AND |score diff| >= 2 in favor of the team.
+    - Underdog = their moneyline odds >= opponent's → bet on their moneyline.
+      Win = final score in favor of the team (OT/SO included).
+    - Stake starts at `initial_stake`, doubles after each loss, resets to initial after each win.
+    - If consecutive_losses reaches `max_consecutive_losses` (>0), progression busts:
+      we record a BUST event (P&L = -cumulative_stake_since_reset), reset stake to initial and continue.
+    """
+    bets = []
+    stake = initial_stake
+    consecutive_losses = 0
+    cumulative_progression_stake = 0.0  # sum of stakes in current losing streak
+    cap_on = max_consecutive_losses and max_consecutive_losses > 0
+
+    for g in games:
+        is_home = g["home_team"] == team
+        if not is_home and g["away_team"] != team:
+            continue  # safety
+
+        team_score = g["home_score"] if is_home else g["away_score"]
+        opp_score = g["away_score"] if is_home else g["home_score"]
+        opp_team = g["away_team"] if is_home else g["home_team"]
+        ml_team = g["odd_home"] if is_home else g["odd_away"]
+        ml_opp = g["odd_away"] if is_home else g["odd_home"]
+        ah_team = g["odd_home_ah_minus15"] if is_home else g["odd_away_ah_minus15"]
+        is_draw_reg = g.get("is_draw_regulation", False)
+
+        if ml_team is None or ml_opp is None:
+            continue  # skip if no odds
+        is_favorite = ml_team < ml_opp
+
+        if is_favorite:
+            market = "AH -1.5"
+            odds = ah_team
+            won = (not is_draw_reg) and (team_score - opp_score >= 2)
+        else:
+            market = "Moneyline"
+            odds = ml_team
+            won = team_score > opp_score
+
+        if odds is None:
+            continue
+
+        profit = stake * (odds - 1) if won else -stake
+        cumulative_progression_stake += stake
+
+        bets.append({
+            "date": g["date_str"],
+            "opponent": opp_team,
+            "is_home": is_home,
+            "team_score": team_score,
+            "opp_score": opp_score,
+            "is_draw_regulation": is_draw_reg,
+            "is_favorite": is_favorite,
+            "market": market,
+            "odds": odds,
+            "stake": round(stake, 4),
+            "won": won,
+            "profit": round(profit, 4),
+            "bust": False,
+            "step": consecutive_losses + 1,
+        })
+
+        if won:
+            stake = initial_stake
+            consecutive_losses = 0
+            cumulative_progression_stake = 0.0
+        else:
+            consecutive_losses += 1
+            if cap_on and consecutive_losses >= max_consecutive_losses:
+                # BUST: mark this bet, reset progression
+                bets[-1]["bust"] = True
+                stake = initial_stake
+                consecutive_losses = 0
+                cumulative_progression_stake = 0.0
+            else:
+                stake *= 2
+
+    # Aggregate team stats
+    total_profit = sum(b["profit"] for b in bets)
+    total_staked = sum(b["stake"] for b in bets)
+    wins = sum(1 for b in bets if b["won"])
+    losses = sum(1 for b in bets if not b["won"])
+    busts = sum(1 for b in bets if b["bust"])
+
+    # Build cumulative series
+    cum = 0.0
+    series = []
+    max_profit_peak = 0.0
+    max_dd = 0.0
+    for b in bets:
+        cum += b["profit"]
+        max_profit_peak = max(max_profit_peak, cum)
+        max_dd = min(max_dd, cum - max_profit_peak)
+        series.append({"date": b["date"], "cumulative": round(cum, 2)})
+
+    max_stake = max((b["stake"] for b in bets), default=0)
+    max_streak = 0
+    cur_streak = 0
+    for b in bets:
+        if not b["won"]:
+            cur_streak += 1
+            max_streak = max(max_streak, cur_streak)
+        else:
+            cur_streak = 0
+
+    return {
+        "team": team,
+        "bets": bets,
+        "series": series,
+        "stats": {
+            "total_bets": len(bets),
+            "wins": wins,
+            "losses": losses,
+            "busts": busts,
+            "win_rate": wins / len(bets) if bets else 0,
+            "total_staked": round(total_staked, 2),
+            "total_profit": round(total_profit, 2),
+            "yield_pct": (total_profit / total_staked) if total_staked else 0,
+            "max_stake": round(max_stake, 2),
+            "max_losing_streak": max_streak,
+            "max_drawdown": round(max_dd, 2),
+        },
+    }
+
+
+@app.post("/api/backtest/nhl")
+async def nhl_backtest(body: NHLBacktestReq, user=Depends(get_current_user)):
+    if not body.teams:
+        raise HTTPException(status_code=400, detail="Seleziona almeno una squadra")
+    if len(body.teams) > 4:
+        raise HTTPException(status_code=400, detail="Massimo 4 squadre")
+    if body.initial_stake <= 0:
+        raise HTTPException(status_code=400, detail="initial_stake deve essere > 0")
+
+    # fetch all games of the season from start_date onwards for the selected teams
+    cursor = db.nhl_games.find({
+        "season": body.season,
+        "date_str": {"$gte": body.start_date},
+        "$or": [{"home_team": {"$in": body.teams}}, {"away_team": {"$in": body.teams}}],
+    }).sort("date", 1)
+    all_games = [g async for g in cursor]
+
+    results = []
+    for team in body.teams:
+        team_games = [g for g in all_games if g["home_team"] == team or g["away_team"] == team]
+        res = _run_team_backtest(team_games, team, body.initial_stake, body.max_consecutive_losses)
+        results.append(res)
+
+    # Aggregate: sum profit by date across teams
+    agg_map = {}
+    for r in results:
+        for b in r["bets"]:
+            agg_map.setdefault(b["date"], 0.0)
+            agg_map[b["date"]] += b["profit"]
+    dates_sorted = sorted(agg_map.keys())
+    cum = 0.0
+    aggregate_series = []
+    for d in dates_sorted:
+        cum += agg_map[d]
+        aggregate_series.append({"date": d, "cumulative": round(cum, 2)})
+
+    total_profit = sum(r["stats"]["total_profit"] for r in results)
+    total_bets = sum(r["stats"]["total_bets"] for r in results)
+    total_staked = sum(r["stats"]["total_staked"] for r in results)
+    total_wins = sum(r["stats"]["wins"] for r in results)
+    total_busts = sum(r["stats"]["busts"] for r in results)
+    total_max_stake = max((r["stats"]["max_stake"] for r in results), default=0)
+
+    return {
+        "params": body.model_dump(),
+        "per_team": results,
+        "aggregate": {
+            "series": aggregate_series,
+            "stats": {
+                "total_bets": total_bets,
+                "total_wins": total_wins,
+                "total_losses": total_bets - total_wins,
+                "total_busts": total_busts,
+                "win_rate": total_wins / total_bets if total_bets else 0,
+                "total_staked": round(total_staked, 2),
+                "total_profit": round(total_profit, 2),
+                "yield_pct": (total_profit / total_staked) if total_staked else 0,
+                "roi": total_profit / body.starting_bankroll if body.starting_bankroll else 0,
+                "final_bankroll": round(body.starting_bankroll + total_profit, 2),
+                "max_stake": round(total_max_stake, 2),
+            },
+        },
+    }
+
+
+# ---- WebSocket (bottom of file) ----

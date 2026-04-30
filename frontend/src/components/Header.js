@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useData } from "../context/DataContext";
-import { House, ChartLine, Plus, User, SignOut, Lightning, List, X } from "@phosphor-icons/react";
+import { House, ChartLine, Plus, User, SignOut, Lightning, List, X, Flask } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 import { Button } from "./ui";
 
@@ -34,6 +34,7 @@ export function Header() {
           <NavLink to="/" end className={linkCls} data-testid="nav-home"><House size={16} className="inline mr-1.5" />Home</NavLink>
           <NavLink to="/strategies" className={linkCls} data-testid="nav-strategies"><ChartLine size={16} className="inline mr-1.5" />Strategie</NavLink>
           <NavLink to="/add-bet" className={linkCls} data-testid="nav-add-bet"><Plus size={16} className="inline mr-1.5" />Nuova Bet</NavLink>
+          <NavLink to="/backtest" className={linkCls} data-testid="nav-backtest"><Flask size={16} className="inline mr-1.5" weight="fill" />Backtest</NavLink>
           <NavLink to="/profile" className={linkCls} data-testid="nav-profile"><User size={16} className="inline mr-1.5" />Profilo</NavLink>
         </nav>
 
@@ -67,6 +68,7 @@ export function Header() {
           <NavLink onClick={() => setMobileOpen(false)} to="/" end className={linkCls}>Home</NavLink>
           <NavLink onClick={() => setMobileOpen(false)} to="/strategies" className={linkCls}>Strategie</NavLink>
           <NavLink onClick={() => setMobileOpen(false)} to="/add-bet" className={linkCls}>Nuova Bet</NavLink>
+          <NavLink onClick={() => setMobileOpen(false)} to="/backtest" className={linkCls}>Backtest</NavLink>
           <NavLink onClick={() => setMobileOpen(false)} to="/profile" className={linkCls}>Profilo</NavLink>
         </div>
       )}
