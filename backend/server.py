@@ -471,6 +471,7 @@ class NHLBacktestReq(BaseModel):
     initial_stake: float = 1.0
     starting_bankroll: float = 1000.0
     max_consecutive_losses: int = 8  # 0 or negative = unlimited
+    progression_mode: str = "single"  # 'single' | 'split' (fav vs underdog separated)
 
 
 class NHLBacktestGridReq(BaseModel):
@@ -480,6 +481,7 @@ class NHLBacktestGridReq(BaseModel):
     initial_stake: float = 1.0
     starting_bankroll: float = 1000.0
     caps: List[int]  # e.g. [6, 8, 10, 12]
+    progression_mode: str = "single"
 
 
 @app.get("/api/nhl/seasons")
@@ -513,8 +515,12 @@ async def nhl_season_range(season: str, user=Depends(get_current_user)):
     return {"min": None, "max": None}
 
 
-def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecutive_losses: int):
+def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecutive_losses: int, progression_mode: str = "single"):
     """Run martingale backtest for a single team.
+
+    progression_mode:
+      - "single": one progression for the team regardless of fav/udg role
+      - "split":  two independent progressions, one for games as favorite, one as underdog
 
     Rules:
     - Favorite = team's moneyline odds < opponent moneyline odds → bet on their -1.5 AH.
@@ -526,10 +532,19 @@ def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecu
       we record a BUST event (P&L = -cumulative_stake_since_reset), reset stake to initial and continue.
     """
     bets = []
-    stake = initial_stake
-    consecutive_losses = 0
-    cumulative_progression_stake = 0.0  # sum of stakes in current losing streak
     cap_on = max_consecutive_losses and max_consecutive_losses > 0
+
+    # State containers: single holds one, split holds "fav" and "udg"
+    state = {
+        "single": {"stake": initial_stake, "streak": 0},
+        "fav": {"stake": initial_stake, "streak": 0},
+        "udg": {"stake": initial_stake, "streak": 0},
+    }
+
+    def track_key(is_fav: bool) -> str:
+        if progression_mode == "split":
+            return "fav" if is_fav else "udg"
+        return "single"
 
     for g in games:
         is_home = g["home_team"] == team
@@ -560,10 +575,13 @@ def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecu
         if odds is None:
             continue
 
-        profit = stake * (odds - 1) if won else -stake
-        cumulative_progression_stake += stake
+        key = track_key(is_favorite)
+        st = state[key]
+        current_stake = st["stake"]
 
-        bets.append({
+        profit = current_stake * (odds - 1) if won else -current_stake
+
+        bet_record = {
             "date": g["date_str"],
             "opponent": opp_team,
             "is_home": is_home,
@@ -573,27 +591,26 @@ def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecu
             "is_favorite": is_favorite,
             "market": market,
             "odds": odds,
-            "stake": round(stake, 4),
+            "stake": round(current_stake, 4),
             "won": won,
             "profit": round(profit, 4),
             "bust": False,
-            "step": consecutive_losses + 1,
-        })
+            "step": st["streak"] + 1,
+            "track": key,  # "single" | "fav" | "udg"
+        }
+        bets.append(bet_record)
 
         if won:
-            stake = initial_stake
-            consecutive_losses = 0
-            cumulative_progression_stake = 0.0
+            st["stake"] = initial_stake
+            st["streak"] = 0
         else:
-            consecutive_losses += 1
-            if cap_on and consecutive_losses >= max_consecutive_losses:
-                # BUST: mark this bet, reset progression
-                bets[-1]["bust"] = True
-                stake = initial_stake
-                consecutive_losses = 0
-                cumulative_progression_stake = 0.0
+            st["streak"] += 1
+            if cap_on and st["streak"] >= max_consecutive_losses:
+                bet_record["bust"] = True
+                st["stake"] = initial_stake
+                st["streak"] = 0
             else:
-                stake *= 2
+                st["stake"] *= 2
 
     # Aggregate team stats
     total_profit = sum(b["profit"] for b in bets)
@@ -602,7 +619,7 @@ def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecu
     losses = sum(1 for b in bets if not b["won"])
     busts = sum(1 for b in bets if b["bust"])
 
-    # Build cumulative series
+    # Cumulative series
     cum = 0.0
     series = []
     max_profit_peak = 0.0
@@ -614,19 +631,51 @@ def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecu
         series.append({"date": b["date"], "cumulative": round(cum, 2)})
 
     max_stake = max((b["stake"] for b in bets), default=0)
-    max_streak = 0
-    cur_streak = 0
+
+    # Per-track stats (useful especially in split mode)
+    def _track_stats(filter_fn):
+        sub = [b for b in bets if filter_fn(b)]
+        if not sub:
+            return None
+        w = sum(1 for b in sub if b["won"])
+        pf = sum(b["profit"] for b in sub)
+        stk = sum(b["stake"] for b in sub)
+        max_streak = 0
+        cur = 0
+        for b in sub:
+            if not b["won"]:
+                cur += 1
+                max_streak = max(max_streak, cur)
+            else:
+                cur = 0
+        return {
+            "total_bets": len(sub),
+            "wins": w,
+            "losses": len(sub) - w,
+            "win_rate": w / len(sub) if sub else 0,
+            "total_staked": round(stk, 2),
+            "total_profit": round(pf, 2),
+            "yield_pct": (pf / stk) if stk else 0,
+            "max_stake": round(max((b["stake"] for b in sub), default=0), 2),
+            "busts": sum(1 for b in sub if b["bust"]),
+            "max_losing_streak": max_streak,
+        }
+
+    # Global max losing streak (across everything, ordered)
+    global_streak = 0
+    max_global_streak = 0
     for b in bets:
         if not b["won"]:
-            cur_streak += 1
-            max_streak = max(max_streak, cur_streak)
+            global_streak += 1
+            max_global_streak = max(max_global_streak, global_streak)
         else:
-            cur_streak = 0
+            global_streak = 0
 
     return {
         "team": team,
         "bets": bets,
         "series": series,
+        "progression_mode": progression_mode,
         "stats": {
             "total_bets": len(bets),
             "wins": wins,
@@ -637,8 +686,12 @@ def _run_team_backtest(games: list, team: str, initial_stake: float, max_consecu
             "total_profit": round(total_profit, 2),
             "yield_pct": (total_profit / total_staked) if total_staked else 0,
             "max_stake": round(max_stake, 2),
-            "max_losing_streak": max_streak,
+            "max_losing_streak": max_global_streak,
             "max_drawdown": round(max_dd, 2),
+        },
+        "tracks": {
+            "favorite": _track_stats(lambda b: b["is_favorite"]),
+            "underdog": _track_stats(lambda b: not b["is_favorite"]),
         },
     }
 
@@ -663,7 +716,7 @@ async def nhl_backtest(body: NHLBacktestReq, user=Depends(get_current_user)):
     results = []
     for team in body.teams:
         team_games = [g for g in all_games if g["home_team"] == team or g["away_team"] == team]
-        res = _run_team_backtest(team_games, team, body.initial_stake, body.max_consecutive_losses)
+        res = _run_team_backtest(team_games, team, body.initial_stake, body.max_consecutive_losses, body.progression_mode)
         results.append(res)
 
     # Aggregate: sum profit by date across teams
@@ -735,7 +788,7 @@ async def nhl_backtest_grid(body: NHLBacktestGridReq, user=Depends(get_current_u
     best_roi = None
     for cap in body.caps:
         results = [
-            _run_team_backtest(team_games_map[t], t, body.initial_stake, int(cap))
+            _run_team_backtest(team_games_map[t], t, body.initial_stake, int(cap), body.progression_mode)
             for t in body.teams
         ]
         # aggregate series (for sparkline)

@@ -25,6 +25,7 @@ export default function NHLBacktest() {
   const [result, setResult] = useState(null);
   const [gridResult, setGridResult] = useState(null);
   const [mode, setMode] = useState("single"); // 'single' | 'grid'
+  const [progressionMode, setProgressionMode] = useState("single"); // 'single' | 'split'
   const [gridCaps, setGridCaps] = useState("5,6,7,8,10,12");
   const [teamFilter, setTeamFilter] = useState("");
 
@@ -66,6 +67,7 @@ export default function NHLBacktest() {
           initial_stake: parseFloat(initialStake),
           starting_bankroll: parseFloat(bankroll),
           max_consecutive_losses: parseInt(maxCap) || 0,
+          progression_mode: progressionMode,
         });
         setResult(data);
         toast.success("Backtest completato");
@@ -80,6 +82,7 @@ export default function NHLBacktest() {
           initial_stake: parseFloat(initialStake),
           starting_bankroll: parseFloat(bankroll),
           caps,
+          progression_mode: progressionMode,
         });
         setGridResult(data);
         toast.success(`Grid search completata (${caps.length} config)`);
@@ -114,7 +117,7 @@ export default function NHLBacktest() {
       </div>
 
       {/* MODE TOGGLE */}
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         <div className="inline-flex bg-surface border border-border rounded p-0.5">
           <button
             onClick={() => setMode("single")}
@@ -131,10 +134,30 @@ export default function NHLBacktest() {
             <Table size={12} weight="bold" /> Grid Search
           </button>
         </div>
-        <div className="text-xs text-muted font-body">
-          {mode === "single"
-            ? "Un singolo run con cap fisso."
-            : "Confronta più cap in parallelo per trovare il sweet spot."}
+
+        <div className="h-6 w-px bg-border" />
+
+        <div className="inline-flex bg-surface border border-border rounded p-0.5" title="Modalità progressione">
+          <button
+            onClick={() => setProgressionMode("single")}
+            data-testid="bt-prog-single"
+            className={`px-3 h-9 text-xs font-heading font-semibold tracking-tight rounded ${progressionMode === "single" ? "bg-warning/20 text-warning border border-warning/40" : "text-soft hover:text-white"}`}
+          >
+            1 progressione
+          </button>
+          <button
+            onClick={() => setProgressionMode("split")}
+            data-testid="bt-prog-split"
+            className={`px-3 h-9 text-xs font-heading font-semibold tracking-tight rounded ${progressionMode === "split" ? "bg-warning/20 text-warning border border-warning/40" : "text-soft hover:text-white"}`}
+          >
+            Split Fav / Udg
+          </button>
+        </div>
+
+        <div className="text-xs text-muted font-body flex-1 min-w-[180px]">
+          {progressionMode === "single"
+            ? "Una progressione unica per squadra (comportamento classico)."
+            : "Due progressioni indipendenti: una per partite da favorita, una da underdog."}
         </div>
       </div>
 
@@ -237,6 +260,7 @@ function GridResults({ result }) {
       <div>
         <div className="text-[11px] uppercase tracking-[0.25em] text-muted font-heading font-semibold flex items-center gap-1.5">
           <Table size={12} /> Grid Search — {rows.length} configurazioni
+          {params.progression_mode === "split" && <Badge variant="warning">SPLIT Fav/Udg</Badge>}
         </div>
         <h2 className="font-heading text-2xl font-bold text-white mt-1">
           Comparativa cap · <span className="text-soft font-normal text-base">sweet spot: </span>
@@ -323,7 +347,10 @@ function Results({ result }) {
     >
       {/* Aggregate KPIs */}
       <div>
-        <div className="text-[11px] uppercase tracking-[0.25em] text-muted font-heading font-semibold">Risultati aggregati</div>
+        <div className="text-[11px] uppercase tracking-[0.25em] text-muted font-heading font-semibold flex items-center gap-2">
+          Risultati aggregati
+          {params.progression_mode === "split" && <Badge variant="warning">SPLIT Fav/Udg</Badge>}
+        </div>
         <h2 className="font-heading text-2xl font-bold text-white mt-1 mb-4">4 squadre · {params.teams.length} attive</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-px bg-border rounded overflow-hidden border border-border">
           <KpiCell label="P&L" value={fmtMoney(s.total_profit)} tone={s.total_profit >= 0 ? "success" : "danger"} testid="bt-kpi-pnl" />
@@ -358,17 +385,19 @@ function Results({ result }) {
 }
 
 function TeamResult({ data }) {
-  const { team, bets, series, stats } = data;
+  const { team, bets, series, stats, tracks, progression_mode } = data;
   const [expand, setExpand] = useState(false);
   const positive = stats.total_profit >= 0;
   const visibleBets = expand ? bets : bets.slice(0, 20);
+  const isSplit = progression_mode === "split";
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between mb-3">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <Trophy size={16} className="text-warning" weight="fill" />
             <h3 className="font-heading text-lg font-bold text-white">{team}</h3>
+            {isSplit && <Badge variant="warning">SPLIT</Badge>}
           </div>
           <div className="text-xs text-muted font-body mt-1">{stats.total_bets} bet · {fmtPct(stats.win_rate, 1)} WR · max streak {stats.max_losing_streak}</div>
         </div>
@@ -381,6 +410,14 @@ function TeamResult({ data }) {
         <Mini label="Max Stake" value={fmtMoney(stats.max_stake, 0)} />
         <Mini label="Busts" value={`${stats.busts}`} tone={stats.busts > 0 ? "danger" : "default"} />
       </div>
+
+      {/* Fav/Udg breakdown */}
+      {(tracks?.favorite || tracks?.underdog) && (
+        <div className="grid grid-cols-2 gap-px mb-4 bg-border rounded overflow-hidden border border-border">
+          {tracks.favorite ? <TrackRow label="Favorita" badge="F" tone="primary" t={tracks.favorite} testid="track-fav" /> : <EmptyTrack label="Favorita" />}
+          {tracks.underdog ? <TrackRow label="Underdog" badge="U" tone="default" t={tracks.underdog} testid="track-udg" /> : <EmptyTrack label="Underdog" />}
+        </div>
+      )}
 
       <div className="h-[180px]">
         <ProfitChart data={series} height={180} />
@@ -443,6 +480,36 @@ function TeamResult({ data }) {
         </div>
       </div>
     </Card>
+  );
+}
+
+function TrackRow({ label, badge, tone, t, testid }) {
+  const positive = t.total_profit >= 0;
+  return (
+    <div className="bg-surface p-3" data-testid={testid}>
+      <div className="flex items-center justify-between mb-1.5">
+        <div className="flex items-center gap-1.5">
+          <Badge variant={tone === "primary" ? "primary" : "default"} className="text-[9px]">{badge}</Badge>
+          <span className="text-[10px] uppercase tracking-[0.15em] text-muted font-heading font-semibold">{label}</span>
+        </div>
+        <span className={`number font-heading font-semibold text-sm ${positive ? "text-success" : "text-danger"}`}>{fmtMoney(t.total_profit)}</span>
+      </div>
+      <div className="grid grid-cols-4 gap-1 text-[10px] text-muted font-body">
+        <div>Bet<br /><span className="number text-white">{t.total_bets}</span></div>
+        <div>WR<br /><span className="number text-white">{fmtPct(t.win_rate, 0)}</span></div>
+        <div>MaxSt<br /><span className="number text-white">{fmtMoney(t.max_stake, 0)}</span></div>
+        <div>Bust<br /><span className={`number ${t.busts > 0 ? "text-danger" : "text-white"}`}>{t.busts}</span></div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyTrack({ label }) {
+  return (
+    <div className="bg-surface p-3 text-muted text-[11px] font-body">
+      <span className="text-[10px] uppercase tracking-[0.15em] font-heading font-semibold">{label}</span>
+      <div className="mt-2">Nessuna partita</div>
+    </div>
   );
 }
 

@@ -1,0 +1,37 @@
+{
+  "summary": "Testing mirato della nuova feature progression_mode='split' sul backtest NHL (backend + frontend). Creato /app/backend/tests/test_nhl_backtest_split.py con 12 test pytest — TUTTI PASS. UI Playwright verificata: toggle bt-prog-single/bt-prog-split presenti, badge 'SPLIT Fav/Udg' mostrato correttamente, track-fav e track-udg renderizzati con numeri esatti (Boston Bruins 2023-24 cap=8): fav -€194.08/71 bet/MaxSt €128/1 bust, udg €7.76/11 bet/MaxSt €4/0 bust, P&L aggregato -€186.32. Re-run in modalità single ripristina P&L €86.73 (reference) e nasconde il badge SPLIT; i box Favorita/Underdog rimangono visibili come specificato.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "POST /api/backtest/nhl", "issue": "progression_mode non è validato con Literal['single','split']: valori arbitrari vengono trattati come 'single' silenziosamente. Cosmetico — nessun impatto sulla UI attuale."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_nhl_backtest_split.py",
+    "/app/test_reports/pytest/nhl_backtest_split_results.xml"
+  ],
+  "action_items": [
+    "Optional (hardening): stringere progression_mode a Literal['single','split'] in NHLBacktestReq/NHLBacktestGridReq per restituire 422 su valori invalidi invece di fallback silenzioso a single."
+  ],
+  "critical_code_review_comments": [
+    "_run_team_backtest è ora ~180 righe inline in server.py; il design 'state dict con 3 chiavi single/fav/udg + helper track_key' è pulito e backward compatible. Quando server.py verrà splittato, spostarlo in services/nhl_backtest.py insieme a _track_stats.",
+    "Il campo 'tracks' è calcolato sempre (anche in modalità single) filtrando i bet per is_favorite; questo spiega perché in single mode i numeri di fav/udg non riflettono progressioni separate — comportamento documentato nella review_request e coerente col frontend.",
+    "Buona separazione: il campo 'step' del bet è track-specifico (st['streak']+1 dove st dipende da track_key), così il frontend può mostrare step reali per progressione. Verificato nel test test_step_counts_are_track_specific.",
+    "server.py ormai > 850 righe — reiterando il suggerimento già dato in iteration_2 di splittare in routers (auth/strategies/bets/nhl). Non bloccante ma sempre più rilevante."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_nhl_backtest_split.py (creato, 12 test — tutti pass)"
+  ],
+  "success_rate": {"backend": "100% (12/12 split-mode tests) + 13/13 esistenti NHL", "frontend": "100% flussi critici split mode"},
+  "test_credentials": "giulio.mantioni@hotmail.it / giulio.mantioni@hotmail.it (funziona)",
+  "seed_data_creation": "Nessuna. Usati i 6560 giochi NHL già seedati.",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Nuovi test split: pytest backend/tests/test_nhl_backtest_split.py -v. Numeri di riferimento Boston 2023-24 da 2023-10-10 cap=8 initial_stake=1: SINGLE -> profit=86.73, max_stake=64, busts=0. SPLIT -> profit=-186.32, max_stake=128, busts=1, tracks.favorite={bets:71, profit:-194.08, max_stake:128, busts:1}, tracks.underdog={bets:11, profit:7.76, max_stake:4, busts:0}. Frontend testid nuovi: bt-prog-single, bt-prog-split, track-fav, track-udg. Il badge 'SPLIT Fav/Udg' appare nell'header dei risultati aggregati e della team card SOLO quando progression_mode=split.",
+  "rca of the issue": "Nessun problema riscontrato. Backend ref numbers confermati con precisione al centesimo, UI integrata correttamente con i nuovi endpoint."
+}
